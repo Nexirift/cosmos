@@ -1,12 +1,19 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db, connect } from "@nexirift/db";
-import { admin, bearer, openAPI, username } from "better-auth/plugins";
+import {
+  admin,
+  bearer,
+  openAPI,
+  twoFactor,
+  username,
+} from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 
 connect();
 
 export const auth = betterAuth({
+  appName: "Nexirift",
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
@@ -27,5 +34,5 @@ export const auth = betterAuth({
   verification: {
     modelName: "userAuthVerification",
   },
-  plugins: [openAPI(), bearer(), admin(), username(), passkey()],
+  plugins: [openAPI(), bearer(), admin(), username(), passkey(), twoFactor()],
 });

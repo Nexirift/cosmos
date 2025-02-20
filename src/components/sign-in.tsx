@@ -13,14 +13,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "@/lib/auth-client";
+import { handleError } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { Key, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function SignIn() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,21 +29,17 @@ export function SignIn() {
   const { toast } = useToast();
   const router = useRouter();
 
-  console.log(session);
+  useEffect(() => {
+    if (session && !isPending) {
+      router.replace("/");
+    }
+  }, [session, isPending, router]);
+
+  if (session || isPending) {
+    return <Loader2 className="h-8 w-8 animate-spin" />;
+  }
 
   const isEmail = identifier.includes("@");
-
-  /**
-   * Displays an error toast notification to the user
-   * @param error The error object containing the message to display
-   */
-  function handleError(error: Error) {
-    toast({
-      description: error.message || "An error occurred during sign in",
-      variant: "destructive",
-      duration: 3000,
-    });
-  }
 
   /**
    * Handles the sign in process for various authentication providers
@@ -73,39 +70,54 @@ export function SignIn() {
 
       let result;
 
+      const options = {
+        async onSuccess(context: { data: { twoFactorRedirect: boolean } }) {
+          if (context.data.twoFactorRedirect) {
+            router.replace("/sign-in/2fa");
+          } else {
+            router.push(callbackURL);
+          }
+        },
+      };
+
       // Handle different authentication methods
       switch (provider) {
         case "identifier":
           if (isEmail) {
-            result = await authClient.signIn.email({
-              email: identifier,
-              password,
-              callbackURL,
-              rememberMe,
-            });
-          } else {
-            result = await authClient.signIn.username({
-              username: identifier,
-              password,
-              rememberMe,
-              fetchOptions: {
-                onSuccess: () => {
-                  router.push("/");
-                },
+            result = await authClient.signIn.email(
+              {
+                email: identifier,
+                password,
+                rememberMe,
               },
-            });
+              options,
+            );
+          } else {
+            result = await authClient.signIn.username(
+              {
+                username: identifier,
+                password,
+                rememberMe,
+              },
+              options,
+            );
           }
           break;
 
         case "passkey":
-          result = await authClient.signIn.passkey();
+          result = await authClient.signIn.passkey(
+            { autoFill: false },
+            options,
+          );
           break;
 
         default:
-          result = await authClient.signIn.social({
-            provider,
-            callbackURL,
-          });
+          result = await authClient.signIn.social(
+            {
+              provider,
+            },
+            options,
+          );
           break;
       }
 
@@ -133,7 +145,12 @@ export function SignIn() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            signIn("identifier");
+          }}
+        >
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="identifier">
@@ -147,6 +164,7 @@ export function SignIn() {
                 onChange={(e) => {
                   setIdentifier(e.target.value);
                 }}
+                autoComplete={isEmail ? "email webauthn" : "username webauthn"}
                 value={identifier}
               />
             </div>
@@ -166,7 +184,8 @@ export function SignIn() {
                 id="password"
                 type="password"
                 placeholder="password"
-                autoComplete="password"
+                required
+                autoComplete="current-password webauthn"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -175,9 +194,8 @@ export function SignIn() {
             <div className="flex items-center gap-2">
               <Checkbox
                 id="remember"
-                onClick={() => {
-                  setRememberMe(!rememberMe);
-                }}
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(!!checked)}
               />
               <Label htmlFor="remember">Remember me</Label>
             </div>
@@ -192,8 +210,7 @@ export function SignIn() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={loading}
-                onClick={async () => signIn("identifier")}
+                disabled={loading || !identifier || !password}
               >
                 Login
               </Button>
@@ -202,7 +219,8 @@ export function SignIn() {
                 type="button"
                 variant="secondary"
                 className="gap-2"
-                onClick={async () => signIn("passkey")}
+                onClick={() => signIn("passkey")}
+                disabled={loading}
               >
                 <Key size={16} />
                 Sign in with Passkey
@@ -218,7 +236,8 @@ export function SignIn() {
                   type="button"
                   variant="outline"
                   className={cn("flex-grow [&_svg]:size-5")}
-                  onClick={async () => signIn("google")}
+                  onClick={() => signIn("google")}
+                  disabled={loading}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -248,7 +267,8 @@ export function SignIn() {
                   type="button"
                   variant="outline"
                   className={cn("flex-grow [&_svg]:size-5")}
-                  onClick={async () => signIn("github")}
+                  onClick={() => signIn("github")}
+                  disabled={loading}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -266,7 +286,8 @@ export function SignIn() {
                   type="button"
                   variant="outline"
                   className={cn("flex-grow [&_svg]:size-5")}
-                  onClick={async () => signIn("twitter")}
+                  onClick={() => signIn("twitter")}
+                  disabled={loading}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -285,7 +306,8 @@ export function SignIn() {
                   type="button"
                   variant="outline"
                   className={cn("flex-grow [&_svg]:size-5")}
-                  onClick={async () => signIn("twitch")}
+                  onClick={() => signIn("twitch")}
+                  disabled={loading}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -303,7 +325,8 @@ export function SignIn() {
                   type="button"
                   variant="outline"
                   className={cn("flex-grow [&_svg]:size-5")}
-                  onClick={async () => signIn("gitlab")}
+                  onClick={() => signIn("gitlab")}
+                  disabled={loading}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
