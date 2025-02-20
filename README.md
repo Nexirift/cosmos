@@ -38,8 +38,9 @@ Our internal packages are not hosted on the public NPM registry, such as `@nexir
 
 1. Clone the repository: `git clone https://github.com/Nexirift/cosmos.git`
 2. Install dependencies with `bun install`
-3. Start the database using `bun db:start-dev`
-4. Start the server with `bun dev`
+3. Start the database using `bun db:start`
+4. Migrate the database using `bun db:all`
+5. Start the server with `bun dev`
 
 ## Disclaimer
 

@@ -10,7 +10,14 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "bunx --bun @better-auth/cli generate",
-    "db:start-dev": "./node_modules/@nexirift/db/dev/start-database.sh"
+    "db:generate": "cd node_modules/@nexirift/db && bun db:generate",
+    "db:migrate": "cd node_modules/@nexirift/db && bun db:migrate",
+    "db:studio": "cd node_modules/@nexirift/db && bun db:studio",
+    "db:all": "cd node_modules/@nexirift/db && bun db:all",
+    "db:start": "cd node_modules/@nexirift/db && bun db:start",
+    "db:reset": "cd node_modules/@nexirift/db && bun db:reset",
+    "kv:start": "cd node_modules/@nexirift/db && bun kv:start",
+    "kv:reset": "cd node_modules/@nexirift/db && bun kv:reset"
   },
   "dependencies": {
     "@nexirift/db": "^0.0.1",
