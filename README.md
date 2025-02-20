@@ -45,3 +45,7 @@ Our internal packages are not hosted on the public NPM registry, such as `@nexir
 ## Disclaimer
 
 This software is currently in development and should not be used in production until the official Nexirift public release. By deploying this software in a production environment, you acknowledge and accept all associated risks. Please wait for production-ready status before implementation.
+
+## License
+
+Nexirift's internal projects are licensed under the [GNU General Public License v3.0](LICENSE).
