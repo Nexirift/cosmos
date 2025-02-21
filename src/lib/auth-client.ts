@@ -5,9 +5,10 @@ import {
   usernameClient,
   passkeyClient,
   twoFactorClient,
+  oidcClient,
 } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   baseURL: "http://localhost:3000",
-  plugins: [usernameClient(), passkeyClient(), twoFactorClient()],
+  plugins: [usernameClient(), passkeyClient(), twoFactorClient(), oidcClient()],
 });

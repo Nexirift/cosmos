@@ -4,6 +4,7 @@ import { db, connect } from "@nexirift/db";
 import {
   admin,
   bearer,
+  oidcProvider,
   openAPI,
   twoFactor,
   username,
@@ -34,5 +35,17 @@ export const auth = betterAuth({
   verification: {
     modelName: "userAuthVerification",
   },
-  plugins: [openAPI(), bearer(), admin(), username(), passkey(), twoFactor()],
+  plugins: [
+    openAPI(),
+    bearer(),
+    admin(),
+    username(),
+    passkey({
+      rpName: "Nexirift",
+    }),
+    twoFactor(),
+    oidcProvider({
+      loginPage: "/sign-in",
+    }),
+  ],
 });

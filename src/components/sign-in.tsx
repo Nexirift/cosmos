@@ -11,7 +11,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { cn } from "@/lib/utils";
@@ -26,7 +25,6 @@ export function SignIn() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
