@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -36,12 +40,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          {/* Theme toggle button */}
-          <div className="fixed bottom-4 right-4">
-            <ModeToggle />
-          </div>
-          <Toaster />
+          <TooltipProvider>
+            {children}
+            {/* Theme toggle button */}
+            <div className="fixed bottom-4 right-4">
+              <ModeToggle />
+            </div>
+            <Toaster />
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>

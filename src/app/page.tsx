@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import Image from "next/image";
@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { data: session, isPending } = authClient.useSession();
-  const { toast } = useToast();
   const router = useRouter();
 
   return (
@@ -74,7 +73,7 @@ export default function Page() {
         <Button
           variant="outline"
           onClick={() => {
-            router.replace("/sign-in");
+            router.push("/sign-in");
           }}
         >
           Trigger Login Flow
@@ -90,11 +89,7 @@ export default function Page() {
               }
 
               if (data?.success) {
-                toast({
-                  description: "Logged out successfully!",
-                  variant: "success",
-                  duration: 3000,
-                });
+                toast("New user created!");
               } else {
                 throw new Error("An error occurred while logging out");
               }

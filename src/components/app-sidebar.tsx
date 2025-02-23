@@ -1,25 +1,40 @@
-import { Home } from "lucide-react";
+import { HomeIcon, UsersIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { NavUser } from "./nav-user";
-import { type User } from "better-auth";
+import { NavUser, User } from "./nav-user";
+import Image from "next/image";
 
-// Menu items.
-const items = [
+const content = [
   {
-    title: "Home",
-    url: "/dashboard",
-    icon: Home,
+    label: "Overview",
+    items: [
+      {
+        title: "Home",
+        url: "/admin",
+        icon: HomeIcon,
+      },
+    ],
+  },
+  {
+    label: "Directory",
+    items: [
+      {
+        title: "Users",
+        url: "/admin/directory/users",
+        icon: UsersIcon,
+      },
+    ],
   },
 ];
 
@@ -29,24 +44,36 @@ export async function AppSidebar() {
   });
 
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+    <Sidebar className="min-w-60">
+      <SidebarContent className="gap-0">
+        <div className="flex items-center justify-center mt-4">
+          <Image
+            src="/assets/images/banner.png"
+            alt="Cosmos Logo"
+            width={150}
+            height={47.65}
+            priority
+          />
+        </div>
+        {content.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={session?.user as User} />

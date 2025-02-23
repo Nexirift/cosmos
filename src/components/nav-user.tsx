@@ -16,18 +16,26 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "./ui/sidebar";
-import { type User } from "better-auth";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+
+export type User = NonNullable<
+  ReturnType<typeof authClient.useSession>["data"]
+>["user"];
 
 export function NavUser({ user }: { user: User }) {
   const router = useRouter();
   const { isMobile } = useSidebar();
 
   function initials() {
-    const name: string[] | undefined = user.name.split(" ");
-    if (!name || name?.[0] === undefined || name?.[1] === undefined) return "";
-    return name[0]?.substring(0) + name[1]?.substring(1);
+    const nameParts = user.name?.split(" ") || [];
+
+    if (nameParts.length < 2) return user.name.slice(0, 1);
+
+    const firstInitial = nameParts[0]?.charAt(0) || "";
+    const secondInitial = nameParts[1]?.charAt(0) || "";
+
+    return `${firstInitial}${secondInitial}`.toUpperCase();
   }
 
   return (
@@ -47,7 +55,7 @@ export function NavUser({ user }: { user: User }) {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate text-xs">{user.displayUsername}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -68,7 +76,9 @@ export function NavUser({ user }: { user: User }) {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate text-xs">
+                    {user.displayUsername}
+                  </span>
                 </div>
               </div>
             </DropdownMenuLabel>

@@ -16,7 +16,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -35,11 +35,7 @@ export function TwoFactor() {
    * @param error The error object containing the message to display
    */
   function handleError(error: Error) {
-    toast({
-      description: error.message || "An error occurred during verification",
-      variant: "destructive",
-      duration: 3000,
-    });
+    toast(error.message || "An error occurred during verification");
   }
 
   const handleVerify = useCallback(async () => {
@@ -54,7 +50,7 @@ export function TwoFactor() {
       }
 
       if (data) {
-        router.replace("/");
+        router.push("/");
       }
     } catch (error) {
       if (error instanceof Error) {

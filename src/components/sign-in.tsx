@@ -29,7 +29,7 @@ export function SignIn() {
 
   useEffect(() => {
     if (session && !isPending) {
-      router.replace("/");
+      router.push("/dashboard");
     }
   }, [session, isPending, router]);
 
@@ -61,7 +61,7 @@ export function SignIn() {
       | "linkedin"
       | "gitlab"
       | "reddit",
-    callbackURL: string = "/",
+    callbackURL: string = "/dashboard",
   ) {
     try {
       setLoading(true);
@@ -71,7 +71,7 @@ export function SignIn() {
       const options = {
         async onSuccess(context: { data: { twoFactorRedirect: boolean } }) {
           if (context.data.twoFactorRedirect) {
-            router.replace("/sign-in/2fa");
+            router.push("/sign-in/2fa");
           } else {
             router.push(callbackURL);
           }
