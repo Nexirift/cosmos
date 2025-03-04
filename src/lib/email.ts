@@ -10,6 +10,7 @@ export enum EmailTemplate {
   NEW_ACCOUNT_CONFIRMATION = "new-account-confirmation",
   CHANGE_EMAIL_CONFIRMATION = "change-email-confirmation",
   EMAIL_CHANGED = "email-changed",
+  RESET_YOUR_PASSWORD = "reset-your-password",
 }
 
 export class EmailService {
