@@ -40,14 +40,15 @@ export const authClient = createAuthClient({
 });
 
 export const pluginMap = {
-  birthday: "birthday",
   username: "username",
   passkey: "passkey",
-  twoFactor: "twoFactor",
-  oidc: "oidc",
-  admin: "admin",
-  usernameAliases: "usernameAliases",
-  stripe: "stripe",
+  twoFactor: "two-factor",
+  oidc: "oidc-client",
+  admin: "better-auth-client",
+  birthday: "birthday",
+  usernameAliases: "username-aliases",
+  additionalFields: "additional-fields-client",
+  stripe: "stripe-client",
 };
 
 type PluginMap = typeof pluginMap;

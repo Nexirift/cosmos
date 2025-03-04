@@ -5,7 +5,7 @@ type UsernameAliasesPlugin = typeof usernameAliases;
 
 export const usernameAliasesClient = () => {
   return {
-    id: "usernameAliases",
+    id: "username-aliases",
     $InferServerPlugin: {} as ReturnType<UsernameAliasesPlugin>,
   } satisfies BetterAuthClientPlugin;
 };

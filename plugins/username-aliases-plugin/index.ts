@@ -3,7 +3,7 @@ import { APIError } from "better-auth/api";
 import { createAuthMiddleware } from "better-auth/plugins";
 
 export const usernameAliases = (): BetterAuthPlugin => ({
-  id: "usernameAliases",
+  id: "username-aliases",
   schema: {
     user: {
       fields: {
