@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { NavUser, User } from "./nav-user";
+import { NavUser, User } from "@/components/nav-user";
 import Image from "next/image";
 import Link from "next/link";
 

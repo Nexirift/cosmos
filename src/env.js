@@ -20,6 +20,26 @@ export const env = createEnv({
     SMTP_AUTH_PASS: z.string(),
     SMTP_FROM: z.string().email(),
     SUPPORT_EMAIL: z.string().email(),
+
+    /* Auth Providers */
+    AUTH_PROVIDER_GOOGLE_CLIENT_ID: z.string().optional(),
+    AUTH_PROVIDER_GOOGLE_CLIENT_SECRET: z.string().optional(),
+
+    AUTH_PROVIDER_GITHUB_CLIENT_ID: z.string().optional(),
+    AUTH_PROVIDER_GITHUB_CLIENT_SECRET: z.string().optional(),
+
+    AUTH_PROVIDER_TWITTER_CLIENT_ID: z.string().optional(),
+    AUTH_PROVIDER_TWITTER_CLIENT_SECRET: z.string().optional(),
+
+    AUTH_PROVIDER_TWITCH_CLIENT_ID: z.string().optional(),
+    AUTH_PROVIDER_TWITCH_CLIENT_SECRET: z.string().optional(),
+
+    AUTH_PROVIDER_GITLAB_CLIENT_ID: z.string().optional(),
+    AUTH_PROVIDER_GITLAB_CLIENT_SECRET: z.string().optional(),
+    AUTH_PROVIDER_GITLAB_ISSUER: z.string().optional(),
+
+    AUTH_PROVIDER_DISCORD_CLIENT_ID: z.string().optional(),
+    AUTH_PROVIDER_DISCORD_CLIENT_SECRET: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_NOVA_URL: z.string().url().optional(),
@@ -45,5 +65,33 @@ export const env = createEnv({
     SMTP_AUTH_PASS: process.env.SMTP_AUTH_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
     SUPPORT_EMAIL: process.env.SUPPORT_EMAIL,
+
+    /* Auth Providers */
+    AUTH_PROVIDER_GOOGLE_CLIENT_ID: process.env.AUTH_PROVIDER_GOOGLE_CLIENT_ID,
+    AUTH_PROVIDER_GOOGLE_CLIENT_SECRET:
+      process.env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET,
+
+    AUTH_PROVIDER_GITHUB_CLIENT_ID: process.env.AUTH_PROVIDER_GITHUB_CLIENT_ID,
+    AUTH_PROVIDER_GITHUB_CLIENT_SECRET:
+      process.env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET,
+
+    AUTH_PROVIDER_TWITTER_CLIENT_ID:
+      process.env.AUTH_PROVIDER_TWITTER_CLIENT_ID,
+    AUTH_PROVIDER_TWITTER_CLIENT_SECRET:
+      process.env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET,
+
+    AUTH_PROVIDER_TWITCH_CLIENT_ID: process.env.AUTH_PROVIDER_TWITCH_CLIENT_ID,
+    AUTH_PROVIDER_TWITCH_CLIENT_SECRET:
+      process.env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET,
+
+    AUTH_PROVIDER_GITLAB_CLIENT_ID: process.env.AUTH_PROVIDER_GITLAB_CLIENT_ID,
+    AUTH_PROVIDER_GITLAB_CLIENT_SECRET:
+      process.env.AUTH_PROVIDER_GITLAB_CLIENT_SECRET,
+    AUTH_PROVIDER_GITLAB_ISSUER: process.env.AUTH_PROVIDER_GITLAB_ISSUER,
+
+    AUTH_PROVIDER_DISCORD_CLIENT_ID:
+      process.env.AUTH_PROVIDER_DISCORD_CLIENT_ID,
+    AUTH_PROVIDER_DISCORD_CLIENT_SECRET:
+      process.env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
   },
 });

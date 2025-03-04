@@ -16,7 +16,7 @@ import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { usernameAliases } from "plugins/username-aliases-plugin";
 import { env } from "@/env";
-import { emailService, EmailTemplate } from "./email";
+import { emailService, EmailTemplate } from "@/lib/email";
 import jwt from "jsonwebtoken";
 
 // Initialize database connection
@@ -182,3 +182,78 @@ export const auth = betterAuth({
     }),
   },
 });
+
+/**
+ * Get all enabled auth providers by checking their environment variables
+ * @returns Array of enabled provider names
+ */
+export const getEnabledProviders = (): Array<
+  "google" | "github" | "twitter" | "twitch" | "gitlab" | "discord"
+> => {
+  const providers: Array<
+    "google" | "github" | "twitter" | "twitch" | "gitlab" | "discord"
+  > = [];
+
+  // Check Google
+  if (
+    Boolean(
+      env.AUTH_PROVIDER_GOOGLE_CLIENT_ID &&
+        env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET,
+    )
+  ) {
+    providers.push("google");
+  }
+
+  // Check GitHub
+  if (
+    Boolean(
+      env.AUTH_PROVIDER_GITHUB_CLIENT_ID &&
+        env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET,
+    )
+  ) {
+    providers.push("github");
+  }
+
+  // Check Twitter
+  if (
+    Boolean(
+      env.AUTH_PROVIDER_TWITTER_CLIENT_ID &&
+        env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET,
+    )
+  ) {
+    providers.push("twitter");
+  }
+
+  // Check Twitch
+  if (
+    Boolean(
+      env.AUTH_PROVIDER_TWITCH_CLIENT_ID &&
+        env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET,
+    )
+  ) {
+    providers.push("twitch");
+  }
+
+  // Check GitLab
+  if (
+    Boolean(
+      env.AUTH_PROVIDER_GITLAB_CLIENT_ID &&
+        env.AUTH_PROVIDER_GITLAB_CLIENT_SECRET &&
+        env.AUTH_PROVIDER_GITLAB_ISSUER,
+    )
+  ) {
+    providers.push("gitlab");
+  }
+
+  // Check Discord
+  if (
+    Boolean(
+      env.AUTH_PROVIDER_DISCORD_CLIENT_ID &&
+        env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
+    )
+  ) {
+    providers.push("discord");
+  }
+
+  return providers;
+};

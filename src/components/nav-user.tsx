@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
-} from "./ui/sidebar";
+} from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
