@@ -5,7 +5,7 @@ import { toast } from "sonner";
  * @param error The error object containing the message to display
  */
 function handleError(error: Error) {
-  toast(error.message || "An error occurred during sign in");
+  toast.error(error.message || "An error occurred during sign in");
 }
 
 export { handleError };

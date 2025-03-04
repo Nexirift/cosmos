@@ -11,7 +11,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { authClient, checkPlugin } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { Key, Loader2 } from "lucide-react";
@@ -142,7 +142,7 @@ export function SignIn() {
           Enter your username or email below to login to your account.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-6">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -213,16 +213,18 @@ export function SignIn() {
                 Login
               </Button>
 
-              <Button
-                type="button"
-                variant="secondary"
-                className="gap-2"
-                onClick={() => signIn("passkey")}
-                disabled={loading}
-              >
-                <Key size={16} />
-                Sign in with Passkey
-              </Button>
+              {checkPlugin("passkey") && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="gap-2"
+                  onClick={() => signIn("passkey")}
+                  disabled={loading}
+                >
+                  <Key size={16} />
+                  Sign in with Passkey
+                </Button>
+              )}
 
               <div
                 className={cn(
