@@ -36,6 +36,8 @@ Our internal packages are not hosted on the public NPM registry, such as `@nexir
 
 ### Installation
 
+For now, our email repository must be cloned and set up by following the instructions [here](https://github.com/Nexirift/emails). Ensure that it is in the parent directory of this repository and has been built using `bun run build`.
+
 1. Clone the repository: `git clone https://github.com/Nexirift/cosmos.git`
 2. Install dependencies with `bun install`
 3. Start the database using `bun db:start`
