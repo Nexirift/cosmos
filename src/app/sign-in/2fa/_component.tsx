@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function TwoFactor() {
   const [code, setCode] = useState("");
@@ -41,8 +41,18 @@ export function TwoFactor() {
   const handleVerify = useCallback(async () => {
     try {
       setIsLoading(true);
+
+      // For backup code, add a hyphen in the middle before submitting
+      let submissionCode = code;
+      if (isBackupCode && code.length === 10) {
+        submissionCode = `${code.slice(0, 5)}-${code.slice(5)}`;
+      }
+
       const { data, error } = await (isBackupCode
-        ? authClient.twoFactor.verifyBackupCode({ code, trustDevice })
+        ? authClient.twoFactor.verifyBackupCode({
+            code: submissionCode,
+            trustDevice,
+          })
         : authClient.twoFactor.verifyTotp({ code, trustDevice }));
 
       if (error?.message) {
@@ -63,14 +73,21 @@ export function TwoFactor() {
     }
   }, [code, router, isBackupCode, trustDevice]);
 
-  // useEffect(() => {
-  //   if (
-  //     (isBackupCode && code.length === 11) ||
-  //     (!isBackupCode && code.length === 6)
-  //   ) {
-  //     handleVerify();
-  //   }
-  // }, [code, handleVerify, isBackupCode]);
+  useEffect(() => {
+    if (
+      (isBackupCode && code.length >= 10) ||
+      (!isBackupCode && code.length >= 6)
+    ) {
+      handleVerify();
+    }
+  }, [code, handleVerify, isBackupCode]);
+
+  // Handle changes to the input, ignoring dashes
+  const handleCodeChange = (value: string) => {
+    // Remove any dash characters before updating state
+    const cleanedValue = value.replace(/-/g, "");
+    setCode(cleanedValue);
+  };
 
   return (
     <Card>
@@ -80,9 +97,9 @@ export function TwoFactor() {
           This account is protected with two factor authentication.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center w-full gap-6">
+      <CardContent className="flex flex-col items-center justify-center w-full gap-6 pb-6">
         {isBackupCode ? (
-          <InputOTP maxLength={10} value={code} onChange={setCode}>
+          <InputOTP maxLength={11} value={code} onChange={handleCodeChange}>
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
@@ -100,7 +117,7 @@ export function TwoFactor() {
             </InputOTPGroup>
           </InputOTP>
         ) : (
-          <InputOTP maxLength={6} value={code} onChange={setCode}>
+          <InputOTP maxLength={7} value={code} onChange={handleCodeChange}>
             <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />

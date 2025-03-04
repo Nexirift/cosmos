@@ -2,6 +2,7 @@ import { checkPlugin } from "@/lib/auth-client";
 import { Passkeys } from "./passkeys";
 import { ChangeEmailDialog } from "./change-email";
 import { ChangePasswordDialog } from "./change-password";
+import { TwoFactor } from "./two-factor";
 
 export function SecuritySection() {
   return (
@@ -18,6 +19,7 @@ export function SecuritySection() {
         <ChangePasswordDialog />
       </div>
       {checkPlugin("passkey") && <Passkeys />}
+      {checkPlugin("twoFactor") && <TwoFactor />}
     </section>
   );
 }
