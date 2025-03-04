@@ -41,24 +41,20 @@ export default function Page() {
           onClick={async () => {
             try {
               const userData = {
-                email: "developer@nexirift.com",
+                email: "another@nexirift.com",
                 password: "P@ssw0rd",
-                username: "Developer",
-                name: "Developer",
+                username: "Another",
+                name: "Another User",
+                birthday: "2007-11-21",
               };
 
               const { data, error } = await authClient.signUp.email(userData);
 
-              if (error) {
+              if (error && !data) {
                 throw new Error(error.message);
               }
 
-              toast({
-                title: "New user created!",
-                description: `${userData.username} | ${data?.user.email} | ${userData.password}`,
-                variant: "success",
-                duration: 3000,
-              });
+              toast("New user created!");
             } catch (error) {
               if (error instanceof Error) {
                 handleError(error);
@@ -72,8 +68,22 @@ export default function Page() {
         </Button>
         <Button
           variant="outline"
-          onClick={() => {
+          onClick={async () => {
             router.push("/sign-in");
+            /* const { data: subscriptions } =
+              await authClient.subscription.cancel({
+                returnUrl: "/dashboard",
+              });
+            console.log(subscriptions); */
+            /* const { error: error1 } = await authClient.subscription.upgrade({
+              plan: "nebula-individual",
+              successUrl: "/dashboard",
+              cancelUrl: "/",
+            });
+
+            if (error1) {
+              alert(error1.message);
+              } */
           }}
         >
           Trigger Login Flow

@@ -1,6 +1,5 @@
 "use client";
 
-import { Header } from "@/components/header";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -25,12 +24,9 @@ export default function Page() {
   }
 
   return (
-    <div className="flex flex-col">
-      <Header />
-      <div className="flex flex-col p-4 gap-1">
-        <h3 className="font-bold text-xl">Authorized Applications</h3>
-        <p>You haven&#39;t authorized any applications yet.</p>
-      </div>
+    <div className="flex flex-col p-4 gap-1">
+      <h3 className="font-bold text-xl">Authorized Applications</h3>
+      <p>You haven&#39;t authorized any applications yet.</p>
     </div>
   );
 }

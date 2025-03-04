@@ -70,6 +70,7 @@ export default function Page() {
           searchValue: filterValue,
         },
       });
+      console.log(result);
       setData(result.data);
       setTotalPages(Math.ceil((result.data?.total ?? 1) / pageSize));
     } catch (error) {

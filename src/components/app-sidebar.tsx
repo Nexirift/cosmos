@@ -14,6 +14,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { NavUser, User } from "./nav-user";
 import Image from "next/image";
+import Link from "next/link";
 
 const content = [
   {
@@ -47,13 +48,15 @@ export async function AppSidebar() {
     <Sidebar className="min-w-60">
       <SidebarContent className="gap-0">
         <div className="flex items-center justify-center mt-4">
-          <Image
-            src="/assets/images/banner.png"
-            alt="Cosmos Logo"
-            width={150}
-            height={47.65}
-            priority
-          />
+          <Link href="/dashboard">
+            <Image
+              src="/assets/images/banner.png"
+              alt="Cosmos Logo"
+              width={150}
+              height={47.65}
+              priority
+            />
+          </Link>
         </div>
         {content.map((group) => (
           <SidebarGroup key={group.label}>

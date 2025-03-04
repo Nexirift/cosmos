@@ -26,7 +26,7 @@ export function Header() {
     {
       icon: SettingsIcon,
       tooltip: "Settings",
-      onClick: () => alert("Not implemented yet."),
+      link: "/settings",
     },
     {
       icon: LogOutIcon,
@@ -60,13 +60,15 @@ export function Header() {
           </div>
         )}
       <div className="flex items-center gap-4 justify-between w-full p-4">
-        <Image
-          src="/assets/images/banner.png"
-          alt="Cosmos Logo"
-          width={150}
-          height={47.65}
-          priority
-        />
+        <Link href="/dashboard">
+          <Image
+            src="/assets/images/banner.png"
+            alt="Cosmos Logo"
+            width={150}
+            height={47.65}
+            priority
+          />
+        </Link>
         <nav className="flex items-center gap-4">
           {navItems.map(
             ({ icon: Icon, tooltip, link, onClick, shown = true }) =>
@@ -93,12 +95,12 @@ export function Header() {
                 </Tooltip>
               ),
           )}
-          <div className="flex items-center gap-2 ml-2">
-            <p className="font-medium">{session?.user.displayUsername}</p>
+          <div className="flex items-center gap-2 md:ml-2">
+            <p className="font-medium hidden md:block">{session?.user.name}</p>
             <Avatar>
               <AvatarImage src={session?.user.image ?? undefined} />
               <AvatarFallback>
-                {session?.user.displayUsername?.slice(0, 1).toUpperCase()}
+                {session?.user.name?.slice(0, 1).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
