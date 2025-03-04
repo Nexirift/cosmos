@@ -8,7 +8,7 @@ export interface User {
 }
 
 export const birthday = (): BetterAuthPlugin => ({
-  id: "birthdayPlugin",
+  id: "birthday",
   schema: schema,
   hooks: {
     before: [

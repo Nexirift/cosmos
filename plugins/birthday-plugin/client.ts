@@ -5,7 +5,7 @@ type BirthdayPlugin = typeof birthday;
 
 export const birthdayClient = () => {
   return {
-    id: "birthdayPlugin",
+    id: "birthday",
     $InferServerPlugin: {} as ReturnType<BirthdayPlugin>,
   } satisfies BetterAuthClientPlugin;
 };

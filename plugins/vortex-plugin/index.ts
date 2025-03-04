@@ -3,7 +3,7 @@ import { createAuthMiddleware } from "better-auth/plugins";
 
 export const vortex = () =>
   ({
-    id: "vortexPlugin",
+    id: "vortex",
     schema: {
       user: {
         fields: {

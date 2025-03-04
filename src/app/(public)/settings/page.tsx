@@ -1,12 +1,8 @@
 "use client";
 
+import { DatePicker } from "@/components/date-picker";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
-import { Loader2, User, Shield, CalendarIcon } from "lucide-react";
-import { useState, FormEvent, useEffect, useMemo } from "react";
-import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -16,18 +12,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { authClient, checkPlugin } from "@/lib/auth-client";
 import { format } from "date-fns";
+import { Loader2, Shield, User } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { DatePicker } from "@/components/date-picker";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const { data: session } = authClient.useSession();
@@ -196,20 +189,24 @@ export default function SettingsPage() {
                   onChange={handleChange}
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="birthday">Birthday</Label>
-                <DatePicker date={birthday} setDate={setBirthday} />
-              </div>
+              {checkPlugin("username") && (
+                <div className="grid gap-2">
+                  <Label htmlFor="username">Username</Label>
+                  <Input
+                    id="username"
+                    type="text"
+                    required
+                    value={formData.username}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
+              {checkPlugin("birthday") && (
+                <div className="grid gap-2">
+                  <Label htmlFor="birthday">Birthday</Label>
+                  <DatePicker date={birthday} setDate={setBirthday} />
+                </div>
+              )}
             </div>
 
             <div className="mt-2">

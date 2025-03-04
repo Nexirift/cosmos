@@ -5,7 +5,7 @@ type VortexPlugin = typeof vortex;
 
 export const vortexClient = () => {
   return {
-    id: "vortexPlugin",
+    id: "vortex",
     $InferServerPlugin: {} as ReturnType<VortexPlugin>,
   } satisfies BetterAuthClientPlugin;
 };
