@@ -27,6 +27,7 @@ export const invitation = () => {
     REVOKE_FAILED: "Failed to revoke invitation",
     INVITATION_ALREADY_USED_CANT_REVOKE:
       "Cannot revoke an invitation that has already been used",
+    FETCH_INVITES_FAILED: "Failed to fetch your invitations",
   };
 
   const MAX_INVITATIONS = 3;
@@ -113,6 +114,62 @@ export const invitation = () => {
           }
 
           return ctx.json({ invitation });
+        },
+      ),
+      getUserInvitations: createAuthEndpoint(
+        "/invitation/my-invites",
+        {
+          method: "GET",
+          metadata: {
+            openapi: {
+              summary: "Get user invitations",
+              description:
+                "Retrieve all invitations created by the current user",
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          invitations: {
+                            type: "array",
+                            items: {
+                              $ref: "#/components/schemas/Invitation",
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        async (ctx) => {
+          const user = await validateSession(ctx);
+
+          try {
+            const invitations = await ctx.context.adapter.findMany<Invitation>({
+              model: "invitation",
+              where: [
+                {
+                  field: "creatorId",
+                  operator: "eq",
+                  value: user.id,
+                },
+              ],
+            });
+
+            return ctx.json({ invitations });
+          } catch (error) {
+            throw new APIError("INTERNAL_SERVER_ERROR", {
+              message: ERROR_CODES.FETCH_INVITES_FAILED,
+              cause: error,
+            });
+          }
         },
       ),
       revokeInvitation: createAuthEndpoint(

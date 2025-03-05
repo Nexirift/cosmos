@@ -36,7 +36,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { Passkey } from "better-auth/plugins/passkey";
-import { Loader2, MoreHorizontalIcon } from "lucide-react";
+import { LoaderCircle, MoreHorizontalIcon, Plus } from "lucide-react";
 import {
   Dispatch,
   FormEvent,
@@ -45,6 +45,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { LoadingButton } from "../loading";
 
 export function Passkeys() {
   const { data, isPending, refetch } = authClient.useListPasskeys();
@@ -59,26 +60,32 @@ export function Passkeys() {
           variant="secondary"
           size="sm"
         >
+          <Plus className="h-4 w-4 mr-1" />
           Add Passkey
         </Button>
       </div>
 
-      {isPending && (
-        <div className="flex justify-center p-4">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      {data?.length === 0 ? (
+        <div>
+          {isPending ? (
+            <div className="flex items-center space-x-2 text-muted-foreground p-4 border rounded-md bg-muted/10">
+              <LoaderCircle className="h-5 w-5 animate-spin" />
+              <p>Loading passkeys...</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
+              <p className="mb-2">No passkeys added yet.</p>
+              <p className="text-sm">
+                Add a passkey for secure, passwordless login on your devices.
+              </p>
+            </div>
+          )}
         </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {!isPending &&
-          data?.map((passkey) => (
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data?.map((passkey) => (
             <PasskeyCard key={passkey.id} passkey={passkey} refetch={refetch} />
           ))}
-      </div>
-
-      {!isPending && data?.length === 0 && (
-        <div className="text-muted-foreground">
-          No passkeys added yet. Add a passkey for passwordless login.
         </div>
       )}
 
@@ -193,14 +200,7 @@ function DeletePasskeyDialog({
             disabled={isDeleting}
             className="relative bg-red-500 hover:bg-red-600 text-white"
           >
-            {isDeleting ? (
-              <>
-                <span className="opacity-0">Delete</span>
-                <Loader2 className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 animate-spin" />
-              </>
-            ) : (
-              "Delete"
-            )}
+            <LoadingButton isLoading={isDeleting} text="Delete" />
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -305,14 +305,11 @@ function AddPasskeyDialog({
               variant="secondary"
               className="relative"
             >
-              {isLoading ? (
-                <>
-                  <span className="opacity-0">Create Passkey</span>
-                  <Loader2 className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 animate-spin" />
-                </>
-              ) : (
-                "Create Passkey"
-              )}
+              <LoadingButton
+                isLoading={isLoading}
+                text="Create Passkey"
+                className=""
+              />
             </Button>
           </DialogFooter>
         </form>

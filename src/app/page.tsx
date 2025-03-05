@@ -41,12 +41,12 @@ export default function Page() {
           onClick={async () => {
             try {
               const userData = {
-                email: "another325354@nexirift.com",
+                email: "another325353454@nexirift.com",
                 password: "P@ssw0rd",
-                username: "Another267442",
+                username: "Another267534442",
                 name: "Another User",
                 birthday: "2007-11-21",
-                invite: "b",
+                invite: "nexirift-m37sh-xxaew",
               };
 
               const { data, error } = await authClient.signUp.email(userData);

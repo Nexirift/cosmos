@@ -1,3 +1,5 @@
+"use client";
+
 import { checkPlugin } from "@/lib/auth-client";
 import { Passkeys } from "./passkeys";
 import { ChangeEmailDialog } from "./change-email";
