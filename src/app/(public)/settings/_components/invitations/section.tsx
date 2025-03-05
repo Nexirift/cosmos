@@ -201,6 +201,7 @@ function InvitationCard({
                 <DropdownMenuItem
                   onClick={() => setIsRevokeOpen(true)}
                   className="text-red-500 focus:text-red-500"
+                  disabled={!!invitation.userId}
                 >
                   Revoke
                 </DropdownMenuItem>
