@@ -7,7 +7,6 @@ import {
   twoFactorClient,
   oidcClient,
   adminClient,
-  inferAdditionalFields,
 } from "better-auth/client/plugins";
 import { birthdayClient } from "plugins/birthday-plugin/client";
 import { usernameAliasesClient } from "plugins/username-aliases-plugin/client";
@@ -23,13 +22,6 @@ const plugins = [
   birthdayClient(),
   usernameAliasesClient(),
   invitationClient(),
-  inferAdditionalFields({
-    user: {
-      birthday: {
-        type: "string",
-      },
-    },
-  }),
 ] satisfies BetterAuthClientPlugin[];
 
 export const authClient = createAuthClient({

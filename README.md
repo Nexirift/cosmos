@@ -4,7 +4,7 @@
 
 # Cosmos
 
-Cosmos is the official authentication server for Nexirift, providing secure user verification and access control.
+Cosmos is the official authentication server for Nexirift, providing secure user verification and access control by utilising the better-auth library.
 
 ## Getting Started (Development)
 
