@@ -12,6 +12,7 @@ import {
 import { birthdayClient } from "plugins/birthday-plugin/client";
 import { usernameAliasesClient } from "plugins/username-aliases-plugin/client";
 import { BetterAuthClientPlugin } from "better-auth";
+import { invitationClient } from "plugins/invitation-plugin/client";
 
 const plugins = [
   usernameClient(),
@@ -21,6 +22,7 @@ const plugins = [
   adminClient(),
   birthdayClient(),
   usernameAliasesClient(),
+  invitationClient(),
   inferAdditionalFields({
     user: {
       birthday: {
@@ -43,6 +45,7 @@ export const pluginMap = {
   admin: "better-auth-client",
   birthday: "birthday",
   usernameAliases: "username-aliases",
+  invitation: "invitation",
   additionalFields: "additional-fields-client",
   stripe: "stripe-client",
 };

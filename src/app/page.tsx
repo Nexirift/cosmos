@@ -41,11 +41,12 @@ export default function Page() {
           onClick={async () => {
             try {
               const userData = {
-                email: "another@nexirift.com",
+                email: "another325354@nexirift.com",
                 password: "P@ssw0rd",
-                username: "Another",
+                username: "Another267442",
                 name: "Another User",
                 birthday: "2007-11-21",
+                invite: "b",
               };
 
               const { data, error } = await authClient.signUp.email(userData);
@@ -61,6 +62,27 @@ export default function Page() {
               } else {
                 handleError(new Error("An unexpected error occurred"));
               }
+            }
+            if (session?.user) {
+              try {
+                // Try using path method instead of direct create
+                authClient.createInvitation();
+                const { data, error } = await authClient.invitation.create({});
+                if (error) {
+                  throw new Error(error.message);
+                }
+
+                console.log(data);
+                toast("Invitation created successfully!");
+              } catch (error) {
+                handleError(
+                  error instanceof Error
+                    ? error
+                    : new Error("Failed to create invitation"),
+                );
+              }
+            } else {
+              toast("You must be logged in to create an invitation");
             }
           }}
         >

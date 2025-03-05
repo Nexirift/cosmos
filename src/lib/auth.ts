@@ -16,6 +16,7 @@ import { usernameAliases } from "plugins/username-aliases-plugin";
 import { env } from "@/env";
 import { emailService, EmailTemplate } from "@/lib/email";
 import jwt from "jsonwebtoken";
+import { invitation } from "plugins/invitation-plugin";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
@@ -51,7 +52,7 @@ export const auth = betterAuth({
         {
           name: user.name,
           url,
-        },
+        }
       );
     },
   },
@@ -70,8 +71,12 @@ export const auth = betterAuth({
           EmailTemplate.NEW_ACCOUNT_CONFIRMATION,
           {
             name: user.name,
-            url: `${process.env.BETTER_AUTH_URL}/api/auth/verify-email?token=${token}&callbackURL=${process.env.EMAIL_VERIFICATION_CALLBACK_URL || "/dashboard"}`,
-          },
+            url: `${
+              process.env.BETTER_AUTH_URL
+            }/api/auth/verify-email?token=${token}&callbackURL=${
+              process.env.EMAIL_VERIFICATION_CALLBACK_URL || "/dashboard"
+            }`,
+          }
         );
       }
     },
@@ -90,7 +95,7 @@ export const auth = betterAuth({
           {
             name: user.name,
             url,
-          },
+          }
         );
       },
     },
@@ -105,6 +110,7 @@ export const auth = betterAuth({
     modelName: "userAuthVerification",
   },
   plugins: [
+    invitation(),
     openAPI(),
     bearer(),
     admin(),
@@ -193,7 +199,7 @@ export const auth = betterAuth({
               name: user.name,
               new_email: verified.updateTo,
               whatEmail: verified.updateTo,
-            },
+            }
           );
         }
       } catch (error) {
@@ -218,7 +224,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_GOOGLE_CLIENT_ID &&
-        env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET,
+        env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET
     )
   ) {
     providers.push("google");
@@ -228,7 +234,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_GITHUB_CLIENT_ID &&
-        env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET,
+        env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET
     )
   ) {
     providers.push("github");
@@ -238,7 +244,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_TWITTER_CLIENT_ID &&
-        env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET,
+        env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET
     )
   ) {
     providers.push("twitter");
@@ -248,7 +254,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_TWITCH_CLIENT_ID &&
-        env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET,
+        env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET
     )
   ) {
     providers.push("twitch");
@@ -259,7 +265,7 @@ export const getEnabledProviders = (): Array<
     Boolean(
       env.AUTH_PROVIDER_GITLAB_CLIENT_ID &&
         env.AUTH_PROVIDER_GITLAB_CLIENT_SECRET &&
-        env.AUTH_PROVIDER_GITLAB_ISSUER,
+        env.AUTH_PROVIDER_GITLAB_ISSUER
     )
   ) {
     providers.push("gitlab");
@@ -269,7 +275,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_DISCORD_CLIENT_ID &&
-        env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
+        env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET
     )
   ) {
     providers.push("discord");
