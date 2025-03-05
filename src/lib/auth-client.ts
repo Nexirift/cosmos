@@ -10,7 +10,6 @@ import {
   inferAdditionalFields,
 } from "better-auth/client/plugins";
 import { birthdayClient } from "plugins/birthday-plugin/client";
-import { stripeClient } from "@better-auth/stripe/client";
 import { usernameAliasesClient } from "plugins/username-aliases-plugin/client";
 import { BetterAuthClientPlugin } from "better-auth";
 
@@ -28,9 +27,6 @@ const plugins = [
         type: "string",
       },
     },
-  }),
-  stripeClient({
-    subscription: true,
   }),
 ] satisfies BetterAuthClientPlugin[];
 

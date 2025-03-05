@@ -12,18 +12,24 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { birthday } from "plugins/birthday-plugin";
-import { stripe } from "@better-auth/stripe";
-import Stripe from "stripe";
 import { usernameAliases } from "plugins/username-aliases-plugin";
 import { env } from "@/env";
 import { emailService, EmailTemplate } from "@/lib/email";
 import jwt from "jsonwebtoken";
+// import { polar } from "@polar-sh/better-auth";
+// import { Polar } from "@polar-sh/sdk";
 
 // Initialize database connection
 connect();
 
-// Create Stripe client
-const stripeClient = new Stripe(env.STRIPE_SECRET_KEY || "");
+// Create Polar client
+// const polarClient = new Polar({
+//   accessToken: env.POLAR_ACCESS_TOKEN,
+//   // Use 'sandbox' if you're using the Polar Sandbox environment
+//   // Remember that access tokens, products, etc. are completely separated between environments.
+//   // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
+//   server: env.NODE_ENV === "production" ? "production" : "sandbox",
+// });
 
 /**
  * Auth configuration for Nexirift application
@@ -112,21 +118,24 @@ export const auth = betterAuth({
     }),
     birthday(),
     usernameAliases(),
-    stripe({
-      stripeClient,
-      stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET || "",
-      createCustomerOnSignUp: true,
-      subscription: {
-        enabled: true,
-        plans: [
-          {
-            name: "nebula-individual",
-            priceId: "price_1QcqyIEeEjdpOUFCuWqDcxEp",
-            seats: -1,
-          },
-        ],
-      },
-    }),
+    // polar({
+    //   client: polarClient,
+    //   createCustomerOnSignUp: true,
+    //   enableCustomerPortal: true,
+    //   checkout: {
+    //     enabled: true,
+    //     products: [
+    //       {
+    //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
+    //         slug: "nebula-individual",
+    //       },
+    //     ],
+    //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
+    //   },
+    //   webhooks: {
+    //     secret: env.POLAR_WEBHOOK_SECRET,
+    //   },
+    // }),
   ],
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
