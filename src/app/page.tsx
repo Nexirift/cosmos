@@ -41,12 +41,12 @@ export default function Page() {
           onClick={async () => {
             try {
               const userData = {
-                email: "another325353454@nexirift.com",
+                email: "another3253454@nexirift.com",
                 password: "P@ssw0rd",
-                username: "Another267534442",
+                username: "Another2655442",
                 name: "Another User",
                 birthday: "2007-11-21",
-                invite: "nexirift-m37sh-xxaew",
+                invite: "nexirift-m0dm0-vp7sv",
               };
 
               const { data, error } = await authClient.signUp.email(userData);
@@ -62,27 +62,6 @@ export default function Page() {
               } else {
                 handleError(new Error("An unexpected error occurred"));
               }
-            }
-            if (session?.user) {
-              try {
-                const { data, error } = await authClient.invitation.revoke({
-                  invitationId: "FUSf7q02MybKrRdZGHk3eqeTh7W4osuN",
-                });
-                if (error) {
-                  throw new Error(error.message);
-                }
-
-                console.log(data);
-                toast("Invitation created successfully!");
-              } catch (error) {
-                handleError(
-                  error instanceof Error
-                    ? error
-                    : new Error("Failed to create invitation"),
-                );
-              }
-            } else {
-              toast("You must be logged in to create an invitation");
             }
           }}
         >

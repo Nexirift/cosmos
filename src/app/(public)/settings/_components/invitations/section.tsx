@@ -22,6 +22,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { Loader2, MoreHorizontalIcon, Plus } from "lucide-react";
+import { MAX_INVITATIONS } from "plugins/invitation-plugin";
 import { Invitation } from "plugins/invitation-plugin/schema";
 import {
   Dispatch,
@@ -113,7 +114,7 @@ export function InvitationsSection() {
             onClick={handleCreateInvitation}
             variant="secondary"
             size="sm"
-            disabled={isCreating}
+            disabled={isCreating || invitations.length >= MAX_INVITATIONS}
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />
@@ -212,7 +213,11 @@ function InvitationCard({
 
         <CardFooter className="text-gray-500 text-sm flex flex-col items-start">
           <p>Created: {formattedCreatedAt}</p>
-          <p>Updated: {formattedUpdatedAt}</p>
+          {formattedUpdatedAt == formattedCreatedAt ? (
+            <p>Not used yet.</p>
+          ) : (
+            <p>Used: {formattedUpdatedAt}</p>
+          )}
         </CardFooter>
       </Card>
 

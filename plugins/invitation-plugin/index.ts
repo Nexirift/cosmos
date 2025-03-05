@@ -12,6 +12,8 @@ import { createAuthMiddleware } from "better-auth/plugins";
 import { z } from "zod";
 import { Invitation, schema } from "./schema";
 
+export const MAX_INVITATIONS = 3;
+
 export const invitation = () => {
   const ERROR_CODES = {
     UNAUTHORIZED: "You must be logged in to create an invitation",
@@ -30,7 +32,6 @@ export const invitation = () => {
     FETCH_INVITES_FAILED: "Failed to fetch your invitations",
   };
 
-  const MAX_INVITATIONS = 3;
   const generateInviteCode = () =>
     `nexirift-${Math.random().toString(36).substring(2, 7)}-${Math.random().toString(36).substring(2, 7)}`;
 
@@ -321,7 +322,7 @@ export const invitation = () => {
                 where: [{ field: "id", operator: "eq", value: invitationId }],
                 update: {
                   userId: user.id,
-                  usedAt: new Date().toISOString(),
+                  updatedAt: new Date(),
                 },
               });
 
