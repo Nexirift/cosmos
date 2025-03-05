@@ -186,7 +186,7 @@ function InvitationCard({
             <div className="flex items-center">
               <span className="mr-2">{invitation.code}</span>
               {invitation.userId && (
-                <Badge variant="outline" className="bg-green-700">
+                <Badge variant="outline" className="bg-green-500 dark:bg-green-700">
                   Accepted
                 </Badge>
               )}

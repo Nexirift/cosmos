@@ -30,6 +30,7 @@ export const invitation = () => {
     INVITATION_ALREADY_USED_CANT_REVOKE:
       "Cannot revoke an invitation that has already been used",
     FETCH_INVITES_FAILED: "Failed to fetch your invitations",
+    GET_INVITATION_FAILED: "Failed to retrieve invitation",
   };
 
   const generateInviteCode = () =>
@@ -115,6 +116,100 @@ export const invitation = () => {
           }
 
           return ctx.json({ invitation });
+        },
+      ),
+      getInvitation: createAuthEndpoint(
+        "/invitation/get",
+        {
+          method: "GET",
+          query: z.object({
+            invitationId: z.string().min(1).max(255),
+          }),
+          metadata: {
+            openapi: {
+              summary: "Get invitation",
+              description: "Get details of a specific invitation",
+              parameters: [
+                {
+                  name: "invitationId",
+                  in: "query",
+                  required: true,
+                  schema: {
+                    type: "string",
+                  },
+                  description: "ID of the invitation to retrieve",
+                },
+              ],
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          invitation: {
+                            $ref: "#/components/schemas/Invitation",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        async (ctx) => {
+          const { invitationId } = ctx.query;
+
+          try {
+            let invitation = await ctx.context.adapter.findOne<Invitation>({
+              model: "invitation",
+              where: [{ field: "code", operator: "eq", value: invitationId }],
+            });
+
+            if (!invitation) {
+              invitation = await ctx.context.adapter.findOne<Invitation>({
+                model: "invitation",
+                where: [{ field: "id", operator: "eq", value: invitationId }],
+              });
+            }
+
+            if (!invitation) {
+              throw new APIError("NOT_FOUND", {
+                message: ERROR_CODES.INVITATION_NOT_FOUND,
+              });
+            }
+
+            const creator = await ctx.context.adapter.findOne<User>({
+              model: "user",
+              where: [
+                { field: "id", operator: "eq", value: invitation.creatorId },
+              ],
+            });
+
+            if (!creator) {
+              throw new APIError("NOT_FOUND", {
+                message: ERROR_CODES.INVITATION_NOT_FOUND,
+              });
+            }
+
+            return ctx.json({
+              invitation: {
+                ...invitation,
+                creator: { name: creator.name, image: creator.image },
+              },
+            });
+          } catch (error) {
+            if (!(error instanceof APIError)) {
+              throw new APIError("INTERNAL_SERVER_ERROR", {
+                message: ERROR_CODES.GET_INVITATION_FAILED,
+                cause: error,
+              });
+            }
+            throw error;
+          }
         },
       ),
       getUserInvitations: createAuthEndpoint(
@@ -221,7 +316,7 @@ export const invitation = () => {
           },
         },
         async (ctx) => {
-          const user = await validateSession(ctx);
+          // const user = await validateSession(ctx);
           const { invitationId } = ctx.body;
 
           const invitation = await ctx.context.adapter.findOne<Invitation>({
@@ -235,11 +330,11 @@ export const invitation = () => {
             });
           }
 
-          if (invitation.creatorId !== user.id) {
-            throw new APIError("FORBIDDEN", {
-              message: ERROR_CODES.REVOKE_UNAUTHORIZED,
-            });
-          }
+          // if (invitation.creatorId !== user.id) {
+          //   throw new APIError("FORBIDDEN", {
+          //     message: ERROR_CODES.REVOKE_UNAUTHORIZED,
+          //   });
+          // }
 
           if (invitation.userId) {
             throw new APIError("BAD_REQUEST", {
@@ -272,13 +367,13 @@ export const invitation = () => {
         {
           matcher: (context) => context.path === "/sign-up/email",
           handler: createAuthMiddleware(async (ctx) => {
-            if (!ctx.body?.invite) {
+            if (!ctx.body?.invitation) {
               throw new APIError("BAD_REQUEST", {
                 message: ERROR_CODES.INVITE_CODE_REQUIRED,
               });
             }
 
-            const inviteCode = ctx.body.invite.trim();
+            const inviteCode = ctx.body.invitation.trim();
             const invitation = await ctx.context.adapter.findOne<Invitation>({
               model: "invitation",
               where: [{ field: "code", operator: "eq", value: inviteCode }],

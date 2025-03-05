@@ -5,7 +5,7 @@ export const schema = {
     fields: {
       birthday: {
         type: "string",
-        required: true,
+        required: false,
         unique: false,
         references: undefined,
         returned: true,

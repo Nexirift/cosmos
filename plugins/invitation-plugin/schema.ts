@@ -9,6 +9,10 @@ export type Invitation = {
   updatedAt?: Date;
 };
 
+export type InvitationWithCreator = Invitation & {
+  creator: { name: string; image: string };
+};
+
 export const schema = {
   user: {
     fields: {

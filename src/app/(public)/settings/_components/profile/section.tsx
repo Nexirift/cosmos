@@ -71,6 +71,7 @@ export function ProfileSection() {
       setIsLoading(false);
     }
   };
+
   return (
     <section id="profile" className="flex flex-col gap-4">
       <header>

@@ -1,4 +1,4 @@
-import { betterAuth, User } from "better-auth";
+import { betterAuth, BetterAuthPlugin, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db, connect } from "@nexirift/db";
 import {
@@ -32,6 +32,41 @@ connect();
 //   server: env.NODE_ENV === "production" ? "production" : "sandbox",
 // });
 
+const plugins = [
+  invitation(),
+  openAPI(),
+  bearer(),
+  admin(),
+  username(),
+  passkey({
+    rpName: env.APP_NAME,
+  }),
+  twoFactor(),
+  oidcProvider({
+    loginPage: "/sign-in",
+  }),
+  birthday(),
+  usernameAliases(),
+  // polar({
+  //   client: polarClient,
+  //   createCustomerOnSignUp: true,
+  //   enableCustomerPortal: true,
+  //   checkout: {
+  //     enabled: true,
+  //     products: [
+  //       {
+  //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
+  //         slug: "nebula-individual",
+  //       },
+  //     ],
+  //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
+  //   },
+  //   webhooks: {
+  //     secret: env.POLAR_WEBHOOK_SECRET,
+  //   },
+  // }),
+] satisfies BetterAuthPlugin[];
+
 /**
  * Auth configuration for Nexirift application
  */
@@ -52,7 +87,7 @@ export const auth = betterAuth({
         {
           name: user.name,
           url,
-        }
+        },
       );
     },
   },
@@ -76,7 +111,7 @@ export const auth = betterAuth({
             }/api/auth/verify-email?token=${token}&callbackURL=${
               process.env.EMAIL_VERIFICATION_CALLBACK_URL || "/dashboard"
             }`,
-          }
+          },
         );
       }
     },
@@ -95,7 +130,7 @@ export const auth = betterAuth({
           {
             name: user.name,
             url,
-          }
+          },
         );
       },
     },
@@ -109,40 +144,7 @@ export const auth = betterAuth({
   verification: {
     modelName: "userAuthVerification",
   },
-  plugins: [
-    invitation(),
-    openAPI(),
-    bearer(),
-    admin(),
-    username(),
-    passkey({
-      rpName: env.APP_NAME,
-    }),
-    twoFactor(),
-    oidcProvider({
-      loginPage: "/sign-in",
-    }),
-    birthday(),
-    usernameAliases(),
-    // polar({
-    //   client: polarClient,
-    //   createCustomerOnSignUp: true,
-    //   enableCustomerPortal: true,
-    //   checkout: {
-    //     enabled: true,
-    //     products: [
-    //       {
-    //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
-    //         slug: "nebula-individual",
-    //       },
-    //     ],
-    //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
-    //   },
-    //   webhooks: {
-    //     secret: env.POLAR_WEBHOOK_SECRET,
-    //   },
-    // }),
-  ],
+  plugins,
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
       if (!ctx.path.startsWith("/verify-email")) {
@@ -199,7 +201,7 @@ export const auth = betterAuth({
               name: user.name,
               new_email: verified.updateTo,
               whatEmail: verified.updateTo,
-            }
+            },
           );
         }
       } catch (error) {
@@ -224,7 +226,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_GOOGLE_CLIENT_ID &&
-        env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET
+        env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET,
     )
   ) {
     providers.push("google");
@@ -234,7 +236,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_GITHUB_CLIENT_ID &&
-        env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET
+        env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET,
     )
   ) {
     providers.push("github");
@@ -244,7 +246,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_TWITTER_CLIENT_ID &&
-        env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET
+        env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET,
     )
   ) {
     providers.push("twitter");
@@ -254,7 +256,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_TWITCH_CLIENT_ID &&
-        env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET
+        env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET,
     )
   ) {
     providers.push("twitch");
@@ -265,7 +267,7 @@ export const getEnabledProviders = (): Array<
     Boolean(
       env.AUTH_PROVIDER_GITLAB_CLIENT_ID &&
         env.AUTH_PROVIDER_GITLAB_CLIENT_SECRET &&
-        env.AUTH_PROVIDER_GITLAB_ISSUER
+        env.AUTH_PROVIDER_GITLAB_ISSUER,
     )
   ) {
     providers.push("gitlab");
@@ -275,7 +277,7 @@ export const getEnabledProviders = (): Array<
   if (
     Boolean(
       env.AUTH_PROVIDER_DISCORD_CLIENT_ID &&
-        env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET
+        env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
     )
   ) {
     providers.push("discord");
@@ -283,3 +285,27 @@ export const getEnabledProviders = (): Array<
 
   return providers;
 };
+
+export const pluginMap = {
+  username: "username",
+  passkey: "passkey",
+  twoFactor: "two-factor",
+  oidc: "oidc-client",
+  admin: "better-auth-client",
+  birthday: "birthday",
+  usernameAliases: "username-aliases",
+  invitation: "invitation",
+  additionalFields: "additional-fields-client",
+  stripe: "stripe-client",
+};
+
+type PluginMap = typeof pluginMap;
+
+export function checkPlugin<T extends keyof PluginMap>(_plugin: T): boolean {
+  const pluginId = getPluginId(_plugin);
+  return plugins.some((plugin) => plugin.id === pluginId);
+}
+
+function getPluginId<T extends keyof PluginMap>(_plugin: T): PluginMap[T] {
+  return pluginMap[_plugin];
+}
