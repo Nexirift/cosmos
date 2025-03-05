@@ -1,11 +1,12 @@
 "use client";
 
-import { Shield, User } from "lucide-react";
+import { Computer, Shield, Smartphone, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ProfileSection } from "./_components/profile/section";
 import { SecuritySection } from "./_components/security/section";
+import { SessionsSection } from "./_components/sessions/section";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -70,6 +71,11 @@ export default function SettingsPage() {
         label: "Security",
         icon: <Shield className="h-4 w-4 mr-2" />,
       },
+      {
+        href: "#sessions",
+        label: "Sessions",
+        icon: <Smartphone className="h-4 w-4 mr-2" />,
+      },
     ],
     [],
   );
@@ -96,6 +102,7 @@ export default function SettingsPage() {
       <main className="flex flex-col gap-4 w-full">
         <ProfileSection />
         <SecuritySection />
+        <SessionsSection />
       </main>
     </div>
   );
