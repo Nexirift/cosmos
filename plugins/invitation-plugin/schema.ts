@@ -4,9 +4,9 @@ export type Invitation = {
   id?: string;
   code: string;
   creatorId: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
+  userId?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export const schema = {

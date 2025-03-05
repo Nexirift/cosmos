@@ -65,9 +65,9 @@ export default function Page() {
             }
             if (session?.user) {
               try {
-                // Try using path method instead of direct create
-                authClient.createInvitation();
-                const { data, error } = await authClient.invitation.create({});
+                const { data, error } = await authClient.invitation.revoke({
+                  invitationId: "FUSf7q02MybKrRdZGHk3eqeTh7W4osuN",
+                });
                 if (error) {
                   throw new Error(error.message);
                 }

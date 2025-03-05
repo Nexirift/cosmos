@@ -1,9 +1,18 @@
-import type { BetterAuthPlugin, User } from "better-auth";
-import { APIError, createAuthEndpoint } from "better-auth/api";
+import {
+  GenericEndpointContext,
+  type BetterAuthPlugin,
+  type User,
+} from "better-auth";
+import {
+  APIError,
+  createAuthEndpoint,
+  getSessionFromCtx,
+} from "better-auth/api";
 import { createAuthMiddleware } from "better-auth/plugins";
+import { z } from "zod";
 import { Invitation, schema } from "./schema";
 
-export const invitation = (): BetterAuthPlugin => {
+export const invitation = () => {
   const ERROR_CODES = {
     UNAUTHORIZED: "You must be logged in to create an invitation",
     MAX_INVITATIONS_REACHED: "You have already created 3 invitations",
@@ -13,11 +22,30 @@ export const invitation = (): BetterAuthPlugin => {
     UPDATE_USER_FAILED: "Failed to update user with invitation",
     INVITATION_ALREADY_USED: "Invitation has been used by someone else",
     PROCESS_FAILED: "Failed to process invitation",
+    INVITATION_NOT_FOUND: "Invitation not found",
+    REVOKE_UNAUTHORIZED: "You can only revoke invitations you created",
+    REVOKE_FAILED: "Failed to revoke invitation",
+    INVITATION_ALREADY_USED_CANT_REVOKE:
+      "Cannot revoke an invitation that has already been used",
+  };
+
+  const MAX_INVITATIONS = 3;
+  const generateInviteCode = () =>
+    `nexirift-${Math.random().toString(36).substring(2, 7)}-${Math.random().toString(36).substring(2, 7)}`;
+
+  const validateSession = async (ctx: GenericEndpointContext) => {
+    const session = await getSessionFromCtx(ctx);
+    if (!session?.user) {
+      throw new APIError("UNAUTHORIZED", {
+        message: ERROR_CODES.UNAUTHORIZED,
+      });
+    }
+    return session.user;
   };
 
   return {
     id: "invitation",
-    schema: schema,
+    schema,
     endpoints: {
       createInvitation: createAuthEndpoint(
         "/invitation/create",
@@ -48,57 +76,136 @@ export const invitation = (): BetterAuthPlugin => {
           },
         },
         async (ctx) => {
-          if (!ctx.context.session?.session.id) {
-            ctx.context.logger?.error(
-              "Unauthorized invitation creation attempt",
-            );
-            throw new APIError("UNAUTHORIZED", {
-              message: ERROR_CODES.UNAUTHORIZED,
-            });
-          }
+          const user = await validateSession(ctx);
 
           const invitations = await ctx.context.adapter.findMany<Invitation>({
             model: "invitation",
             where: [
               {
-                field: "userId",
+                field: "creatorId",
                 operator: "eq",
-                value: ctx.context.session.session.id,
+                value: user.id,
               },
             ],
           });
 
-          if (invitations.length >= 3) {
-            ctx.context.logger?.error("Max invitations reached", {
-              userId: ctx.context.session.session.id,
-              count: invitations.length,
-            });
+          if (invitations.length >= MAX_INVITATIONS) {
             throw new APIError("FORBIDDEN", {
               message: ERROR_CODES.MAX_INVITATIONS_REACHED,
             });
           }
 
+          const now = new Date();
           const invitation = await ctx.context.adapter.create<Invitation>({
             model: "invitation",
             data: {
-              code: Math.random().toString(36).substring(2, 15),
-              creatorId: ctx.context.session.session.id,
-              userId: ctx.context.session.session.id,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              code: generateInviteCode(),
+              creatorId: user.id,
+              createdAt: now,
+              updatedAt: now,
             },
           });
 
           if (!invitation) {
-            ctx.context.logger?.error("Failed to create invitation");
             throw new APIError("INTERNAL_SERVER_ERROR", {
               message: ERROR_CODES.INVITATION_FAILED,
             });
           }
 
-          return ctx.json({
-            invitation,
+          return ctx.json({ invitation });
+        },
+      ),
+      revokeInvitation: createAuthEndpoint(
+        "/invitation/revoke",
+        {
+          method: "POST",
+          body: z.object({
+            invitationId: z.string().min(1).max(255),
+          }),
+          metadata: {
+            openapi: {
+              summary: "Revoke invitation",
+              description: "Revoke an unused invitation code that you created",
+              requestBody: {
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        invitationId: {
+                          type: "string",
+                          description: "ID of the invitation to revoke",
+                        },
+                      },
+                      required: ["invitationId"],
+                    },
+                  },
+                },
+              },
+              responses: {
+                200: {
+                  description: "Success",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          success: {
+                            type: "boolean",
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        async (ctx) => {
+          const user = await validateSession(ctx);
+          const { invitationId } = ctx.body;
+
+          const invitation = await ctx.context.adapter.findOne<Invitation>({
+            model: "invitation",
+            where: [{ field: "id", operator: "eq", value: invitationId }],
           });
+
+          if (!invitation) {
+            throw new APIError("NOT_FOUND", {
+              message: ERROR_CODES.INVITATION_NOT_FOUND,
+            });
+          }
+
+          if (invitation.creatorId !== user.id) {
+            throw new APIError("FORBIDDEN", {
+              message: ERROR_CODES.REVOKE_UNAUTHORIZED,
+            });
+          }
+
+          if (invitation.userId) {
+            throw new APIError("BAD_REQUEST", {
+              message: ERROR_CODES.INVITATION_ALREADY_USED_CANT_REVOKE,
+            });
+          }
+
+          await ctx.context.adapter.delete({
+            model: "invitation",
+            where: [{ field: "id", operator: "eq", value: invitationId }],
+          });
+
+          const stillExists = await ctx.context.adapter.findOne<Invitation>({
+            model: "invitation",
+            where: [{ field: "id", operator: "eq", value: invitationId }],
+          });
+
+          if (stillExists) {
+            throw new APIError("INTERNAL_SERVER_ERROR", {
+              message: ERROR_CODES.REVOKE_FAILED,
+            });
+          }
+
+          return ctx.json({ success: true });
         },
       ),
     },
@@ -108,31 +215,24 @@ export const invitation = (): BetterAuthPlugin => {
           matcher: (context) => context.path === "/sign-up/email",
           handler: createAuthMiddleware(async (ctx) => {
             if (!ctx.body?.invite) {
-              ctx.context.logger?.error("Missing invite code during signup");
               throw new APIError("BAD_REQUEST", {
                 message: ERROR_CODES.INVITE_CODE_REQUIRED,
               });
             }
 
             const inviteCode = ctx.body.invite.trim();
-
             const invitation = await ctx.context.adapter.findOne<Invitation>({
               model: "invitation",
               where: [{ field: "code", operator: "eq", value: inviteCode }],
             });
 
             if (!invitation || invitation.userId) {
-              ctx.context.logger?.error("Invalid or used invite code", {
-                inviteCode,
-              });
               throw new APIError("BAD_REQUEST", {
                 message: ERROR_CODES.INVALID_INVITE_CODE,
               });
             }
 
-            // Store invitation data for the after hook
             ctx.body.fullInvitation = invitation;
-
             return { context: ctx };
           }),
         },
@@ -142,40 +242,26 @@ export const invitation = (): BetterAuthPlugin => {
           matcher: (context) => context.path === "/sign-up/email",
           handler: createAuthMiddleware(async (ctx) => {
             try {
-              // Associate invitation with user in a transaction if possible
+              const { email, fullInvitation } = ctx.body;
+              const invitationId = fullInvitation.id;
+
               const user = await ctx.context.adapter.update<User>({
                 model: "user",
-                where: [
-                  { field: "email", operator: "eq", value: ctx.body.email },
-                ],
+                where: [{ field: "email", operator: "eq", value: email }],
                 update: {
-                  invitation: ctx.body.fullInvitation.id,
+                  invitation: invitationId,
                 },
               });
 
               if (!user) {
-                ctx.context.logger?.error(
-                  "Failed to update user with invitation",
-                  {
-                    email: ctx.body.email,
-                    invitationId: ctx.body.fullInvitation.id,
-                  },
-                );
                 throw new APIError("INTERNAL_SERVER_ERROR", {
                   message: ERROR_CODES.UPDATE_USER_FAILED,
                 });
               }
 
-              // Mark invitation as used by setting the userId
               const invitation = await ctx.context.adapter.update<Invitation>({
                 model: "invitation",
-                where: [
-                  {
-                    field: "id",
-                    operator: "eq",
-                    value: ctx.body.fullInvitation.id,
-                  },
-                ],
+                where: [{ field: "id", operator: "eq", value: invitationId }],
                 update: {
                   userId: user.id,
                   usedAt: new Date().toISOString(),
@@ -183,19 +269,12 @@ export const invitation = (): BetterAuthPlugin => {
               });
 
               if (!invitation) {
-                ctx.context.logger?.error("Invitation update failed", {
-                  invitationId: ctx.body.fullInvitation.id,
-                });
                 throw new APIError("CONFLICT", {
                   message: ERROR_CODES.INVITATION_ALREADY_USED,
                 });
               }
             } catch (error) {
-              // If this is not already an APIError, wrap it
               if (!(error instanceof APIError)) {
-                ctx.context.logger?.error("Error processing invitation", {
-                  error,
-                });
                 throw new APIError("INTERNAL_SERVER_ERROR", {
                   message: ERROR_CODES.PROCESS_FAILED,
                   cause: error,
@@ -208,5 +287,5 @@ export const invitation = (): BetterAuthPlugin => {
       ],
     },
     $ERROR_CODES: ERROR_CODES,
-  };
+  } satisfies BetterAuthPlugin;
 };
