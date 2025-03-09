@@ -4,6 +4,7 @@
     "": {
       "name": "@nexirift/cosmos",
       "dependencies": {
+        "@better-auth/expo": "^1.2.4-beta.7",
         "@nexirift/db": "^0.0.1",
         "@polar-sh/better-auth": "^0.0.2",
         "@polar-sh/sdk": "^0.29.0",
@@ -21,7 +22,7 @@
         "@radix-ui/react-tooltip": "^1.1.8",
         "@t3-oss/env-nextjs": "^0.12.0",
         "@tanstack/react-table": "^8.21.2",
-        "better-auth": "^1.2.4-beta.1",
+        "better-auth": "^1.2.4-beta.7",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
@@ -72,6 +73,8 @@
     "@babel/parser": ["@babel/parser@7.26.9", "", { "dependencies": { "@babel/types": "^7.26.9" }, "bin": "./bin/babel-parser.js" }, "sha512-81NWa1njQblgZbQHxWHpxxCzNsa3ZwvFqpUg7P+NNUU6f3UU2jBEg4OlF/J6rl8+PQGh1q6/zWScd001YwcA5A=="],
 
     "@babel/types": ["@babel/types@7.26.9", "", { "dependencies": { "@babel/helper-string-parser": "^7.25.9", "@babel/helper-validator-identifier": "^7.25.9" } }, "sha512-Y3IR1cRnOxOCDvMmNiym7XpXQ93iGDDPHx+Zj+NM+rg0fBaShfQLkg+hKPaZCEvg5N/LeCo4+Rj/i3FuJsIQaw=="],
+
+    "@better-auth/expo": ["@better-auth/expo@1.2.4-beta.7", "", { "dependencies": { "better-call": "^1.0.3", "zod": "^3.23.8" }, "peerDependencies": { "better-auth": "1.2.4-beta.7" } }, "sha512-kKoABGCoFloy0EgS+ft9ZxDB+b1jRzxzqEBFK0JElOTfZ7o4AKG/BIevi7zLN+sYz+l713RIv74HlUYV3yXsqg=="],
 
     "@better-auth/utils": ["@better-auth/utils@0.2.3", "", { "dependencies": { "uncrypto": "^0.1.3" } }, "sha512-Ap1GaSmo6JYhJhxJOpUB0HobkKPTNzfta+bLV89HfpyCAHN7p8ntCrmNFHNAVD0F6v0mywFVEUg1FUhNCc81Rw=="],
 
@@ -457,7 +460,7 @@
 
     "balanced-match": ["balanced-match@1.0.2", "", {}, "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="],
 
-    "better-auth": ["better-auth@1.2.4-beta.1", "", { "dependencies": { "@better-auth/utils": "0.2.3", "@better-fetch/fetch": "^1.1.15", "@noble/ciphers": "^0.6.0", "@noble/hashes": "^1.6.1", "@simplewebauthn/browser": "^13.0.0", "@simplewebauthn/server": "^13.0.0", "better-call": "^1.0.3", "defu": "^6.1.4", "jose": "^5.9.6", "kysely": "^0.27.4", "nanostores": "^0.11.3", "valibot": "1.0.0-beta.15", "zod": "^3.24.1" } }, "sha512-KBBdX4c+JbRaS4Bf5vvIAybqEZEpD4KvYuHfpiMu9m62Oy1TAh/lDQd6S4fGOWF/A7zN8MU1KQNWVWIp82XoRw=="],
+    "better-auth": ["better-auth@1.2.4-beta.7", "", { "dependencies": { "@better-auth/utils": "0.2.3", "@better-fetch/fetch": "^1.1.15", "@noble/ciphers": "^0.6.0", "@noble/hashes": "^1.6.1", "@simplewebauthn/browser": "^13.0.0", "@simplewebauthn/server": "^13.0.0", "better-call": "^1.0.3", "defu": "^6.1.4", "jose": "^5.9.6", "kysely": "^0.27.4", "nanostores": "^0.11.3", "valibot": "1.0.0-beta.15", "zod": "^3.24.1" } }, "sha512-EU5Jo/ePOjS097OtFHmRc2emgt7r1yX7Kt+og1ppvGMktgAmmph4goNBWNImtkgjkRIsCc6WRsSzlAvAPitNqQ=="],
 
     "better-call": ["better-call@1.0.4", "", { "dependencies": { "@better-fetch/fetch": "^1.1.4", "rou3": "^0.5.1", "set-cookie-parser": "^2.7.1", "uncrypto": "^0.1.3" } }, "sha512-NdAihYdkS0IOz1mtz8mw1gWacCxR9r921U8YqB+VB6++rt8edMG13vVL16Y4TBL4XkjMK/DUewEsOOFkw9LJYQ=="],
 

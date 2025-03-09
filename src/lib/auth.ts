@@ -17,6 +17,7 @@ import { env } from "@/env";
 import { emailService, EmailTemplate } from "@/lib/email";
 import jwt from "jsonwebtoken";
 import { invitation } from "plugins/invitation-plugin";
+import { expo } from "@better-auth/expo";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
@@ -33,6 +34,7 @@ connect();
 // });
 
 const plugins = [
+  expo(),
   invitation(),
   openAPI(),
   bearer(),
@@ -72,6 +74,15 @@ const plugins = [
  */
 export const auth = betterAuth({
   appName: env.APP_NAME,
+  trustedOrigins:
+    env.NODE_ENV === "development"
+      ? [
+          "nexirift://",
+          "http://localhost:8081",
+          "exp://192.168.1.232:8081",
+          "http://192.168.1.232:8081",
+        ]
+      : ["nexirift://"],
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
