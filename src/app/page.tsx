@@ -6,10 +6,77 @@ import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+// import { compress, decompress } from "compress-json";
 
 export default function Page() {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
+
+  /* authClient.vortex.createViolation({
+    userId: "RpdOdxa08kyO1mHXr2QCphdTibk2uSp0",
+    content: JSON.stringify([
+      {
+        service: "nova",
+        content: [
+          { type: "post", id: "example-id-1" },
+          {
+            type: "direct_message",
+            chatId: "example-id-2",
+            messageId: "example-id-3",
+          },
+        ],
+      },
+      {
+        service: "constellation",
+        content: [
+          { type: "card", boardId: "example-id-4", cardId: "example-id-5" },
+        ],
+      },
+    ]),
+    severity: 1,
+  }); */
+
+  /* authClient.vortex.listViolations({
+    query: {
+      userId: "RpdOdxa08kyO1mHXr2QCphdTibk2uSp0",
+    },
+  }); */
+
+  /* authClient.vortex.updateViolation({
+    id: "cXZ9GxDSiqRSWz2xIsdXg3h52S3Yfq0K",
+    severity: 5,
+  }); */
+
+  authClient.vortex.myViolations();
+
+  /* const json = JSON.parse(
+    '[{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]}]',
+  );
+
+  console.log(
+    "original",
+    json,
+    "size",
+    Buffer.byteLength(JSON.stringify(json)),
+  );
+
+  const jsonCompressed = compress(json);
+
+  console.log(
+    "compressed",
+    jsonCompressed,
+    "size",
+    Buffer.byteLength(JSON.stringify(jsonCompressed)),
+  );
+
+  const jsonDecompressed = decompress(jsonCompressed);
+
+  console.log(
+    "decompressed",
+    jsonDecompressed,
+    "size",
+    Buffer.byteLength(JSON.stringify(jsonDecompressed)),
+  ); */
 
   return (
     <div className="flex flex-col h-screen w-screen items-center justify-center gap-4">

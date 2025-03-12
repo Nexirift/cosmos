@@ -1,0 +1,36 @@
+diff --color -Naru a/dist/shared/better-auth.Bi8FQwDD.d.cts b/dist/shared/better-auth.Bi8FQwDD.d.cts
+--- a/dist/shared/better-auth.Bi8FQwDD.d.cts	2025-03-12 21:25:16.418608102 +1030
++++ b/dist/shared/better-auth.Bi8FQwDD.d.cts	2025-03-12 21:26:30.890339368 +1030
+@@ -5,7 +5,7 @@
+ type OmitId<T extends {
+     id: unknown;
+ }> = Omit<T, "id">;
+-type Prettify<T> = Omit<T, never>;
++type Prettify<T> = PreserveJSDoc<T>;
+ type PreserveJSDoc<T> = {
+     [K in keyof T]: T[K];
+ } & {};
+diff --color -Naru a/dist/shared/better-auth.Bi8FQwDD.d.mts b/dist/shared/better-auth.Bi8FQwDD.d.mts
+--- a/dist/shared/better-auth.Bi8FQwDD.d.mts	2025-03-12 21:25:16.420608095 +1030
++++ b/dist/shared/better-auth.Bi8FQwDD.d.mts	2025-03-12 21:26:27.735350550 +1030
+@@ -5,7 +5,7 @@
+ type OmitId<T extends {
+     id: unknown;
+ }> = Omit<T, "id">;
+-type Prettify<T> = Omit<T, never>;
++type Prettify<T> = PreserveJSDoc<T>;
+ type PreserveJSDoc<T> = {
+     [K in keyof T]: T[K];
+ } & {};
+diff --color -Naru a/dist/shared/better-auth.Bi8FQwDD.d.ts b/dist/shared/better-auth.Bi8FQwDD.d.ts
+--- a/dist/shared/better-auth.Bi8FQwDD.d.ts	2025-03-12 21:25:16.420608095 +1030
++++ b/dist/shared/better-auth.Bi8FQwDD.d.ts	2025-03-12 21:26:21.761371769 +1030
+@@ -5,7 +5,7 @@
+ type OmitId<T extends {
+     id: unknown;
+ }> = Omit<T, "id">;
+-type Prettify<T> = Omit<T, never>;
++type Prettify<T> = PreserveJSDoc<T>;
+ type PreserveJSDoc<T> = {
+     [K in keyof T]: T[K];
+ } & {};

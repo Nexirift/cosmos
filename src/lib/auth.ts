@@ -18,6 +18,7 @@ import { emailService, EmailTemplate } from "@/lib/email";
 import jwt from "jsonwebtoken";
 import { invitation } from "plugins/invitation-plugin";
 import { expo } from "@better-auth/expo";
+import { vortex } from "plugins/vortex-plugin";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
@@ -33,9 +34,15 @@ connect();
 //   server: env.NODE_ENV === "production" ? "production" : "sandbox",
 // });
 
-const plugins = [
-  expo(),
+const nexiriftPlugins = [
+  vortex(),
+  birthday(),
+  usernameAliases(),
   invitation(),
+] satisfies BetterAuthPlugin[];
+
+const authPlugins = [
+  expo(),
   openAPI(),
   bearer(),
   admin(),
@@ -47,8 +54,6 @@ const plugins = [
   oidcProvider({
     loginPage: "/sign-in",
   }),
-  birthday(),
-  usernameAliases(),
   // polar({
   //   client: polarClient,
   //   createCustomerOnSignUp: true,
@@ -68,6 +73,8 @@ const plugins = [
   //   },
   // }),
 ] satisfies BetterAuthPlugin[];
+
+const plugins = [...nexiriftPlugins, ...authPlugins];
 
 /**
  * Auth configuration for Nexirift application
@@ -311,12 +318,34 @@ export const pluginMap = {
 };
 
 type PluginMap = typeof pluginMap;
+type PluginSource = "all" | "auth" | "nexirift";
 
-export function checkPlugin<T extends keyof PluginMap>(_plugin: T): boolean {
+export function checkPlugin<T extends keyof PluginMap>(
+  _plugin: T,
+  source: PluginSource = "all",
+): boolean {
   const pluginId = getPluginId(_plugin);
-  return plugins.some((plugin) => plugin.id === pluginId);
+  switch (source) {
+    case "auth":
+      return authPlugins.some((plugin) => plugin.id === pluginId);
+    case "nexirift":
+      return nexiriftPlugins.some((plugin) => plugin.id === pluginId);
+    default:
+      return plugins.some((plugin) => plugin.id === pluginId);
+  }
 }
 
 function getPluginId<T extends keyof PluginMap>(_plugin: T): PluginMap[T] {
   return pluginMap[_plugin];
+}
+
+export function getEnabledPlugins(source: PluginSource = "all"): string[] {
+  switch (source) {
+    case "auth":
+      return authPlugins.map((plugin) => plugin.id);
+    case "nexirift":
+      return nexiriftPlugins.map((plugin) => plugin.id);
+    default:
+      return plugins.map((plugin) => plugin.id);
+  }
 }

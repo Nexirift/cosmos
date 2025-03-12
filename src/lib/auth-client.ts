@@ -12,17 +12,24 @@ import { birthdayClient } from "plugins/birthday-plugin/client";
 import { usernameAliasesClient } from "plugins/username-aliases-plugin/client";
 import { BetterAuthClientPlugin } from "better-auth";
 import { invitationClient } from "plugins/invitation-plugin/client";
+import { vortexClient } from "plugins/vortex-plugin/client";
 
-const plugins = [
+const nexiriftPlugins = [
+  vortexClient(),
+  birthdayClient(),
+  usernameAliasesClient(),
+  invitationClient(),
+] satisfies BetterAuthClientPlugin[];
+
+const authPlugins = [
   usernameClient(),
   passkeyClient(),
   twoFactorClient(),
   oidcClient(),
   adminClient(),
-  birthdayClient(),
-  usernameAliasesClient(),
-  invitationClient(),
 ] satisfies BetterAuthClientPlugin[];
+
+const plugins = [...nexiriftPlugins, ...authPlugins];
 
 export const authClient = createAuthClient({
   baseURL: "http://localhost:3000",
