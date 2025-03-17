@@ -5,8 +5,10 @@ import {
   admin,
   bearer,
   createAuthMiddleware,
+  multiSession,
   oidcProvider,
   openAPI,
+  organization,
   twoFactor,
   username,
 } from "better-auth/plugins";
@@ -35,7 +37,13 @@ connect();
 // });
 
 const nexiriftPlugins = [
-  vortex(),
+  vortex({
+    schema: {
+      dispute: {
+        modelName: "vortex_dispute",
+      },
+    },
+  }),
   birthday(),
   usernameAliases(),
   invitation(),
@@ -51,6 +59,25 @@ const authPlugins = [
     rpName: env.APP_NAME,
   }),
   twoFactor(),
+  multiSession({
+    maximumSessions: 10,
+  }),
+  organization({
+    schema: {
+      organization: {
+        modelName: "organization",
+      },
+      member: {
+        modelName: "organizationMember",
+      },
+      invitation: {
+        modelName: "organizationInvitation",
+      },
+      team: {
+        modelName: "organizationTeam",
+      },
+    },
+  }),
   oidcProvider({
     loginPage: "/sign-in",
   }),

@@ -108,10 +108,10 @@ export default function Page() {
           onClick={async () => {
             try {
               const userData = {
-                email: "another3253454@nexirift.com",
+                email: "developer@nexirift.com",
                 password: "P@ssw0rd",
-                username: "Another2655442",
-                name: "Another User",
+                username: "Developer",
+                name: "Developer User",
                 birthday: "2007-11-21",
                 invite: "nexirift-m0dm0-vp7sv",
               };

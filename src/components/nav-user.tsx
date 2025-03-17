@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { initials } from "@/lib/common";
 
 export type User = NonNullable<
   ReturnType<typeof authClient.useSession>["data"]
@@ -26,17 +27,6 @@ export type User = NonNullable<
 export function NavUser({ user }: { user: User }) {
   const router = useRouter();
   const { isMobile } = useSidebar();
-
-  function initials() {
-    const nameParts = user.name?.split(" ") || [];
-
-    if (nameParts.length < 2) return user.name.slice(0, 1);
-
-    const firstInitial = nameParts[0]?.charAt(0) || "";
-    const secondInitial = nameParts[1]?.charAt(0) || "";
-
-    return `${firstInitial}${secondInitial}`.toUpperCase();
-  }
 
   return (
     <SidebarMenu>
@@ -71,7 +61,7 @@ export function NavUser({ user }: { user: User }) {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={user.image!} alt={user.name} />
                   <AvatarFallback className="rounded-full">
-                    {initials()}
+                    {initials(user?.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

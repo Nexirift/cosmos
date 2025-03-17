@@ -1,4 +1,4 @@
-import { AuthPluginSchema, generateId } from "better-auth";
+import { generateId } from "better-auth";
 import { z } from "zod";
 
 export const violationSchema = z.object({
@@ -7,6 +7,7 @@ export const violationSchema = z.object({
   publicComment: z.string().optional(),
   internalNote: z.string().optional(),
   severity: z.number(),
+  applicableRules: z.array(z.string()).default([]).or(z.string().default("[]")),
   overturned: z.boolean().optional(),
   moderatorId: z.string().optional(),
   userId: z.string().optional(),
@@ -14,6 +15,7 @@ export const violationSchema = z.object({
   createdAt: z.date(),
   lastUpdatedBy: z.string(),
   updatedAt: z.date(),
+  am_status: z.string().optional(),
 });
 
 export type Violation = z.infer<typeof violationSchema>;
@@ -31,128 +33,3 @@ export const disputeSchema = z.object({
 });
 
 export type Dispute = z.infer<typeof disputeSchema>;
-
-export const schema = {
-  violation: {
-    fields: {
-      content: {
-        // this is json
-        type: "string",
-        required: true,
-        unique: false,
-      },
-      publicComment: {
-        type: "string",
-        required: false,
-      },
-      internalNote: {
-        type: "string",
-        required: false,
-      },
-      severity: {
-        type: "number",
-        required: true,
-      },
-      overturned: {
-        type: "boolean",
-        required: false,
-        defaultValue: false,
-      },
-      moderatorId: {
-        type: "string",
-        required: false,
-        references: {
-          model: "user",
-          field: "id",
-          onDelete: "set null",
-        },
-      },
-      userId: {
-        type: "string",
-        required: false,
-        references: {
-          model: "user",
-          field: "id",
-          onDelete: "set null",
-        },
-      },
-      expiresAt: {
-        type: "date",
-        required: false,
-      },
-      createdAt: {
-        type: "date",
-        required: true,
-      },
-      lastUpdatedBy: {
-        type: "string",
-        required: false,
-        references: {
-          model: "user",
-          field: "id",
-          onDelete: "set null",
-        },
-      },
-      updatedAt: {
-        type: "date",
-        required: true,
-      },
-    },
-  },
-  dispute: {
-    fields: {
-      violationId: {
-        type: "string",
-        required: true,
-        references: {
-          model: "violation",
-          field: "id",
-          onDelete: "cascade",
-        },
-      },
-      userId: {
-        type: "string",
-        required: true,
-        references: {
-          model: "user",
-          field: "id",
-          onDelete: "cascade",
-        },
-      },
-      reason: {
-        type: "string",
-        required: true,
-      },
-      status: {
-        type: "string",
-        required: true,
-        defaultValue: "pending",
-      },
-      justification: {
-        type: "string",
-        required: false,
-      },
-      reviewedBy: {
-        type: "string",
-        required: false,
-        references: {
-          model: "user",
-          field: "id",
-          onDelete: "set null",
-        },
-      },
-      reviewedAt: {
-        type: "date",
-        required: false,
-      },
-      createdAt: {
-        type: "date",
-        required: true,
-      },
-      updatedAt: {
-        type: "date",
-        required: true,
-      },
-    },
-  },
-} satisfies AuthPluginSchema;

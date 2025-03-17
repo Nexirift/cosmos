@@ -7,6 +7,7 @@ import {
   twoFactorClient,
   oidcClient,
   adminClient,
+  organizationClient,
 } from "better-auth/client/plugins";
 import { birthdayClient } from "plugins/birthday-plugin/client";
 import { usernameAliasesClient } from "plugins/username-aliases-plugin/client";
@@ -22,11 +23,12 @@ const nexiriftPlugins = [
 ] satisfies BetterAuthClientPlugin[];
 
 const authPlugins = [
+  adminClient(),
   usernameClient(),
   passkeyClient(),
   twoFactorClient(),
+  organizationClient(),
   oidcClient(),
-  adminClient(),
 ] satisfies BetterAuthClientPlugin[];
 
 const plugins = [...nexiriftPlugins, ...authPlugins];

@@ -68,7 +68,7 @@ export function Passkeys() {
       {data?.length === 0 ? (
         <div>
           {isPending ? (
-            <div className="flex items-center space-x-2 text-muted-foreground p-4 border rounded-md bg-muted/10">
+            <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
               <LoaderCircle className="h-5 w-5 animate-spin" />
               <p>Loading passkeys...</p>
             </div>

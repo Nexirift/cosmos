@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { initials } from "@/lib/common";
 
 export function Header() {
   const { data: session } = authClient.useSession();
@@ -99,9 +100,7 @@ export function Header() {
             <p className="font-medium hidden md:block">{session?.user.name}</p>
             <Avatar>
               <AvatarImage src={session?.user.image ?? undefined} />
-              <AvatarFallback>
-                {session?.user.name?.slice(0, 1).toUpperCase()}
-              </AvatarFallback>
+              <AvatarFallback>{initials(session?.user?.name)}</AvatarFallback>
             </Avatar>
           </div>
         </nav>

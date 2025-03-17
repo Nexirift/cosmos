@@ -1,4 +1,5 @@
 import {
+  AuthPluginSchema,
   generateId,
   GenericEndpointContext,
   Session,
@@ -20,7 +21,7 @@ import {
 import { z } from "zod";
 import { defaultStatements } from "./access/statement";
 import { hasPermission } from "./has-permission";
-import { Dispute, schema, Violation } from "./schema";
+import { Dispute, Violation } from "./schema";
 import { VORTEX_ERROR_CODES } from "./error-codes";
 
 const paginationQuerySchema = {
@@ -64,7 +65,7 @@ const handleApiError = (error: unknown, defaultMessage: string) => {
   if (error instanceof APIError) {
     throw error;
   }
-  console.error(`Vortex plugin error: ${defaultMessage}`, error);
+  console.error(`[# Vortex Plugin]: ${defaultMessage}`, error);
   throw new APIError("INTERNAL_SERVER_ERROR", { message: defaultMessage });
 };
 
@@ -77,11 +78,21 @@ export interface VortexOptions {
    * organization plugin.
    */
   ac?: AccessControl;
+
   /**
    * Custom permissions for roles.
    */
   roles?: {
     [key in string]?: Role<BAS>;
+  };
+
+  schema?: {
+    violation?: {
+      modelName: string;
+    };
+    dispute?: {
+      modelName: string;
+    };
   };
 }
 
@@ -132,6 +143,147 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
       permission,
     });
   };
+
+  const schema = {
+    violation: {
+      modelName: opts.schema?.violation?.modelName,
+      fields: {
+        content: {
+          // this is json
+          type: "string",
+          required: true,
+          unique: false,
+        },
+        publicComment: {
+          type: "string",
+          required: false,
+        },
+        internalNote: {
+          type: "string",
+          required: false,
+        },
+        severity: {
+          type: "number",
+          required: true,
+        },
+        applicableRules: {
+          type: "string",
+          required: true,
+          defaultValue: "[]",
+        },
+        overturned: {
+          type: "boolean",
+          required: false,
+          defaultValue: false,
+        },
+        moderatorId: {
+          type: "string",
+          required: false,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "set null",
+          },
+        },
+        userId: {
+          type: "string",
+          required: false,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "set null",
+          },
+        },
+        expiresAt: {
+          type: "date",
+          required: false,
+        },
+        createdAt: {
+          type: "date",
+          required: true,
+        },
+        lastUpdatedBy: {
+          type: "string",
+          required: false,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "set null",
+          },
+        },
+        updatedAt: {
+          type: "date",
+          required: true,
+        },
+        am_status: {
+          type: "string",
+          required: false,
+          defaultValue: null,
+        },
+        am_metadata: {
+          type: "string",
+          required: false,
+        },
+      },
+    },
+    dispute: {
+      modelName: opts.schema?.dispute?.modelName,
+      fields: {
+        violationId: {
+          type: "string",
+          required: true,
+          references: {
+            model: "violation",
+            field: "id",
+            onDelete: "cascade",
+          },
+        },
+        userId: {
+          type: "string",
+          required: true,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "cascade",
+          },
+        },
+        reason: {
+          type: "string",
+          required: true,
+        },
+        status: {
+          type: "string",
+          required: true,
+          defaultValue: "pending",
+        },
+        justification: {
+          type: "string",
+          required: false,
+        },
+        reviewedBy: {
+          type: "string",
+          required: false,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "set null",
+          },
+        },
+        reviewedAt: {
+          type: "date",
+          required: false,
+        },
+        createdAt: {
+          type: "date",
+          required: true,
+        },
+        updatedAt: {
+          type: "date",
+          required: true,
+        },
+      },
+    },
+  } satisfies AuthPluginSchema;
 
   return {
     id: "vortex",
@@ -277,6 +429,9 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
               .min(1)
               .max(10)
               .describe("Violation severity level (1-10)"),
+            applicableRules: z
+              .array(z.string())
+              .describe("Rules that apply to this violation"),
             publicComment: z
               .string()
               .optional()
@@ -313,6 +468,7 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                 severity: ctx.body.severity,
                 moderatorId: ctx.context.session.user.id,
                 userId: ctx.body.userId,
+                applicableRules: JSON.stringify(ctx.body.applicableRules),
                 overturned: false,
                 expiresAt: new Date(ctx.body.expiresAt ?? defaultExpiration),
                 createdAt: now,
@@ -321,7 +477,12 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
               },
             });
 
-            return violation;
+            const returnViolation = {
+              ...violation,
+              applicableRules: JSON.parse(violation?.applicableRules as string),
+            };
+
+            return returnViolation;
           } catch (error) {
             handleApiError(error, VORTEX_ERROR_CODES.VIOLATION_CREATE_FAILED);
           }
@@ -381,7 +542,6 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                 value: overturned,
               });
             }
-
             // Get violations with pagination and sorting
             const violations = await ctx.context.adapter.findMany<Violation>({
               model: "violation",
@@ -391,13 +551,19 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
               sortBy,
             });
 
+            // Parse applicableRules for each violation
+            const parsedViolations = violations.map((violation) => ({
+              ...violation,
+              applicableRules: JSON.parse(violation.applicableRules as string),
+            }));
+
             const total = await ctx.context.adapter.count({
               model: "violation",
               where,
             });
 
             return ctx.json({
-              violations,
+              violations: parsedViolations,
               total,
               limit,
               offset,
@@ -455,6 +621,11 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                     operator: "eq",
                     value: ctx.body.id,
                   },
+                  {
+                    field: "am_status",
+                    operator: "eq",
+                    value: "approved",
+                  },
                 ],
               });
 
@@ -483,7 +654,14 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                 },
               });
 
-            return updatedViolation;
+            const returnViolation = {
+              ...updatedViolation,
+              applicableRules: JSON.parse(
+                updatedViolation?.applicableRules as string,
+              ),
+            };
+
+            return returnViolation;
           } catch (error) {
             handleApiError(error, VORTEX_ERROR_CODES.VIOLATION_UPDATE_FAILED);
           }
@@ -525,14 +703,18 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
               offset,
               sortBy,
             });
-
-            // Filter out internal fields
+            // Filter out internal fields and parse applicable rules
             const filteredViolations = violations.map((violation) => {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               const { internalNote, lastUpdatedBy, moderatorId, ...rest } =
                 violation;
-              return rest;
-            });
+              return {
+                ...rest,
+                applicableRules: JSON.parse(
+                  violation.applicableRules as string,
+                ),
+              };
+            }) as Violation[];
 
             const total = await ctx.context.adapter.count({
               model: "violation",
@@ -600,6 +782,11 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                   field: "userId",
                   operator: "eq",
                   value: ctx.context.session.user.id,
+                },
+                {
+                  field: "am_status",
+                  operator: "eq",
+                  value: "approved",
                 },
               ],
             });
@@ -937,6 +1124,11 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                       operator: "eq",
                       value: dispute.violationId,
                     },
+                    {
+                      field: "am_status",
+                      operator: "eq",
+                      value: "approved",
+                    },
                   ],
                 });
                 return {
@@ -950,6 +1142,9 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                         createdAt: violation.createdAt,
                         expiresAt: violation.expiresAt,
                         publicComment: violation.publicComment,
+                        applicableRules: JSON.parse(
+                          violation.applicableRules as string,
+                        ),
                       }
                     : null,
                 };
