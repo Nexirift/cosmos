@@ -215,12 +215,12 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
           type: "date",
           required: true,
         },
-        am_status: {
+        amStatus: {
           type: "string",
           required: false,
           defaultValue: null,
         },
-        am_metadata: {
+        amMetadata: {
           type: "string",
           required: false,
         },
@@ -622,7 +622,7 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                     value: ctx.body.id,
                   },
                   {
-                    field: "am_status",
+                    field: "amStatus",
                     operator: "eq",
                     value: "approved",
                   },
@@ -784,7 +784,7 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                   value: ctx.context.session.user.id,
                 },
                 {
-                  field: "am_status",
+                  field: "amStatus",
                   operator: "eq",
                   value: "approved",
                 },
@@ -1125,7 +1125,7 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                       value: dispute.violationId,
                     },
                     {
-                      field: "am_status",
+                      field: "amStatus",
                       operator: "eq",
                       value: "approved",
                     },
