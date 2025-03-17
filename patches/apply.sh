@@ -1,4 +1,6 @@
 #!/bin/bash
+PATCHES_DIR="../../patches"
 cd node_modules/better-auth
-patch -p1 < ../../patches/fix-prettify-preservejsdoc.patch
-patch -p1 < ../../patches/fix-drizzle-adapter-count.patch
+for patch_file in $PATCHES_DIR/*.patch; do
+  patch -p1 < "$patch_file"
+done

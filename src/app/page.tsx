@@ -13,7 +13,8 @@ export default function Page() {
   const router = useRouter();
 
   /* authClient.vortex.createViolation({
-    userId: "RpdOdxa08kyO1mHXr2QCphdTibk2uSp0",
+    userId: "tZYDFXoO8swIkjk7590iqyZ8s3tp9hoU",
+    applicableRules: ["rule-1", "rule-2"],
     content: JSON.stringify([
       {
         service: "nova",
@@ -47,7 +48,7 @@ export default function Page() {
     severity: 5,
   }); */
 
-  authClient.vortex.myViolations();
+  /* authClient.vortex.myViolations(); */
 
   /* const json = JSON.parse(
     '[{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]},{"service":"nova","content":[{"type":"post","id":"example-id-1"},{"type":"direct_message","chatId":"example-id-2","messageId":"example-id-3"}]},{"service":"constellation","content":[{"type":"card","boardId":"example-id-4","cardId":"example-id-5"}]}]',

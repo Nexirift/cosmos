@@ -40,7 +40,7 @@ const nexiriftPlugins = [
   vortex({
     schema: {
       dispute: {
-        modelName: "vortexDispute",
+        modelName: "violationDispute",
       },
     },
   }),

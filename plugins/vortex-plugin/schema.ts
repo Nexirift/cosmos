@@ -12,10 +12,10 @@ export const violationSchema = z.object({
   moderatorId: z.string().optional(),
   userId: z.string().optional(),
   expiresAt: z.date().optional(),
-  createdAt: z.date(),
+  createdAt: z.date().default(new Date()),
   lastUpdatedBy: z.string(),
-  updatedAt: z.date(),
-  am_status: z.string().optional(),
+  updatedAt: z.date().default(new Date()),
+  am_status: z.string().default("").optional(),
 });
 
 export type Violation = z.infer<typeof violationSchema>;

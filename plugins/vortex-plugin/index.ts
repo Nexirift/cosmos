@@ -197,10 +197,16 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
         expiresAt: {
           type: "date",
           required: false,
+          defaultValue: () => {
+            const date = new Date();
+            date.setDate(date.getDate() + 30);
+            return date;
+          },
         },
         createdAt: {
           type: "date",
           required: true,
+          defaultValue: () => new Date(),
         },
         lastUpdatedBy: {
           type: "string",
@@ -214,11 +220,12 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
         updatedAt: {
           type: "date",
           required: true,
+          defaultValue: () => new Date(),
         },
         amStatus: {
           type: "string",
-          required: false,
-          defaultValue: null,
+          required: true,
+          defaultValue: () => "",
         },
         amMetadata: {
           type: "string",
@@ -276,10 +283,12 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
         createdAt: {
           type: "date",
           required: true,
+          defaultValue: () => new Date(),
         },
         updatedAt: {
           type: "date",
           required: true,
+          defaultValue: () => new Date(),
         },
       },
     },
@@ -623,8 +632,8 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                   },
                   {
                     field: "amStatus",
-                    operator: "eq",
-                    value: "approved",
+                    operator: "ne",
+                    value: "rejected",
                   },
                 ],
               });
@@ -693,6 +702,11 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                 operator: "eq",
                 value: userId,
               },
+              {
+                field: "amStatus",
+                operator: "ne",
+                value: "rejected",
+              },
             ];
 
             // Get violations with pagination and sorting
@@ -703,6 +717,7 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
               offset,
               sortBy,
             });
+
             // Filter out internal fields and parse applicable rules
             const filteredViolations = violations.map((violation) => {
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -785,8 +800,8 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                 },
                 {
                   field: "amStatus",
-                  operator: "eq",
-                  value: "approved",
+                  operator: "ne",
+                  value: "rejected",
                 },
               ],
             });
@@ -1126,8 +1141,8 @@ export const vortex = <O extends VortexOptions>(options?: O) => {
                     },
                     {
                       field: "amStatus",
-                      operator: "eq",
-                      value: "approved",
+                      operator: "ne",
+                      value: "rejected",
                     },
                   ],
                 });
