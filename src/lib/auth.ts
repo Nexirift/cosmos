@@ -1,6 +1,9 @@
+import { env } from "@/env";
+import { emailService, EmailTemplate } from "@/lib/email";
+import { expo } from "@better-auth/expo";
+import { connect, db } from "@nexirift/db";
 import { betterAuth, BetterAuthPlugin, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db, connect } from "@nexirift/db";
 import {
   admin,
   bearer,
@@ -13,13 +16,10 @@ import {
   username,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
-import { birthday } from "plugins/birthday-plugin";
-import { usernameAliases } from "plugins/username-aliases-plugin";
-import { env } from "@/env";
-import { emailService, EmailTemplate } from "@/lib/email";
 import jwt from "jsonwebtoken";
+import { birthday } from "plugins/birthday-plugin";
 import { invitation } from "plugins/invitation-plugin";
-import { expo } from "@better-auth/expo";
+import { usernameAliases } from "plugins/username-aliases-plugin";
 import { vortex } from "plugins/vortex-plugin";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
@@ -60,9 +60,12 @@ const authPlugins = [
   }),
   twoFactor(),
   multiSession({
-    maximumSessions: 10,
+    maximumSessions: 11,
   }),
   organization({
+    teams: {
+      enabled: true,
+    },
     schema: {
       organization: {
         modelName: "organization",
@@ -122,7 +125,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: env.NODE_ENV === "production",
     autoSignIn: true,
     sendResetPassword: async ({ user, url }) => {
       await emailService.sendMail(
@@ -137,7 +140,7 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: true,
+    sendOnSignUp: env.NODE_ENV === "production",
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, token }) => {
       // Only send verification email if user was created recently (within 10 seconds)
@@ -185,6 +188,8 @@ export const auth = betterAuth({
   },
   session: {
     modelName: "userSession",
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
   },
   verification: {
     modelName: "userAuthVerification",

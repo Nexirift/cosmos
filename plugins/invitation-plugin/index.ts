@@ -14,6 +14,9 @@ import { Invitation, schema } from "./schema";
 
 export const MAX_INVITATIONS = 3;
 
+export const generateInviteCode = () =>
+  `nexirift-${Math.random().toString(36).substring(2, 7)}-${Math.random().toString(36).substring(2, 7)}`;
+
 export const invitation = () => {
   const ERROR_CODES = {
     UNAUTHORIZED: "You must be logged in to create an invitation",
@@ -32,9 +35,6 @@ export const invitation = () => {
     FETCH_INVITES_FAILED: "Failed to fetch your invitations",
     GET_INVITATION_FAILED: "Failed to retrieve invitation",
   };
-
-  const generateInviteCode = () =>
-    `nexirift-${Math.random().toString(36).substring(2, 7)}-${Math.random().toString(36).substring(2, 7)}`;
 
   const validateSession = async (ctx: GenericEndpointContext) => {
     const session = await getSessionFromCtx(ctx);

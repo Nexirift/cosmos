@@ -25,10 +25,74 @@ import Link from "next/link";
 import { Dispute, Violation } from "plugins/vortex-plugin/schema";
 import { useCallback, useEffect, useState } from "react";
 
-// Extended type for violation with additional properties
+// Types
 type ExtendedViolation = Violation & {
   expired: boolean;
   dispute: Dispute | null;
+};
+
+type Content = {
+  service: string;
+  content: Array<{
+    type: string;
+    id?: string;
+    chatId?: string;
+    messageId?: string;
+    boardId?: string;
+    cardId?: string;
+  }>;
+};
+// Interface for service item mappings
+interface ServiceItemMapping {
+  name: string;
+  url?: string;
+}
+
+// Interface for service mappings
+interface ServiceMapping {
+  service: string;
+  [key: string]: string | ServiceItemMapping;
+}
+
+// Service display mappings
+const SERVICE_MAP: Record<string, ServiceMapping> = {
+  nova: {
+    service: "Nova",
+    post: {
+      name: "Post",
+      url: "https://nexirift.com/post/${id}",
+    },
+    direct_message: {
+      name: "Direct Message",
+      url: "https://nexirift.com/direct-message/${chatId}/?message=${messageId}",
+    },
+  },
+  constellation: {
+    service: "Constellation",
+    card: "Card",
+    board: "Board",
+  },
+};
+
+// Function to replace template variables with actual values
+function replaceTemplateVars(
+  template: string,
+  vars: Record<string, string>,
+): string {
+  let result = template;
+  for (const [key, value] of Object.entries(vars)) {
+    result = result.replace(new RegExp(`\\$\{${key}\\}`, "g"), value);
+  }
+  return result;
+}
+
+// Rules display mappings
+const RULES_MAP: Record<string, string> = {
+  HATE_SPEECH: "Hate Speech",
+  OFFENSIVE: "Offensive",
+  SELF_HARM: "Self-Harm",
+  VIOLENCE: "Violence",
+  COPYRIGHT_INFRINGEMENT: "Copyright Infringement",
 };
 
 export default function ViolationsPage() {
@@ -76,7 +140,7 @@ export default function ViolationsPage() {
     Promise.all([fetchViolations(), fetchDisputes()]);
   }, [fetchViolations, fetchDisputes]);
 
-  // Filter active and inactive violations
+  // Filter violations
   const activeViolations = violations.filter(
     (v) =>
       !v.overturned && (!v.expiresAt || new Date(v.expiresAt) > new Date()),
@@ -94,6 +158,34 @@ export default function ViolationsPage() {
       false,
     dispute: disputes.find((d) => d.violationId === violation.id) || null,
   });
+
+  // Render loading state
+  const renderLoading = (type: string) => (
+    <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
+      <Loader2 className="h-5 w-5 animate-spin" />
+      <p>Loading {type} violations...</p>
+    </div>
+  );
+
+  // Render empty state
+  const renderEmpty = (type: string, message: string) => (
+    <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
+      <p className="mb-2">No {type} violations found.</p>
+      <p className="text-sm">{message}</p>
+    </div>
+  );
+
+  // Render violations list
+  const renderViolationsList = (violationsList: Violation[]) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {violationsList.map((violation) => (
+        <ViolationCard
+          key={violation.id}
+          violation={enrichViolation(violation)}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex gap-4 p-2 md:p-8">
@@ -113,28 +205,14 @@ export default function ViolationsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold">Active</h2>
             </div>
-            {loading ? (
-              <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <p>Loading active violations...</p>
-              </div>
-            ) : activeViolations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
-                <p className="mb-2">No active violations found.</p>
-                <p className="text-sm">
-                  Good job! Your account currently has no active violations.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {activeViolations.map((violation) => (
-                  <ViolationCard
-                    key={violation.id}
-                    violation={enrichViolation(violation)}
-                  />
-                ))}
-              </div>
-            )}
+            {loading
+              ? renderLoading("active")
+              : activeViolations.length === 0
+                ? renderEmpty(
+                    "active",
+                    "Good job! Your account currently has no active violations.",
+                  )
+                : renderViolationsList(activeViolations)}
           </div>
 
           {/* Inactive violations section */}
@@ -142,28 +220,14 @@ export default function ViolationsPage() {
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold">Inactive</h2>
             </div>
-            {loading ? (
-              <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <p>Loading inactive violations...</p>
-              </div>
-            ) : inactiveViolations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed rounded-md text-muted-foreground">
-                <p className="mb-2">No inactive violations found.</p>
-                <p className="text-sm">
-                  Your account currently has no inactive violations.
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {inactiveViolations.map((violation) => (
-                  <ViolationCard
-                    key={violation.id}
-                    violation={enrichViolation(violation)}
-                  />
-                ))}
-              </div>
-            )}
+            {loading
+              ? renderLoading("inactive")
+              : inactiveViolations.length === 0
+                ? renderEmpty(
+                    "inactive",
+                    "Your account currently has no inactive violations.",
+                  )
+                : renderViolationsList(inactiveViolations)}
           </div>
         </section>
       </main>
@@ -175,6 +239,7 @@ function ViolationCard({ violation }: { violation: ExtendedViolation }) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDisputeOpen, setIsDisputeOpen] = useState(false);
 
+  // Format dates
   const formattedCreatedAt = new Date(
     violation.createdAt || "",
   ).toLocaleString();
@@ -275,48 +340,44 @@ function ViolationCard({ violation }: { violation: ExtendedViolation }) {
               <h3 className="font-bold text-primary text-base mb-1">Content</h3>
               {content.length > 0 && (
                 <div className="gap-2 flex flex-wrap">
-                  {content.map((c: Content, serviceIndex: number) => {
-                    // Define content type display names
-                    const serviceMap: Record<string, Record<string, string>> = {
-                      nova: {
-                        service: "Nova",
-                        post: "Post",
-                        direct_message: "Direct Message",
-                      },
-                      constellation: {
-                        service: "Constellation",
-                        card: "Card",
-                        board: "Board",
-                      },
-                    };
-
-                    return c.content.map((item, itemIndex: number) => {
+                  {content.map((c: Content, serviceIndex: number) =>
+                    c.content.map((item, itemIndex: number) => {
                       const formattedService =
-                        serviceMap[c.service]?.["service"];
+                        SERVICE_MAP[c.service]?.["service"];
+                      const contentMapping =
+                        SERVICE_MAP[c.service]?.[item.type];
+
+                      // Fix the type issue by handling the object case correctly
                       const contentType =
-                        serviceMap[c.service]?.[item.type] || item.type;
+                        typeof contentMapping === "object" && contentMapping
+                          ? contentMapping.name
+                          : contentMapping || item.type;
+
                       const uniqueKey =
                         item.id ||
                         item.chatId ||
                         item.cardId ||
                         `${serviceIndex}-${itemIndex}`;
 
+                      const url =
+                        typeof contentMapping === "object" &&
+                        "url" in contentMapping
+                          ? replaceTemplateVars(contentMapping.url || "", item)
+                          : "";
+
                       return (
                         <Card key={uniqueKey} className="w-full md:w-fit">
                           <CardHeader className="p-2">
                             <CardTitle className="text-sm text-blue-500 hover:underline">
-                              <Link
-                                href={`/${c.service}/${item.type}/${item.id}`}
-                                className="hover:underline"
-                              >
+                              <Link href={url} className="hover:underline">
                                 {contentType} in {formattedService}
                               </Link>
                             </CardTitle>
                           </CardHeader>
                         </Card>
                       );
-                    });
-                  })}
+                    }),
+                  )}
                 </div>
               )}
             </div>
@@ -408,22 +469,14 @@ function ViolationCard({ violation }: { violation: ExtendedViolation }) {
 }
 
 function displayRules(rules: string[] | null, all: boolean = false) {
-  const rulesMap: Record<string, string> = {
-    HATE_SPEECH: "Hate Speech",
-    OFFENSIVE: "Offensive",
-    SELF_HARM: "Self-Harm",
-    VIOLENCE: "Violence",
-    COPYRIGHT_INFRINGEMENT: "Copyright Infringement",
-  };
-
   if (!rules || rules.length === 0) {
     return "No rules specified";
   }
 
   // Map rule codes to human-readable names
   const parsedRules = rules.map((rule) => {
-    const key = rule as keyof typeof rulesMap;
-    return rulesMap[key] || rule;
+    const key = rule as keyof typeof RULES_MAP;
+    return RULES_MAP[key] || rule;
   });
 
   // Return all rules formatted with proper grammar
@@ -475,15 +528,3 @@ function displayRules(rules: string[] | null, all: boolean = false) {
   }
 ]
 */
-
-type Content = {
-  service: string;
-  content: Array<{
-    type: string;
-    id?: string;
-    chatId?: string;
-    messageId?: string;
-    boardId?: string;
-    cardId?: string;
-  }>;
-};

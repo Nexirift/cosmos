@@ -96,4 +96,6 @@ export const env = createEnv({
     AUTH_PROVIDER_DISCORD_CLIENT_SECRET:
       process.env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
   },
+  skipValidation:
+    !!process.env.SKIP_ENV_VALIDATION || process.env.NODE_ENV === "test",
 });
