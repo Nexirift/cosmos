@@ -17,10 +17,12 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import jwt from "jsonwebtoken";
-import { birthday } from "plugins/birthday-plugin";
-import { invitation } from "plugins/invitation-plugin";
-import { usernameAliases } from "plugins/username-aliases-plugin";
-import { vortex } from "plugins/vortex-plugin";
+import {
+  birthday,
+  invitation,
+  usernameAliases,
+  vortex,
+} from "@nexirift/better-auth-plugins";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 

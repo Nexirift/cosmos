@@ -1,9 +1,13 @@
 import { ResetPassword } from "@/components/auth/reset-password";
 
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ token: string }>;
+}) {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
-      <ResetPassword />
+      <ResetPassword params={await searchParams} />
     </div>
   );
 }

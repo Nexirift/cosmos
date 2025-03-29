@@ -77,15 +77,25 @@ export function SignIn({
       let result;
       switch (provider) {
         case "identifier": {
-          const authParams = {
-            [isEmail ? "email" : "username"]: identifier,
-            password,
-            rememberMe,
-          };
-
-          result = await (isEmail
-            ? authClient.signIn.email(authParams, options)
-            : authClient.signIn.username(authParams, options));
+          if (isEmail) {
+            result = await authClient.signIn.email(
+              {
+                email: identifier,
+                password,
+                rememberMe,
+              },
+              options,
+            );
+          } else {
+            result = await authClient.signIn.username(
+              {
+                username: identifier,
+                password,
+                rememberMe,
+              },
+              options,
+            );
+          }
           break;
         }
 

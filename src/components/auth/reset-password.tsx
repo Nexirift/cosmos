@@ -14,17 +14,15 @@ import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-export function ResetPassword() {
+export function ResetPassword({ params }: { params: { token: string } }) {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const params = useSearchParams();
-  const token = params.get("token");
 
   // Calculate validation message based on passwords
   const { message, isPasswordValid } = useMemo(() => {
@@ -39,12 +37,12 @@ export function ResetPassword() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!isPasswordValid || !token) return;
+    if (!isPasswordValid || !params.token) return;
 
     try {
       setIsLoading(true);
       const result = await authClient.resetPassword({
-        token,
+        token: params.token,
         newPassword: password,
       });
 
@@ -65,7 +63,7 @@ export function ResetPassword() {
     }
   };
 
-  if (!token) {
+  if (!params.token) {
     return (
       <Card className="max-w-md w-full">
         <CardHeader>

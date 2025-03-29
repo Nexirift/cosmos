@@ -5,7 +5,7 @@ import { checkPlugin } from "@/lib/auth";
 export default async function Page({
   searchParams,
 }: {
-  searchParams: { invite: string };
+  searchParams: Promise<{ invite: string }>;
 }) {
   const { invite } = await searchParams;
 
@@ -14,7 +14,7 @@ export default async function Page({
       {invite || !checkPlugin("invitation") ? (
         <SignUp invite={invite} />
       ) : (
-        <InviteForm params={searchParams} />
+        <InviteForm params={await searchParams} />
       )}
     </div>
   );

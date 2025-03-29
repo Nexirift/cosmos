@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { env } from "@/env";
-import { InvitationWithCreator } from "plugins/invitation-plugin/schema";
+import { InvitationWithCreator } from "@nexirift/better-auth-plugins";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";

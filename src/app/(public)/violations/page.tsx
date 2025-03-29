@@ -22,7 +22,7 @@ import { handleError } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { Dispute, Violation } from "plugins/vortex-plugin/schema";
+import { Dispute, Violation } from "@nexirift/better-auth-plugins";
 import { useCallback, useEffect, useState } from "react";
 
 // Types

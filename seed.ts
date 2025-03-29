@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { faker } from "@faker-js/faker";
 import { db, invitation, user, userRelationship } from "@nexirift/db";
 import { eq, isNull } from "drizzle-orm";
-import { generateInviteCode } from "plugins/invitation-plugin";
+import { generateInviteCode } from "@nexirift/better-auth-plugins";
 
 const password = "P@ssw0rd";
 

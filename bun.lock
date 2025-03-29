@@ -6,6 +6,7 @@
       "dependencies": {
         "@better-auth/expo": "^1.2.6-beta.3",
         "@fontsource/ibm-plex-sans": "^5.2.5",
+        "@nexirift/better-auth-plugins": "^0.0.1",
         "@nexirift/db": "^0.0.1",
         "@polar-sh/better-auth": "^0.0.2",
         "@polar-sh/sdk": "^0.29.3",
@@ -245,6 +246,8 @@
     "@messageformat/runtime": ["@messageformat/runtime@3.0.1", "", { "dependencies": { "make-plural": "^7.0.0" } }, "sha512-6RU5ol2lDtO8bD9Yxe6CZkl0DArdv0qkuoZC+ZwowU+cdRlVE1157wjCmlA5Rsf1Xc/brACnsZa5PZpEDfTFFg=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@0.2.7", "", { "dependencies": { "@emnapi/core": "^1.3.1", "@emnapi/runtime": "^1.3.1", "@tybys/wasm-util": "^0.9.0" } }, "sha512-5yximcFK5FNompXfJFoWanu5l8v1hNGqNHh9du1xETp9HWk/B/PzvchX55WYOPaIeNglG8++68AAiauBAtbnzw=="],
+
+    "@nexirift/better-auth-plugins": ["@nexirift/better-auth-plugins@0.0.1", "http://localhost:4873/@nexirift/better-auth-plugins/-/better-auth-plugins-0.0.1.tgz", { "peerDependencies": { "better-auth": "^1.2.6-beta.3", "zod": "^3.24.2" } }, "sha512-A3smlDgjm0BslEtX3v352nP4WTswQ/ZjeEnBbIT6S7OSfWNT6uZTsu0nsXtunhK9wC8hJzBbixGKgG+puKCRdQ=="],
 
     "@nexirift/db": ["@nexirift/db@0.0.1", "http://localhost:4873/@nexirift/db/-/db-0.0.1.tgz", { "peerDependencies": { "@electric-sql/pglite": "^0.2.17", "drizzle-orm": "^0.40.0", "pg": "^8.13.3", "typescript": "^5.7.3" } }, "sha512-zO3M/MsfRc7tSjQo4HpTZfrOI1tLZ6xd+BLk25fCcFmSSgHpXbb7Edkp2Ge43P7aOeK65o10XRCuKcbpLUACdw=="],
 

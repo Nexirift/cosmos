@@ -4,7 +4,7 @@ import { Invite } from "@/components/invite";
 import { authClient, checkPlugin } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { useParams } from "next/navigation";
-import { InvitationWithCreator } from "plugins/invitation-plugin/schema";
+import type { InvitationWithCreator } from "@nexirift/better-auth-plugins";
 import { useEffect, useState } from "react";
 
 export default function Page() {

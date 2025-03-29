@@ -1,19 +1,21 @@
 "use client";
 
-import { createAuthClient } from "better-auth/react";
 import {
-  usernameClient,
+  birthdayClient,
+  invitationClient,
+  usernameAliasesClient,
+  vortexClient,
+} from "@nexirift/better-auth-plugins";
+import { BetterAuthClientPlugin } from "better-auth";
+import {
+  adminClient,
+  oidcClient,
+  organizationClient,
   passkeyClient,
   twoFactorClient,
-  oidcClient,
-  adminClient,
-  organizationClient,
+  usernameClient,
 } from "better-auth/client/plugins";
-import { birthdayClient } from "plugins/birthday-plugin/client";
-import { usernameAliasesClient } from "plugins/username-aliases-plugin/client";
-import { BetterAuthClientPlugin } from "better-auth";
-import { invitationClient } from "plugins/invitation-plugin/client";
-import { vortexClient } from "plugins/vortex-plugin/client";
+import { createAuthClient } from "better-auth/react";
 
 const nexiriftPlugins = [
   vortexClient(),

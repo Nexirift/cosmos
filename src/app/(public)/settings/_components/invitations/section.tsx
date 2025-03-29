@@ -21,9 +21,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
+import type { Invitation } from "@nexirift/better-auth-plugins";
+import { MAX_INVITATIONS } from "@nexirift/better-auth-plugins";
 import { Loader2, MoreHorizontalIcon, Plus } from "lucide-react";
-import { MAX_INVITATIONS } from "plugins/invitation-plugin";
-import { Invitation } from "plugins/invitation-plugin/schema";
 import {
   Dispatch,
   SetStateAction,
@@ -186,7 +186,10 @@ function InvitationCard({
             <div className="flex items-center">
               <span className="mr-2">{invitation.code}</span>
               {invitation.userId && (
-                <Badge variant="outline" className="bg-green-500 dark:bg-green-700">
+                <Badge
+                  variant="outline"
+                  className="bg-green-500 dark:bg-green-700"
+                >
                   Accepted
                 </Badge>
               )}

@@ -23,6 +23,7 @@
   "dependencies": {
     "@better-auth/expo": "^1.2.6-beta.3",
     "@fontsource/ibm-plex-sans": "^5.2.5",
+    "@nexirift/better-auth-plugins": "^0.0.1",
     "@nexirift/db": "^0.0.1",
     "@polar-sh/better-auth": "^0.0.2",
     "@polar-sh/sdk": "^0.29.3",

@@ -227,7 +227,7 @@ export default function Page() {
   );
 }
 
-export function CreateUser() {
+function CreateUser() {
   const initialState = {
     name: "",
     username: "",
