@@ -54,7 +54,12 @@ const authPlugins = [
   openAPI(),
   bearer(),
   admin(),
-  username(),
+  username({
+    usernameValidator: (username) => {
+      // The username should only contain alphanumeric characters and underscores.
+      return /^[a-zA-Z0-9_]+$/.test(username);
+    },
+  }),
   passkey({
     rpName: env.APP_NAME,
   }),
