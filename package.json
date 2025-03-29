@@ -11,6 +11,7 @@
     "lint": "next lint",
     "generate": "NODE_ENV=development bunx --bun @better-auth/cli generate",
     "apply-patches": "./patches/apply.sh",
+    "switch-registry": "chmod +x ./npm-scripts/switch-registry.sh && ./npm-scripts/switch-registry.sh",
     "db:generate": "cd node_modules/@nexirift/db && bun db:generate",
     "db:migrate": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:migrate",
     "db:studio": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:studio",

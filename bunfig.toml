@@ -1,2 +1,0 @@
-[install.scopes]
-"@nexirift" = { url = "http://localhost:4873/" }
