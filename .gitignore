@@ -43,5 +43,6 @@ next-env.d.ts
 
 # project specific
 auth-schema.ts
-
 codebase.md
+.npmrc
+bunfig.toml
