@@ -38,8 +38,9 @@ export default function SettingsPage() {
           if (entry.isIntersecting) {
             const sectionId = entry.target.id;
             const newHash = `#${sectionId}`;
-            // Only update hash if we're not at the top of the page to prevent unwanted hash changes
-            if (window.location.hash !== newHash && window.scrollY > 0) {
+            // Only update URL if hash changed, without causing scroll
+            if (window.location.hash !== newHash) {
+              window.history.replaceState(null, "", newHash);
               setHash(newHash);
             }
           }

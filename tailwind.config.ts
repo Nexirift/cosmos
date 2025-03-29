@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
+import animate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class", "dark"],
@@ -75,7 +77,11 @@ export default {
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
       },
+      fontFamily: {
+        sans: ["var(--font-ibm-plex-sans)", ...defaultTheme.fontFamily.sans],
+        mono: ["var(--font-ibm-plex-mono)", ...defaultTheme.fontFamily.mono],
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;
