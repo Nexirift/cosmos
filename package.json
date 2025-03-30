@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Cosmos, the authentication server for Nexirift.",
   "author": "Nexirift",
-  "license": "GPL-3.0-only",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -11,15 +11,15 @@
     "lint": "next lint",
     "generate": "NODE_ENV=development bunx --bun @better-auth/cli generate",
     "apply-patches": "./patches/apply.sh",
-    "switch-registry": "chmod +x ./npm-scripts/switch-registry.sh && ./npm-scripts/switch-registry.sh",
+    "switch-registry": "chmod +x ./utility-scripts/switch-registry.sh && ./utility-scripts/switch-registry.sh",
     "db:generate": "cd node_modules/@nexirift/db && bun db:generate",
     "db:migrate": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:migrate",
     "db:studio": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:studio",
     "db:all": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:all",
-    "db:start": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:start",
-    "db:reset": "set -a && source .env && set +a && cd node_modules/@nexirift/db && bun db:reset",
-    "kv:start": "cd node_modules/@nexirift/db && bun kv:start",
-    "kv:reset": "cd node_modules/@nexirift/db && bun kv:reset"
+    "db:start": "./utility-scripts/db/start.sh",
+    "db:reset": "./utility-scripts/db/reset.sh",
+    "kv:start": "./utility-scripts/kv/start.sh",
+    "kv:reset": "./utility-scripts/kv/reset.sh"
   },
   "dependencies": {
     "@better-auth/expo": "^1.2.6-beta.3",
