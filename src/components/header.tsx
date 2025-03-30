@@ -36,9 +36,9 @@ export function Header() {
     },
     {
       icon: ShieldIcon,
-      tooltip: "Admin",
-      link: "/admin",
-      shown: session?.user.role === "admin",
+      tooltip: "Moderation",
+      link: "/moderation",
+      shown: session?.user.role?.includes("admin"),
     },
   ];
 
@@ -52,7 +52,7 @@ export function Header() {
             <Button
               onClick={async () => {
                 await authClient.admin.stopImpersonating();
-                router.push("/admin");
+                router.push("/moderation");
               }}
               variant="destructive"
             >

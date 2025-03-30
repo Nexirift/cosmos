@@ -22,7 +22,7 @@ const content = [
     items: [
       {
         title: "Home",
-        url: "/admin",
+        url: "/moderation",
         icon: HomeIcon,
       },
     ],
@@ -32,7 +32,7 @@ const content = [
     items: [
       {
         title: "Users",
-        url: "/admin/directory/users",
+        url: "/moderation/directory/users",
         icon: UsersIcon,
       },
     ],

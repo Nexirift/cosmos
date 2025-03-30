@@ -1,30 +1,6 @@
 "use client";
 
-import { columns, Data } from "./columns";
-import { authClient } from "@/lib/auth-client";
-import { useEffect, useState, useCallback } from "react";
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -35,16 +11,43 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { authClient } from "@/lib/auth-client";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { columns, Data } from "./columns";
 
-const COLUMNS_PREFERENCE_KEY = "/admin/directory/users---(columns-preference)";
+const COLUMNS_PREFERENCE_KEY =
+  "/moderation/directory/users---(columns-preference)";
 
 export default function Page() {
+  const router = useRouter();
   const [data, setData] = useState<Data>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(2);
@@ -171,8 +174,14 @@ export default function Page() {
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
                     <TableRow
-                      key={row.id}
                       data-state={row.getIsSelected() && "selected"}
+                      key={row.id}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        router.push(
+                          `/moderation/directory/users/${row.original.id}`,
+                        );
+                      }}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id} title={cell.id}>

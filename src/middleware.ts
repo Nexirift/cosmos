@@ -20,8 +20,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    request.nextUrl.pathname.startsWith("/admin") &&
-    session.user.role !== "admin"
+    request.nextUrl.pathname.startsWith("/moderation") &&
+    !session.user.role?.includes("admin")
   ) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
@@ -30,5 +30,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/settings/:path*", "/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/settings/:path*",
+    "/violations/:path*",
+    "/moderation/:path*",
+  ],
 };
