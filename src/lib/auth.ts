@@ -90,7 +90,7 @@ const authPlugins = [
   }),
   oidcProvider({
     loginPage: "/sign-in",
-    consentPage: "/consent",
+    consentPage: "/oauth/consent",
   }),
   // polar({
   //   client: polarClient,

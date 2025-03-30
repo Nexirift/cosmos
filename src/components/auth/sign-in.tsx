@@ -1,5 +1,6 @@
 "use client";
 
+import { ProviderName, providers } from "@/components/auth/social-providers";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,10 +16,10 @@ import { authClient, checkPlugin } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { Key, Loader2 } from "lucide-react";
+import { SearchParams } from "next/dist/server/request/search-params";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ProviderName, providers } from "@/components/auth/social-providers";
 
 type AuthOptions = {
   onSuccess: (context: {
@@ -28,8 +29,12 @@ type AuthOptions = {
 
 export function SignIn({
   enabledProviders = [],
+  clientName,
+  params,
 }: {
   enabledProviders: Array<string>;
+  clientName?: string | null;
+  params?: SearchParams;
 }) {
   const { data: session, isPending } = authClient.useSession();
   const [identifier, setIdentifier] = useState("");
@@ -38,6 +43,10 @@ export function SignIn({
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
   const usernameEnabled = checkPlugin("username");
+
+  const paramsString = Object.entries(params || {})
+    .map(([key, value], index) => `${index === 0 ? "?" : "&"}${key}=${value}`)
+    .join("");
 
   useEffect(() => {
     if (session && !isPending) {
@@ -67,9 +76,13 @@ export function SignIn({
 
       const options: AuthOptions = {
         async onSuccess(context) {
-          router.push(
-            context.data.twoFactorRedirect ? "/sign-in/2fa" : callbackURL,
-          );
+          if (params?.prompt === "consent") {
+            router.push("/oauth/consent" + paramsString);
+          } else {
+            router.push(
+              context.data.twoFactorRedirect ? "/sign-in/2fa" : callbackURL,
+            );
+          }
         },
       };
 
@@ -128,10 +141,19 @@ export function SignIn({
   return (
     <Card className="max-w-md w-full">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
+        <CardTitle className="text-lg md:text-xl">
+          Sign {clientName ? `in to ${clientName}` : "In"}
+        </CardTitle>
         <CardDescription className="text-xs md:text-sm">
           Enter your {usernameEnabled && !isEmail ? "username" : "email"} below
-          to login to your account.
+          to login to your account
+          {clientName && (
+            <span>
+              {" "}
+              and continue to the application <b>{clientName}</b>
+            </span>
+          )}
+          .
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-6">
@@ -190,7 +212,7 @@ export function SignIn({
               </Label>
             </div>
 
-            <div className="relative grid gap-2">
+            <div className="relative grid gap-2 mt-2">
               {loading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
                   <Loader2 className="h-8 w-8 animate-spin" />

@@ -9,7 +9,7 @@ function handleError(error: Error) {
 }
 
 function initials(name: string = "Unknown") {
-  const nameParts = name?.split(" ") || [];
+  const nameParts = name?.toUpperCase()?.split(" ") || [];
 
   if (nameParts.length < 2) return name.slice(0, 1);
 

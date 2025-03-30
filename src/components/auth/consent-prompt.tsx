@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -26,6 +27,7 @@ export function ConsentPrompt({
 }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
 
   const scopeMap = {
     openid: {
@@ -75,6 +77,10 @@ export function ConsentPrompt({
     }
   };
 
+  if (isPending) {
+    return <Loader2 className="h-8 w-8 animate-spin" />;
+  }
+
   return (
     <Card className="w-full max-w-md shadow-lg gap-4 hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="space-y-2">
@@ -116,6 +122,12 @@ export function ConsentPrompt({
           </div>
         </CardDescription>
       </CardHeader>
+      <CardContent>
+        <p className="text-center text-sm text-muted-foreground flex gap-1 items-center justify-center mb-2">
+          Consenting as {session?.user.name ?? session?.user.username} (
+          {session?.user.username})
+        </p>
+      </CardContent>
       <CardFooter className="flex flex-col gap-2">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
@@ -137,7 +149,7 @@ export function ConsentPrompt({
             Allow
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground text-center font-light">
+        <p className="text-xs text-muted-foreground text-center font-light mt-2">
           We are not affiliated with third-party applications.
         </p>
       </CardFooter>
