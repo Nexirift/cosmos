@@ -38,6 +38,16 @@ export default function Page() {
             {session?.user ? "Go to Dashboard" : "Sign In"}
           </Link>
         </Button>
+        <Button
+          onClick={async () => {
+            await authClient.oauth2.register({
+              client_name: "Test",
+              redirect_uris: ["http://localhost:3000/oauth2/callback"],
+            });
+          }}
+        >
+          Test
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,12 @@
 import { env } from "@/env";
 import { emailService, EmailTemplate } from "@/lib/email";
 import { expo } from "@better-auth/expo";
+import {
+  birthday,
+  invitation,
+  usernameAliases,
+  vortex,
+} from "@nexirift/better-auth-plugins";
 import { connect, db } from "@nexirift/db";
 import { betterAuth, BetterAuthPlugin, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -17,12 +23,6 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import jwt from "jsonwebtoken";
-import {
-  birthday,
-  invitation,
-  usernameAliases,
-  vortex,
-} from "@nexirift/better-auth-plugins";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
@@ -48,7 +48,7 @@ const nexiriftPlugins = [
   }),
   birthday(),
   usernameAliases(),
-  invitation(),
+  ...(env.INVITATION_DISABLED ? [] : [invitation()]),
 ] satisfies BetterAuthPlugin[];
 
 const authPlugins = [
@@ -90,6 +90,7 @@ const authPlugins = [
   }),
   oidcProvider({
     loginPage: "/sign-in",
+    consentPage: "/consent",
   }),
   // polar({
   //   client: polarClient,
@@ -203,6 +204,19 @@ export const auth = betterAuth({
   },
   plugins,
   hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      // Disable OIDC registration
+      if (ctx.path.startsWith("/oauth2/register")) {
+        return new Response(
+          JSON.stringify({
+            error: "OAuth2 registration is not supported",
+          }),
+          {
+            status: 400,
+          },
+        );
+      }
+    }),
     after: createAuthMiddleware(async (ctx) => {
       if (!ctx.path.startsWith("/verify-email")) {
         return;

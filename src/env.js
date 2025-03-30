@@ -5,7 +5,9 @@ const defaultLogo = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAMAA
 
 export const env = createEnv({
   server: {
-    NODE_ENV: z.enum(["development", "test", "production"]),
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
     APP_NAME: z.string().default("Cosmos"),
     APP_LOGO: z.string().default(defaultLogo),
     IS_NEXIRIFT_MODE: z.boolean().default(true),
@@ -21,6 +23,7 @@ export const env = createEnv({
     SMTP_AUTH_PASS: z.string(),
     SMTP_FROM: z.string().email(),
     SUPPORT_EMAIL: z.string().email(),
+    INVITATION_DISABLED: z.boolean().default(false),
 
     /* Auth Providers */
     AUTH_PROVIDER_GOOGLE_CLIENT_ID: z.string().optional(),
@@ -46,6 +49,7 @@ export const env = createEnv({
     NEXT_PUBLIC_NOVA_URL: z.string().url().optional(),
     NEXT_PUBLIC_APP_NAME: z.string().default("Cosmos"),
     NEXT_PUBLIC_APP_LOGO: z.string().default(defaultLogo),
+    NEXT_PUBLIC_INVITATION_DISABLED: z.boolean().default(false),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -67,6 +71,8 @@ export const env = createEnv({
     SMTP_AUTH_PASS: process.env.SMTP_AUTH_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
     SUPPORT_EMAIL: process.env.SUPPORT_EMAIL,
+    INVITATION_DISABLED: !!process.env.INVITATION_DISABLED,
+    NEXT_PUBLIC_INVITATION_DISABLED: !!process.env.INVITATION_DISABLED,
 
     /* Auth Providers */
     AUTH_PROVIDER_GOOGLE_CLIENT_ID: process.env.AUTH_PROVIDER_GOOGLE_CLIENT_ID,

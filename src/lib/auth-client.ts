@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/env";
 import {
   birthdayClient,
   invitationClient,
@@ -21,7 +22,7 @@ const nexiriftPlugins = [
   vortexClient(),
   birthdayClient(),
   usernameAliasesClient(),
-  invitationClient(),
+  ...(env.NEXT_PUBLIC_INVITATION_DISABLED ? [] : [invitationClient()]),
 ] satisfies BetterAuthClientPlugin[];
 
 const authPlugins = [
