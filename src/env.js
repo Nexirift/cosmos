@@ -24,6 +24,7 @@ export const env = createEnv({
     SMTP_FROM: z.string().email(),
     SUPPORT_EMAIL: z.string().email(),
     INVITATION_DISABLED: z.boolean().default(false),
+    ALLOW_OAUTH_REGISTRATION: z.boolean().default(false),
 
     /* Auth Providers */
     AUTH_PROVIDER_GOOGLE_CLIENT_ID: z.string().optional(),
@@ -73,6 +74,7 @@ export const env = createEnv({
     SUPPORT_EMAIL: process.env.SUPPORT_EMAIL,
     INVITATION_DISABLED: !!process.env.INVITATION_DISABLED,
     NEXT_PUBLIC_INVITATION_DISABLED: !!process.env.INVITATION_DISABLED,
+    ALLOW_OAUTH_REGISTRATION: process.env.ALLOW_OAUTH_REGISTRATION,
 
     /* Auth Providers */
     AUTH_PROVIDER_GOOGLE_CLIENT_ID: process.env.AUTH_PROVIDER_GOOGLE_CLIENT_ID,

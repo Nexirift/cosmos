@@ -207,6 +207,7 @@ export const auth = betterAuth({
     before: createAuthMiddleware(async (ctx) => {
       // Disable OIDC registration
       if (ctx.path.startsWith("/oauth2/register")) {
+        if (env.ALLOW_OAUTH_REGISTRATION) return;
         return new Response(
           JSON.stringify({
             error: "OAuth2 registration is not supported",
