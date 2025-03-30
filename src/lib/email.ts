@@ -15,7 +15,10 @@ export enum EmailTemplate {
 
 export class EmailService {
   private transporter: nodemailer.Transporter;
-  private readonly templateDir = path.join(process.cwd(), "templates");
+  private readonly templateDir = path.join(
+    process.cwd(),
+    "node_modules/@nexirift/emails/dist",
+  );
 
   constructor() {
     this.transporter = nodemailer.createTransport({
