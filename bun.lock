@@ -7,7 +7,8 @@
         "@better-auth/expo": "^1.2.6-beta.3",
         "@fontsource/ibm-plex-sans": "^5.2.5",
         "@nexirift/better-auth-plugins": "^0.0.1",
-        "@nexirift/db": "^0.0.1",
+        "@nexirift/db": "^0.0.1-main.a1f0b067c547f2d372465029261199e17b05474a",
+        "@nexirift/emails": "0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf",
         "@polar-sh/better-auth": "^0.0.2",
         "@polar-sh/sdk": "^0.29.3",
         "@radix-ui/react-alert-dialog": "^1.1.6",
@@ -249,7 +250,9 @@
 
     "@nexirift/better-auth-plugins": ["@nexirift/better-auth-plugins@0.0.1", "http://localhost:4873/@nexirift/better-auth-plugins/-/better-auth-plugins-0.0.1.tgz", { "peerDependencies": { "better-auth": "^1.2.6-beta.3", "zod": "^3.24.2" } }, "sha512-A3smlDgjm0BslEtX3v352nP4WTswQ/ZjeEnBbIT6S7OSfWNT6uZTsu0nsXtunhK9wC8hJzBbixGKgG+puKCRdQ=="],
 
-    "@nexirift/db": ["@nexirift/db@0.0.1", "http://localhost:4873/@nexirift/db/-/db-0.0.1.tgz", { "peerDependencies": { "@electric-sql/pglite": "^0.2.17", "drizzle-orm": "^0.40.0", "pg": "^8.13.3", "typescript": "^5.7.3" } }, "sha512-zO3M/MsfRc7tSjQo4HpTZfrOI1tLZ6xd+BLk25fCcFmSSgHpXbb7Edkp2Ge43P7aOeK65o10XRCuKcbpLUACdw=="],
+    "@nexirift/db": ["@nexirift/db@0.0.1-main.a1f0b067c547f2d372465029261199e17b05474a", "https://code.nexirift.com/dev/~npm/@nexirift%2Fdb/-/0.0.1-main.a1f0b067c547f2d372465029261199e17b05474a/@nexirift%2Fdb-0.0.1-main.a1f0b067c547f2d372465029261199e17b05474a.tgz", { "peerDependencies": { "@electric-sql/pglite": "^0.2.17", "drizzle-orm": "^0.40.0", "pg": "^8.13.3", "typescript": "^5.7.3" } }, "sha512-ywGAPTU2TiDeL4wcz8Fi2wYBJMKZraANRGzTfr4l8Md2Q5F9u2c7peHpaKYO+WF7YE5NuqHzvVX0ENWVTbt4Qg=="],
+
+    "@nexirift/emails": ["@nexirift/emails@0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf", "https://code.nexirift.com/dev/~npm/@nexirift%2Femails/-/0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf/@nexirift%2Femails-0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf.tgz", {}, "sha512-c3oYNytDM4/4QHLotxXOOi3KHBbT7f0CV81N7yNwxAgeYUwQJOxzMMFTCAq8tXkBcqOtUU8ZVgi3tpNbkJZJPg=="],
 
     "@next/env": ["@next/env@15.2.4", "", {}, "sha512-+SFtMgoiYP3WoSswuNmxJOCwi06TdWE733D+WPjpXIe4LXGULwEaofiiAy6kbS0+XjM5xF5n3lKuBwN2SnqD9g=="],
 

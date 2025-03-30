@@ -12,7 +12,7 @@ Cosmos is the official authentication server for Nexirift, providing secure user
 
 - Node.js v22.13.0 or greater
 - Bun v1.2.2 or greater
-- Local NPM registry
+- Read the [contributing guide](https://github.com/Nexirift/.github/blob/main/contributing/README.md)
 
 #### For Database
 
@@ -20,19 +20,6 @@ Cosmos is the official authentication server for Nexirift, providing secure user
 - Docker Compose v2.32.4 or greater
 
 *These prerequisites are based on the versions that we are using.*
-
-### Local NPM Registry
-
-Our internal packages are not hosted on the public NPM registry, such as `@nexirift/db`. To use our internal projects, you will need to set up a local NPM registry. During our testing, we noticed that Next.js and shadcn/ui don't like Bun's linked packages.
-
-1. Install Verdaccio: `bun i -g verdaccio`
-2. Start the Verdaccio server locally: `verdaccio`
-3. Create an account: `bunx npm adduser --registry http://localhost:4873`
-    - Example: `developer` | `P@ssw0rd` | `developer@nexirift.com`
-4. Clone any `@nexirift/*` packages using Git
-5. Run `bun publish` on the cloned repositories
-
-*More information: https://verdaccio.org/docs/setup-bun*
 
 ### Notice
 
@@ -56,4 +43,4 @@ This software is currently in development and should not be used in production u
 
 ## License
 
-Nexirift's internal projects are licensed under the [GNU General Public License v3.0](LICENSE).
+Nexirift's internal projects are licensed under the [GNU Affero General Public License v3.0](LICENSE).
