@@ -113,7 +113,7 @@ export function InvitationsSection() {
             onClick={handleCreateInvitation}
             variant="secondary"
             size="sm"
-            disabled={isCreating || invitations.length >= 3}
+            disabled={isCreating || invitations.length >= 3} // TODO: FIX ME
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />

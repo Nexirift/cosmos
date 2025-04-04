@@ -3,7 +3,6 @@
 import { Header } from "@/components/header";
 import { Loader } from "@/components/loader";
 import { authClient } from "@/lib/auth-client";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

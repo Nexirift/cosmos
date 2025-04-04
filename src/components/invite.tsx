@@ -17,6 +17,7 @@ import { InvitationWithCreator } from "@nexirift/better-auth-plugins";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader } from "./loader";
+import { DEFAULTS } from "@/lib/defaults";
 
 export function Invite({ data }: { data: InvitationWithCreator }) {
   const { appName, isLoading } = useConfig();
@@ -66,7 +67,8 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
             <AvatarImage src={data.creator.image} />
             <AvatarFallback>{initials()}</AvatarFallback>
           </Avatar>
-          {data.creator.name} has invited you to join {appName ?? "Cosmos"}.
+          {data.creator.name} has invited you to join{" "}
+          {appName ?? DEFAULTS.appName}.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -91,7 +93,7 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
       </CardContent>
       <CardFooter>
         <Label className="text-gray-500 text-sm text-center w-full">
-          {appName} is currently in a private alpha phase.
+          {appName ?? DEFAULTS.appName} is currently in a private alpha phase.
         </Label>
       </CardFooter>
     </Card>
