@@ -53,8 +53,6 @@ export function ConsentPrompt({
         accept,
       });
 
-      console.log(result);
-
       const error = result?.error as unknown as { error_description?: string };
 
       if (error?.error_description) {

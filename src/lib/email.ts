@@ -2,6 +2,7 @@ import * as nodemailer from "nodemailer";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { env } from "@/env";
+import { checkCache } from "./actions";
 
 /**
  * Enum for available email templates
@@ -35,15 +36,15 @@ export class EmailService {
   /**
    * Parse template with dynamic variables
    */
-  private parseDynamicTemplate(
+  private async parseDynamicTemplate(
     dynamicVariables: Record<string, unknown>,
     templateName: EmailTemplate | string,
-  ): string {
+  ): Promise<string> {
     const templatePath = path.join(this.templateDir, templateName + ".html");
 
     const defaultVariables = {
-      app_name: env.APP_NAME,
-      app_logo: env.APP_LOGO,
+      app_name: await checkCache("app_name"),
+      app_logo: await checkCache("app_logo"),
       home_url: env.BETTER_AUTH_URL,
       support_email: env.SUPPORT_EMAIL,
     };
@@ -75,7 +76,7 @@ export class EmailService {
     variables: Record<string, unknown> = {},
     text?: string,
   ): Promise<nodemailer.SentMessageInfo> {
-    const html = this.parseDynamicTemplate(variables, template);
+    const html = await this.parseDynamicTemplate(variables, template);
 
     const fallbackText = text
       ? `${text}\n\nNote: This version of the email only shows up if your email client couldn't render the HTML content.`

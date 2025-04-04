@@ -11,13 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { env } from "@/env";
-import { InvitationWithCreator } from "@nexirift/better-auth-plugins";
-import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useConfig } from "@/lib/common";
+import { InvitationWithCreator } from "@nexirift/better-auth-plugins";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Loader } from "./loader";
 
 export function Invite({ data }: { data: InvitationWithCreator }) {
+  const { appName, isLoading } = useConfig();
+
   const [declined, setDeclined] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
   const router = useRouter();
@@ -45,6 +48,8 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
     return `${firstInitial}${secondInitial}`.toUpperCase();
   }
 
+  if (isLoading) return <Loader />;
+
   return (
     <Card className="max-w-md shadow-lg hover:shadow-xl transition-shadow duration-300 relative">
       {declined && (
@@ -61,8 +66,7 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
             <AvatarImage src={data.creator.image} />
             <AvatarFallback>{initials()}</AvatarFallback>
           </Avatar>
-          {data.creator.name} has invited you to join{" "}
-          {env.NEXT_PUBLIC_APP_NAME ?? "Cosmos"}.
+          {data.creator.name} has invited you to join {appName ?? "Cosmos"}.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -87,7 +91,7 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
       </CardContent>
       <CardFooter>
         <Label className="text-gray-500 text-sm text-center w-full">
-          {env.NEXT_PUBLIC_APP_NAME} is currently in a private alpha phase.
+          {appName} is currently in a private alpha phase.
         </Label>
       </CardFooter>
     </Card>

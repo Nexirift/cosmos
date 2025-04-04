@@ -6,6 +6,7 @@ import { handleError } from "@/lib/common";
 import { useParams } from "next/navigation";
 import type { InvitationWithCreator } from "@nexirift/better-auth-plugins";
 import { useEffect, useState } from "react";
+import { Loader } from "@/components/loader";
 
 export default function Page() {
   const [invitationData, setInvitationData] =
@@ -57,11 +58,7 @@ export default function Page() {
   }, [params.id]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        Loading...
-      </div>
-    );
+    return <Loader fillScreen />;
   }
 
   if (error) {

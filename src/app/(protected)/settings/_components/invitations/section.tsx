@@ -22,7 +22,6 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
 import type { Invitation } from "@nexirift/better-auth-plugins";
-import { MAX_INVITATIONS } from "@nexirift/better-auth-plugins";
 import { Loader2, MoreHorizontalIcon, Plus } from "lucide-react";
 import {
   Dispatch,
@@ -114,7 +113,7 @@ export function InvitationsSection() {
             onClick={handleCreateInvitation}
             variant="secondary"
             size="sm"
-            disabled={isCreating || invitations.length >= MAX_INVITATIONS}
+            disabled={isCreating || invitations.length >= 3}
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />

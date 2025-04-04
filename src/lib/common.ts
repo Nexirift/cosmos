@@ -1,4 +1,7 @@
+import React from "react";
 import { toast } from "sonner";
+import { getAllSettings } from "./actions";
+import { SettingKey } from "./defaults";
 
 /**
  * Displays an error toast notification to the user
@@ -19,4 +22,23 @@ function initials(name: string = "Unknown") {
   return `${firstInitial}${secondInitial}`.toUpperCase();
 }
 
-export { handleError, initials };
+const useConfig = () => {
+  const [config, setConfig] = React.useState<
+    Partial<Record<keyof typeof SettingKey, string>>
+  >({});
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchConfig = async () => {
+      if (!isLoading) return;
+      const result = await getAllSettings();
+      setConfig(result);
+      setIsLoading(false);
+    };
+    fetchConfig();
+  }, [isLoading]);
+
+  return { ...config, isLoading };
+};
+
+export { handleError, initials, useConfig };

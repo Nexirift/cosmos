@@ -11,6 +11,7 @@ import { connect, db } from "@nexirift/db";
 import { betterAuth, BetterAuthPlugin, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
+  jwt,
   admin,
   bearer,
   createAuthMiddleware,
@@ -22,7 +23,9 @@ import {
   username,
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
-import jwt from "jsonwebtoken";
+import { default as _jwt } from "jsonwebtoken";
+import { checkCache } from "./actions";
+import { DEFAULTS } from "./defaults";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
@@ -38,17 +41,19 @@ connect();
 //   server: env.NODE_ENV === "production" ? "production" : "sandbox",
 // });
 
+const _APP_NAME = (await checkCache("app_name")) ?? DEFAULTS.appName;
+
 const nexiriftPlugins = [
-  vortex({
-    schema: {
-      dispute: {
-        modelName: "violationDispute",
-      },
-    },
-  }),
+  vortex(),
   birthday(),
   usernameAliases(),
-  ...(env.INVITATION_DISABLED ? [] : [invitation()]),
+  ...(env.INVITATION_DISABLED
+    ? []
+    : [
+        invitation({
+          bypassCode: env.INVITATION_BYPASS_CODE,
+        }),
+      ]),
 ] satisfies BetterAuthPlugin[];
 
 const authPlugins = [
@@ -63,7 +68,7 @@ const authPlugins = [
     },
   }),
   passkey({
-    rpName: env.APP_NAME,
+    rpName: _APP_NAME,
   }),
   twoFactor(),
   multiSession({
@@ -91,7 +96,11 @@ const authPlugins = [
   oidcProvider({
     loginPage: "/sign-in",
     consentPage: "/oauth/consent",
+    metadata: {
+      issuer: env.BETTER_AUTH_URL + "/api/auth",
+    },
   }),
+  jwt(),
   // polar({
   //   client: polarClient,
   //   createCustomerOnSignUp: true,
@@ -118,7 +127,7 @@ const plugins = [...nexiriftPlugins, ...authPlugins];
  * Auth configuration for Nexirift application
  */
 export const auth = betterAuth({
-  appName: env.APP_NAME,
+  appName: _APP_NAME,
   trustedOrigins:
     env.NODE_ENV === "development"
       ? [
@@ -231,7 +240,7 @@ export const auth = betterAuth({
       }
 
       try {
-        const verified = jwt.verify(token, ctx.context.secret, {
+        const verified = _jwt.verify(token, ctx.context.secret, {
           algorithms: ["HS256"],
         }) as { email: string; updateTo?: string };
 

@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function InviteForm({ params }: { params: { invite: string } }) {
-  const [inviteCode, setInviteCode] = useState("");
+  const [inviteCode, setInviteCode] = useState(params.invite);
   const [isValidating, setIsValidating] = useState(false);
   const router = useRouter();
 
@@ -48,8 +48,6 @@ export function InviteForm({ params }: { params: { invite: string } }) {
       setIsValidating(false);
     }
   };
-
-  console.log(params);
 
   return (
     <Card className="w-[350px]">

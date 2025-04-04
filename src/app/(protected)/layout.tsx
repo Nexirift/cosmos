@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/header";
+import { Loader } from "@/components/loader";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -21,11 +22,7 @@ export default function RootLayout({
   }, [session, isPending, router]);
 
   if (!session || isPending) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <Loader fillScreen />;
   }
 
   return (

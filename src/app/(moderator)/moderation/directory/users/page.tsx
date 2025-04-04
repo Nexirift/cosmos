@@ -42,6 +42,7 @@ import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { columns, Data } from "./columns";
+import { Loader } from "@/components/loader";
 
 const COLUMNS_PREFERENCE_KEY =
   "/moderation/directory/users---(columns-preference)";
@@ -73,7 +74,6 @@ export default function Page() {
           searchValue: filterValue,
         },
       });
-      console.log(result);
       setData(result.data);
       setTotalPages(Math.ceil((result.data?.total ?? 1) / pageSize));
     } catch (error) {
@@ -149,7 +149,7 @@ export default function Page() {
         </DropdownMenu>
       </div>
       {isLoading ? (
-        <div className="text-center py-4">Loading...</div>
+        <Loader />
       ) : data ? (
         <>
           <div className="rounded-md border">

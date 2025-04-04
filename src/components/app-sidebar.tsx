@@ -1,4 +1,4 @@
-import { HomeIcon, UsersIcon } from "lucide-react";
+import { NavUser, User } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -10,9 +10,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { NavUser, User } from "@/components/nav-user";
+import { cn } from "@/lib/utils";
+import { HomeIcon, SettingsIcon, UsersIcon } from "lucide-react";
+import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -37,12 +38,25 @@ const content = [
       },
     ],
   },
+  {
+    label: "System",
+    items: [
+      {
+        title: "Settings",
+        url: "/moderation/system/settings",
+        icon: SettingsIcon,
+      },
+    ],
+  },
 ];
 
 export async function AppSidebar() {
+  const headerList = await headers();
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: headerList,
   });
+
+  const pathname = headerList.get("x-current-path");
 
   return (
     <Sidebar className="min-w-60">
@@ -64,7 +78,13 @@ export async function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem
+                    key={item.title}
+                    className={cn(
+                      pathname === item.url &&
+                        "bg-sidebar-accent text-sidebar-accent-foreground rounded-md",
+                    )}
+                  >
                     <SidebarMenuButton asChild>
                       <a href={item.url}>
                         <item.icon />

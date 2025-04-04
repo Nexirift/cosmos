@@ -10,6 +10,7 @@ import {
 import { BetterAuthClientPlugin } from "better-auth";
 import {
   adminClient,
+  jwtClient,
   oidcClient,
   organizationClient,
   passkeyClient,
@@ -32,12 +33,13 @@ const authPlugins = [
   twoFactorClient(),
   organizationClient(),
   oidcClient(),
+  jwtClient(),
 ] satisfies BetterAuthClientPlugin[];
 
 const plugins = [...nexiriftPlugins, ...authPlugins];
 
 export const authClient = createAuthClient({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://192.168.1.232:3000",
   plugins,
 });
 
