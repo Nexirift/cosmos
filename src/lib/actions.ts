@@ -30,6 +30,14 @@ async function checkDb(key: string): Promise<DbResult> {
 async function setDb(key: string, value: SettingValue): Promise<void> {
   if (!key) return;
 
+  // Check if value matches default first
+  const settingKey = Object.keys(SettingKey).find(
+    (k) => SettingKey[k as keyof typeof SettingKey] === key,
+  );
+  if (settingKey && DEFAULTS[settingKey as keyof typeof SettingKey] === value) {
+    return;
+  }
+
   try {
     await connect();
     const stringValue = String(value);
