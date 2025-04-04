@@ -81,10 +81,10 @@ export const BasicDetailsForm = ({
     if (!isLoading) {
       setFormState((prev) => ({
         ...prev,
-        appName: config.appName ?? prev.appName,
-        appLogo: config.appLogo ?? prev.appLogo,
+        appName: String(config.appName ?? prev.appName),
+        appLogo: String(config.appLogo ?? prev.appLogo),
         nexiriftMode: Boolean(config.nexiriftMode ?? prev.nexiriftMode),
-        novaUrl: config.novaUrl ?? prev.novaUrl,
+        novaUrl: String(config.novaUrl ?? prev.novaUrl),
       }));
     }
   }, [
