@@ -80,10 +80,10 @@ function RestartSetupButton({ onClick }: { onClick?: () => void }) {
 
 export function BasicDetails() {
   const [formState, setFormState] = useState({
-    appName: DEFAULTS.appName,
-    appLogo: DEFAULTS.appLogo,
-    nexiriftMode: DEFAULTS.nexiriftMode,
-    novaUrl: DEFAULTS.novaUrl,
+    appName: String(DEFAULTS.appName),
+    appLogo: String(DEFAULTS.appLogo),
+    nexiriftMode: Boolean(DEFAULTS.nexiriftMode),
+    novaUrl: String(DEFAULTS.novaUrl),
     logoError: "",
   });
 
