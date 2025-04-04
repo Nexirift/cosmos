@@ -3,7 +3,7 @@
 import { connect, cosmosSetting, db } from "@nexirift/db";
 import { redis } from "./redis";
 import { env } from "@/env";
-import { SettingKey } from "./defaults";
+import { DEFAULTS, SettingKey } from "./defaults";
 
 const SETTING_KEY = "cosmos_setting";
 const CACHE_TTL = 3600;
@@ -48,33 +48,88 @@ async function setDb(key: string, value: SettingValue): Promise<void> {
   }
 }
 
-async function checkCache(key: string | SettingKey): Promise<string | null> {
+async function checkCache(
+  key: string | SettingKey,
+): Promise<string | boolean | number | string[] | number[]> {
   if (!key) {
     console.warn("[Cache Warning] Attempted to check cache with empty key");
-    return null;
+    return "";
   }
 
   const cacheKey = `${SETTING_KEY}:${key}`;
 
   try {
-    // Check cache first
-    const cachedData = await redis.get(cacheKey);
-    if (cachedData) {
-      return cachedData;
+    // Try cache first
+    const cachedResult = await redis.get(cacheKey);
+    if (cachedResult) {
+      return parseValue(cachedResult);
     }
 
-    // Fall back to DB if not in cache
-    const dbData = await checkDb(key);
-    if (dbData?.value) {
-      await redis.set(cacheKey, dbData.value, "EX", CACHE_TTL);
-      return dbData.value;
+    // Try database next
+    const dbResult = await checkDb(key);
+    if (dbResult?.value) {
+      await redis.set(cacheKey, dbResult.value, "EX", CACHE_TTL);
+      return parseValue(dbResult.value);
     }
 
-    return null;
+    // Finally check defaults
+    const settingKey = Object.keys(SettingKey).find(
+      (k) => SettingKey[k as keyof typeof SettingKey] === key,
+    );
+
+    if (settingKey) {
+      const defaultValue = DEFAULTS[settingKey as keyof typeof SettingKey];
+      //await redis.set(cacheKey, String(defaultValue), "EX", CACHE_TTL);
+      return defaultValue;
+    }
+
+    return "";
   } catch (error) {
     console.error(`[Cache Error] Failed to check key ${key}:`, error);
-    return null;
+    return "";
   }
+}
+
+function parseValue(
+  value: string,
+): string | boolean | number | string[] | number[] {
+  // Handle booleans
+  const lowerValue = value.toLowerCase();
+  if (lowerValue === "true") return true;
+  if (lowerValue === "false") return false;
+
+  // Handle numbers
+  if (!isNaN(Number(value))) {
+    const num = Number(value);
+    if (Number.isInteger(num)) return parseInt(value);
+    return num;
+  }
+
+  // Handle arrays and objects
+  try {
+    if (value.startsWith("[") || value.startsWith("{")) {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        // Check if array contains all strings or all numbers
+        const isStringArray = parsed.every((item) => typeof item === "string");
+        const isNumberArray = parsed.every((item) => typeof item === "number");
+
+        if (isStringArray) return parsed as string[];
+        if (isNumberArray) return parsed as number[];
+      }
+      return value; // Return as string if not string[] or number[]
+    }
+  } catch {
+    // If JSON parsing fails, continue to string handling
+  }
+
+  // Handle special strings
+  if (value === "NaN") return NaN;
+  if (value === "Infinity") return Infinity;
+  if (value === "-Infinity") return -Infinity;
+
+  // Default to string
+  return value;
 }
 
 async function clearCache(): Promise<number> {
@@ -99,10 +154,18 @@ async function isSetupComplete(): Promise<boolean> {
 }
 
 async function getAllSettings(): Promise<
-  Record<keyof typeof SettingKey, string | boolean | number>
+  Record<
+    keyof typeof SettingKey,
+    string | boolean | number | string[] | number[]
+  >
 > {
-  const settings: Record<keyof typeof SettingKey, string | boolean | number> =
-    {} as Record<keyof typeof SettingKey, string | boolean | number>;
+  const settings: Record<
+    keyof typeof SettingKey,
+    string | boolean | number | string[] | number[]
+  > = {} as Record<
+    keyof typeof SettingKey,
+    string | boolean | number | string[] | number[]
+  >;
   const settingPromises = Object.values(SettingKey).map(async (key) => {
     const value = await checkCache(key);
     if (value) {
@@ -110,15 +173,7 @@ async function getAllSettings(): Promise<
         (k) => SettingKey[k as keyof typeof SettingKey] === key,
       );
       if (enumKey) {
-        if (value.toLowerCase() === "true") {
-          settings[enumKey as keyof typeof SettingKey] = true;
-        } else if (value.toLowerCase() === "false") {
-          settings[enumKey as keyof typeof SettingKey] = false;
-        } else if (!isNaN(Number(value))) {
-          settings[enumKey as keyof typeof SettingKey] = Number(value);
-        } else {
-          settings[enumKey as keyof typeof SettingKey] = value;
-        }
+        settings[enumKey as keyof typeof SettingKey] = value;
       }
     }
   });

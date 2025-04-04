@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
-import { handleError } from "@/lib/common";
+import { handleError, useConfig } from "@/lib/common";
 import type { Invitation } from "@nexirift/better-auth-plugins";
 import { Loader2, MoreHorizontalIcon, Plus } from "lucide-react";
 import {
@@ -60,6 +60,7 @@ export function InvitationsSection() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const config = useConfig();
 
   const fetchInvitations = useCallback(async () => {
     try {
@@ -113,7 +114,10 @@ export function InvitationsSection() {
             onClick={handleCreateInvitation}
             variant="secondary"
             size="sm"
-            disabled={isCreating || invitations.length >= 3} // TODO: FIX ME
+            disabled={
+              isCreating ||
+              invitations.length >= Number(config.maximumInvitations)
+            }
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 mr-1 animate-spin" />

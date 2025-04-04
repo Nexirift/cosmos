@@ -11,13 +11,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient, checkPlugin } from "@/lib/auth-client";
-import { handleError } from "@/lib/common";
+import { handleError, useConfig } from "@/lib/common";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DatePicker } from "../date-picker";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { Loader } from "../loader";
 
 interface SignUpProps {
   invite?: string;
@@ -26,6 +38,7 @@ interface SignUpProps {
 export function SignUp({ invite }: SignUpProps) {
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
+  const { isLoading, ...config } = useConfig();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -100,6 +113,33 @@ export function SignUp({ invite }: SignUpProps) {
       setLoading(false);
     }
   }
+
+  if (isLoading) return <Loader />;
+
+  const isGovernmentEmail = (config.governmentEmailDomains as string[]).some(
+    (domain) => email.split("@")[1]?.endsWith(domain),
+  );
+
+  console.log(isGovernmentEmail);
+
+  const validationRules = {
+    isLoading: loading,
+    hasEmptyFields: !username || !email || !password || !confirmPassword,
+    hasInvalidUsername: !new RegExp(
+      String(config.usernameRegexValidation),
+    ).test(username),
+    hasMissingBirthday: checkPlugin("birthday") && !birthday,
+    hasInvalidPasswordLength:
+      password.length > Number(config.passwordMaxLength) ||
+      password.length < Number(config.passwordMinLength) ||
+      confirmPassword.length > Number(config.passwordMaxLength) ||
+      confirmPassword.length < Number(config.passwordMinLength),
+    hasInvalidEmail: !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
+      email,
+    ),
+  };
+
+  const isFormInvalid = Object.values(validationRules).some(Boolean);
 
   return (
     <Card className="max-w-md w-full">
@@ -185,20 +225,72 @@ export function SignUp({ invite }: SignUpProps) {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={
-                  loading ||
-                  !username ||
-                  !email ||
-                  !password ||
-                  !confirmPassword ||
-                  !birthday
-                }
-              >
-                Sign Up
-              </Button>
+              {isGovernmentEmail ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      disabled={isFormInvalid}
+                    >
+                      Sign Up
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Government Email Address Detected
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="space-y-3" asChild>
+                        <div className="text-muted-foreground">
+                          <p className="font-medium">
+                            You are registering with a government email address.
+                            Please review the following important information:
+                          </p>
+                          <ul className="list-disc ml-4 space-y-2">
+                            <li className="text-muted-foreground">
+                              This account must be used exclusively for
+                              government-related activities (no personal
+                              activites)
+                            </li>
+                            <li className="text-muted-foreground">
+                              You&#39;ll receive a complimentary Nebula
+                              Individual subscription with automatic
+                              verification
+                            </li>
+                            <li className="text-muted-foreground">
+                              For agency-wide access, contact us about our free
+                              Nebula Organizations plan
+                            </li>
+                            <li className="text-muted-foreground">
+                              We maintain the right to revoke verification or
+                              terminate accounts at our discretion
+                            </li>
+                            <li className="font-medium">
+                              By proceeding, you certify that you are authorized
+                              to represent your government agency
+                            </li>
+                          </ul>
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Change Email</AlertDialogCancel>
+                      <AlertDialogAction onClick={signUp}>
+                        I Understand, Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isFormInvalid}
+                >
+                  Sign Up
+                </Button>
+              )}
             </div>
           </div>
         </form>

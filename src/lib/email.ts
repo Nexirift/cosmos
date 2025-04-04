@@ -3,6 +3,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { env } from "@/env";
 import { checkCache } from "./actions";
+import { SettingKey } from "./defaults";
 
 /**
  * Enum for available email templates
@@ -43,8 +44,8 @@ export class EmailService {
     const templatePath = path.join(this.templateDir, templateName + ".html");
 
     const defaultVariables = {
-      app_name: await checkCache("app_name"),
-      app_logo: await checkCache("app_logo"),
+      app_name: await checkCache(SettingKey.appName),
+      app_logo: await checkCache(SettingKey.appLogo),
       home_url: env.BETTER_AUTH_URL,
       support_email: env.SUPPORT_EMAIL,
     };

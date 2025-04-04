@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { setDb } from "@/lib/actions";
-import { DEFAULTS } from "@/lib/defaults";
+import { DEFAULTS, SettingKey } from "@/lib/defaults";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -29,10 +29,10 @@ export default function Page() {
 
   const handleSubmit = async () => {
     await Promise.all([
-      setDb("app_name", formState.appName),
-      setDb("app_logo", formState.appLogo),
-      setDb("nexirift_mode", formState.nexiriftMode),
-      formState.novaUrl && setDb("nova_url", formState.novaUrl),
+      setDb(SettingKey.appName, formState.appName),
+      setDb(SettingKey.appLogo, formState.appLogo),
+      setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
+      formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
     ]);
     router.push("/setup/thank-you");
   };

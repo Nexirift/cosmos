@@ -24,7 +24,7 @@
   "dependencies": {
     "@better-auth/expo": "^1.2.6-beta.3",
     "@fontsource/ibm-plex-sans": "^5.2.5",
-    "@nexirift/better-auth-plugins": "^0.0.1-main.844987bbc9c227a79c673909e7fdb710b692a843",
+    "@nexirift/better-auth-plugins": "^0.0.1-main.374e1078304b1ca4dfc6cf8a7d28289bad16ae76",
     "@nexirift/db": "^0.0.1-main.0ee74dfe6cf563da2b444c5c09c92653e7d1c6bc",
     "@nexirift/emails": "^0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf",
     "@polar-sh/better-auth": "^0.0.2",

@@ -9,12 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { clearCache, setDb } from "@/lib/actions";
+import { SettingKey } from "@/lib/defaults";
 import Link from "next/link";
 import { useEffect } from "react";
 
 export default function Page() {
   useEffect(() => {
-    setDb("setup_completed", true);
+    setDb(SettingKey.setupCompleted, true);
     clearCache();
   });
 

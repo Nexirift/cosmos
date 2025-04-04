@@ -24,8 +24,16 @@ function initials(name: string = "Unknown") {
 
 const useConfig = () => {
   const [config, setConfig] = React.useState<
-    Partial<Record<keyof typeof SettingKey, string>>
-  >({});
+    Record<
+      keyof typeof SettingKey,
+      string | boolean | number | string[] | number[]
+    >
+  >(
+    {} as Record<
+      keyof typeof SettingKey,
+      string | boolean | number | string[] | number[]
+    >,
+  );
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {

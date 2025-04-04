@@ -6,7 +6,7 @@
       "dependencies": {
         "@better-auth/expo": "^1.2.6-beta.3",
         "@fontsource/ibm-plex-sans": "^5.2.5",
-        "@nexirift/better-auth-plugins": "^0.0.1-main.844987bbc9c227a79c673909e7fdb710b692a843",
+        "@nexirift/better-auth-plugins": "^0.0.1-main.374e1078304b1ca4dfc6cf8a7d28289bad16ae76",
         "@nexirift/db": "^0.0.1-main.0ee74dfe6cf563da2b444c5c09c92653e7d1c6bc",
         "@nexirift/emails": "^0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf",
         "@polar-sh/better-auth": "^0.0.2",
@@ -284,7 +284,7 @@
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@0.2.7", "", { "dependencies": { "@emnapi/core": "^1.3.1", "@emnapi/runtime": "^1.3.1", "@tybys/wasm-util": "^0.9.0" } }, "sha512-5yximcFK5FNompXfJFoWanu5l8v1hNGqNHh9du1xETp9HWk/B/PzvchX55WYOPaIeNglG8++68AAiauBAtbnzw=="],
 
-    "@nexirift/better-auth-plugins": ["@nexirift/better-auth-plugins@0.0.1-main.844987bbc9c227a79c673909e7fdb710b692a843", "https://code.nexirift.com/dev/~npm/@nexirift%2Fbetter-auth-plugins/-/0.0.1-main.844987bbc9c227a79c673909e7fdb710b692a843/@nexirift%2Fbetter-auth-plugins-0.0.1-main.844987bbc9c227a79c673909e7fdb710b692a843.tgz", { "peerDependencies": { "better-auth": "^1.2.6-beta.3", "zod": "^3.24.2" } }, "sha512-E8ltwOJjz7HCAp57bmOZEiG96MI43VGscjdSnJRmbPiLbfzTYkN8caa4f/DnekOXsslUGvQjE5wqeRZlERDtig=="],
+    "@nexirift/better-auth-plugins": ["@nexirift/better-auth-plugins@0.0.1-main.374e1078304b1ca4dfc6cf8a7d28289bad16ae76", "https://code.nexirift.com/dev/~npm/@nexirift%2Fbetter-auth-plugins/-/0.0.1-main.374e1078304b1ca4dfc6cf8a7d28289bad16ae76/@nexirift%2Fbetter-auth-plugins-0.0.1-main.374e1078304b1ca4dfc6cf8a7d28289bad16ae76.tgz", { "peerDependencies": { "better-auth": "^1.2.6-beta.3", "zod": "^3.24.2" } }, "sha512-vyJSBR6BgALZFDROcvr0RcCW3e9XCYpDFNJNjykgJlhVTrV3f7nC8N5tAq7s66ASZFwv9wKaoCJR0u9l/1oZgw=="],
 
     "@nexirift/db": ["@nexirift/db@0.0.1-main.0ee74dfe6cf563da2b444c5c09c92653e7d1c6bc", "https://code.nexirift.com/dev/~npm/@nexirift%2Fdb/-/0.0.1-main.0ee74dfe6cf563da2b444c5c09c92653e7d1c6bc/@nexirift%2Fdb-0.0.1-main.0ee74dfe6cf563da2b444c5c09c92653e7d1c6bc.tgz", { "peerDependencies": { "@electric-sql/pglite": "^0.2.17", "drizzle-orm": "^0.40.0", "pg": "^8.13.3", "typescript": "^5.7.3" } }, "sha512-Wg0Vgz8OY3480e2laQraim+cSYFwmNdySrtR5HEOg8Vh0Gde5Ed518YhMMSOSs0s89j489X46IsdOXeN5P8FRg=="],
 

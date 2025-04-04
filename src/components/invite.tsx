@@ -76,7 +76,7 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
           <Button
             className="bg-green-600 hover:bg-green-700 text-neutral-50 font-medium transition-colors duration-200"
             onClick={() => {
-              router.push(`/join?invite=${data.code}`);
+              router.push(`/sign-up?invite=${data.code}`);
             }}
           >
             Accept

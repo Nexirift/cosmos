@@ -11,10 +11,10 @@ import { connect, db } from "@nexirift/db";
 import { betterAuth, BetterAuthPlugin, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
-  jwt,
   admin,
   bearer,
   createAuthMiddleware,
+  jwt,
   multiSession,
   oidcProvider,
   openAPI,
@@ -24,8 +24,7 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { default as _jwt } from "jsonwebtoken";
-import { checkCache } from "./actions";
-import { DEFAULTS } from "./defaults";
+import { getAllSettings } from "./actions";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
@@ -41,7 +40,7 @@ connect();
 //   server: env.NODE_ENV === "production" ? "production" : "sandbox",
 // });
 
-const _APP_NAME = (await checkCache("app_name")) ?? DEFAULTS.appName;
+const config = await getAllSettings();
 
 const nexiriftPlugins = [
   vortex(),
@@ -52,6 +51,12 @@ const nexiriftPlugins = [
     : [
         invitation({
           bypassCode: env.INVITATION_BYPASS_CODE,
+          maxInvitations: Number(config.maximumInvitations),
+          schema: {
+            invitation: {
+              modelName: "invitation",
+            },
+          },
         }),
       ]),
 ] satisfies BetterAuthPlugin[];
@@ -62,13 +67,12 @@ const authPlugins = [
   bearer(),
   admin(),
   username({
-    usernameValidator: (username) => {
-      // The username should only contain alphanumeric characters and underscores.
-      return /^[a-zA-Z0-9_]+$/.test(username);
+    usernameValidator: async (username) => {
+      return new RegExp(String(config.usernameRegexValidation)).test(username);
     },
   }),
   passkey({
-    rpName: _APP_NAME,
+    rpName: String(config.appName),
   }),
   twoFactor(),
   multiSession({
@@ -127,7 +131,7 @@ const plugins = [...nexiriftPlugins, ...authPlugins];
  * Auth configuration for Nexirift application
  */
 export const auth = betterAuth({
-  appName: _APP_NAME,
+  appName: String(config.appName),
   trustedOrigins:
     env.NODE_ENV === "development"
       ? [
@@ -142,8 +146,10 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: env.NODE_ENV === "production",
+    requireEmailVerification: Boolean(config.requireEmailVerification),
     autoSignIn: true,
+    minPasswordLength: Number(config.passwordMinLength),
+    maxPasswordLength: Number(config.passwordMaxLength),
     sendResetPassword: async ({ user, url }) => {
       await emailService.sendMail(
         user.email,
@@ -157,7 +163,7 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: env.NODE_ENV === "production",
+    sendOnSignUp: Boolean(config.requireEmailVerification),
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, token }) => {
       // Only send verification email if user was created recently (within 10 seconds)

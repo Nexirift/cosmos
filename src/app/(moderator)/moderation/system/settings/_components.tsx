@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { clearCache, setDb } from "@/lib/actions";
-import { DEFAULTS } from "@/lib/defaults";
+import { DEFAULTS, SettingKey } from "@/lib/defaults";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -36,7 +36,7 @@ export function RestartSetup({ disabled }: { disabled: boolean }) {
   const router = useRouter();
 
   const action = async () => {
-    await setDb("setup_completed", false);
+    await setDb(SettingKey.setupCompleted, false);
     router.push("/setup");
   };
 
@@ -89,10 +89,10 @@ export function BasicDetails() {
 
   const handleSubmit = async () => {
     await Promise.all([
-      setDb("app_name", formState.appName),
-      setDb("app_logo", formState.appLogo),
-      setDb("nexirift_mode", formState.nexiriftMode),
-      formState.novaUrl && setDb("nova_url", formState.novaUrl),
+      setDb(SettingKey.appName, formState.appName),
+      setDb(SettingKey.appLogo, formState.appLogo),
+      setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
+      formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
     ]);
     toast("Settings saved");
   };
