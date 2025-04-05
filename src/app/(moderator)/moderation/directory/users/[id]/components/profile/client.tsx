@@ -129,7 +129,7 @@ export function ProfileCardActions({
           throw new Error("Failed to upload file");
         }
 
-        const responseJson = await response.json();
+        const responseJson = (await response.json())["files"];
 
         // Update form values with new image URLs
         if (responseJson.length >= 1) {

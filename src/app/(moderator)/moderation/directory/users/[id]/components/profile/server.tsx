@@ -57,7 +57,7 @@ export async function ProfileCard({ data }: ProfileCardProps) {
 
   const renderFieldValue = (key: string, value: string | Date | null) => {
     const displayValue = value?.toString();
-    if (!displayValue) return `No ${key} set`;
+    if (!displayValue) return `No ${formatFieldName(key).toLowerCase()} set`;
 
     const isImage = IMAGE_FIELDS.includes(key);
     const isExtendedBio = key === "extendedBio";

@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "media-minio.nexirift.com",
+        hostname: "storage.nexirift.com",
         port: "",
         pathname: "/**",
       },
