@@ -22,6 +22,14 @@ export const env = createEnv({
     ALLOW_OAUTH_REGISTRATION: z.boolean().default(false),
     DISABLE_SETUP: z.boolean().optional(),
 
+    /* AWS */
+    S3_STORAGE_ACCESS_KEY_ID: z.string().optional(),
+    S3_STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
+    S3_STORAGE_ENDPOINT: z.string().optional(),
+    S3_STORAGE_REGION: z.string().optional(),
+    S3_STORAGE_BUCKET: z.string().optional(),
+    S3_STORAGE_FORCE_PATH_STYLE: z.boolean().optional(),
+
     /* Auth Providers */
     AUTH_PROVIDER_GOOGLE_CLIENT_ID: z.string().optional(),
     AUTH_PROVIDER_GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -66,6 +74,15 @@ export const env = createEnv({
       process.env.DISABLE_SETUP === undefined
         ? undefined
         : process.env.DISABLE_SETUP === "true",
+
+    /* AWS */
+    S3_STORAGE_ACCESS_KEY_ID: process.env.S3_STORAGE_ACCESS_KEY_ID,
+    S3_STORAGE_SECRET_ACCESS_KEY: process.env.S3_STORAGE_SECRET_ACCESS_KEY,
+    S3_STORAGE_ENDPOINT: process.env.S3_STORAGE_ENDPOINT,
+    S3_STORAGE_REGION: process.env.S3_STORAGE_REGION,
+    S3_STORAGE_BUCKET: process.env.S3_STORAGE_BUCKET,
+    S3_STORAGE_FORCE_PATH_STYLE:
+      process.env.S3_STORAGE_FORCE_PATH_STYLE === "true",
 
     /* Auth Providers */
     AUTH_PROVIDER_GOOGLE_CLIENT_ID: process.env.AUTH_PROVIDER_GOOGLE_CLIENT_ID,

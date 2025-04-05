@@ -1,7 +1,10 @@
 import { env } from "@/env";
 import { BasicDetails, ClearCache, RestartSetup } from "./_components";
+import { protect } from "../../protect";
 
 export default async function Page() {
+  await protect();
+
   return (
     <main className="m-4 flex flex-col gap-4">
       <section className="flex flex-col gap-2">

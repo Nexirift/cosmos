@@ -1,11 +1,14 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { protect } from "./protect";
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await protect();
+
   return (
     <SidebarProvider>
       <AppSidebar />

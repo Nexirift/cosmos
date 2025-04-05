@@ -13,6 +13,7 @@ import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { UserAlerts } from "./user-alerts";
+import { protect } from "./protect";
 
 export default async function Page() {
   const getGreeting = () => {
@@ -25,6 +26,8 @@ export default async function Page() {
   const data = await auth.api.getSession({
     headers: await headers(),
   });
+
+  await protect(data?.user.role);
 
   const KEY = `cosmos_moderation_alert:${data?.session.id}`;
   const alertCount = (await redis.get(KEY)) ?? 0;

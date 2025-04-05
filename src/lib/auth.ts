@@ -190,6 +190,7 @@ export const auth = betterAuth({
   user: {
     fields: {
       name: "displayName",
+      image: "avatar",
     },
     changeEmail: {
       enabled: true,
