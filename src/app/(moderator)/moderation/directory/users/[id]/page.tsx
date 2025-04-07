@@ -51,12 +51,12 @@ export default async function Page({
           </div>
         </section>
         <div className="flex gap-2 flex-wrap items-start">
-          <VerificationCard
-            data={{ id: data.id, verification: data.verification ?? undefined }}
-          />
-          <ContactInformationCard data={data} />
           <ProfileCard
             data={{ id: data.id, profile: data.profile ?? undefined }}
+          />
+          <ContactInformationCard data={data} />
+          <VerificationCard
+            data={{ id: data.id, verification: data.verification ?? undefined }}
           />
         </div>
       </div>
