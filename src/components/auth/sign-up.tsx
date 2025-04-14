@@ -149,7 +149,7 @@ export function SignUp({ invite }: SignUpProps) {
           Create a new account by filling out the form below.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pb-6">
+      <CardContent>
         <form
           onSubmit={(e) => {
             e.preventDefault();

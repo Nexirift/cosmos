@@ -156,7 +156,7 @@ export function SignIn({
           .
         </CardDescription>
       </CardHeader>
-      <CardContent className="pb-6">
+      <CardContent>
         <form
           onSubmit={(e) => {
             e.preventDefault();
