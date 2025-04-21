@@ -5,6 +5,12 @@ import { protect } from "../../../protect";
 import { ContactInformationCard } from "./components/contact-information/server";
 import { ProfileCard } from "./components/profile/server";
 import { VerificationCard } from "./components/verification/server";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default async function Page({
   params,
@@ -13,7 +19,11 @@ export default async function Page({
 }) {
   await protect();
 
-  const { id } = await params;
+  const { id: _id } = await params;
+
+  const id = _id.replace(/%40/g, "@");
+
+  const isFederated = id.includes("@");
 
   const data = await db.query.user.findFirst({
     where: (user, { eq }) => eq(user.id, id),
@@ -47,14 +57,29 @@ export default async function Page({
             <h2 className="text-lg font-bold">
               {data.displayName ?? data.displayUsername ?? data.username}
             </h2>
-            <p>{data.displayUsername ?? data.username}</p>
+            <div className="flex gap-1 items-center">
+              <p>{data.displayUsername ?? data.username}</p>
+              {isFederated && (
+                <Tooltip>
+                  <TooltipTrigger className="flex gap-1 items-center">
+                    <Badge className="bg-[#F1007F] text-white">
+                      ActivityPub
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs text-center text-sm">
+                    This is an ActivityPub federated account. Some profile data
+                    may be limited and this user cannot log in to Nexirift.
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
         </section>
         <div className="flex gap-2 flex-wrap items-start">
           <ProfileCard
             data={{ id: data.id, profile: data.profile ?? undefined }}
           />
-          <ContactInformationCard data={data} />
+          {!isFederated && <ContactInformationCard data={data} />}
           <VerificationCard
             data={{ id: data.id, verification: data.verification ?? undefined }}
           />
