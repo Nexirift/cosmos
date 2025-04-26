@@ -54,7 +54,7 @@ const nexiriftPlugins = [
           maxInvitations: Number(config.maximumInvitations),
           schema: {
             invitation: {
-              modelName: "invitation",
+              modelName: "cosmosInvitation",
             },
           },
         }),

@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { faker } from "@faker-js/faker";
-import { db, invitation, user, userRelationship } from "@nexirift/db";
+import { db, cosmosInvitation, user, userRelationship } from "@nexirift/db";
 import { eq, isNull } from "drizzle-orm";
 import { generateInviteCode } from "@nexirift/better-auth-plugins";
 
@@ -32,7 +32,7 @@ async function createUser() {
   try {
     // Create invitation
     await db
-      .insert(invitation)
+      .insert(cosmosInvitation)
       .values({
         id: faker.string.uuid(),
         code: invite,
@@ -266,8 +266,8 @@ const userCount = (() => {
 })();
 
 await db
-  .delete(invitation)
-  .where(isNull(invitation.userId))
+  .delete(cosmosInvitation)
+  .where(isNull(cosmosInvitation.userId))
   .returning()
   .execute();
 

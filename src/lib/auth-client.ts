@@ -39,7 +39,7 @@ const authPlugins = [
 const plugins = [...nexiriftPlugins, ...authPlugins];
 
 export const authClient = createAuthClient({
-  baseURL: "http://192.168.1.232:3000",
+  baseURL: "http://100.69.69.69:3000",
   plugins,
 });
 

@@ -3,7 +3,7 @@ import { db, userProfile, UserProfileSchemaType } from "@nexirift/db";
 import moment from "moment";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Image from "next/image";
-import { InsertUserProfileSchema, selectUserProfileSchema } from "../../schema";
+import { insertUserProfileSchema, InsertUserProfileSchema } from "../../schema";
 import { VisibleBadge } from "../common";
 import { ProfileCardActions } from "./client";
 
@@ -29,7 +29,7 @@ export async function ProfileCard({ data }: ProfileCardProps) {
       });
   };
 
-  const defaultValues = Object.keys(selectUserProfileSchema.shape).reduce<
+  const defaultValues = Object.keys(insertUserProfileSchema.shape).reduce<
     Partial<InsertUserProfileSchema>
   >((acc, key) => {
     if (key === "userId") {

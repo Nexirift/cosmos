@@ -1,10 +1,10 @@
-import { userProfile } from "@nexirift/db/schema";
-import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { userProfile, userVerification } from "@nexirift/db/schema";
+import { createInsertSchema } from "drizzle-zod";
 
 export const insertUserProfileSchema = createInsertSchema(userProfile);
-
-export const selectUserProfileSchema = createSelectSchema(userProfile);
-
 export type InsertUserProfileSchema = typeof insertUserProfileSchema._type;
 
-export type SelectUserProfileSchema = typeof selectUserProfileSchema._type;
+export const insertUserVerificationSchema =
+  createInsertSchema(userVerification);
+export type InsertUserVerificationSchema =
+  typeof insertUserVerificationSchema._type;

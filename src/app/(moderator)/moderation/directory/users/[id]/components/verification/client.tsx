@@ -1,5 +1,7 @@
 "use client";
 
+import { DynamicForm } from "@/components/dynamic-form";
+import { presets } from "@/components/moderation-alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,17 +25,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { UserVerificationSchemaType } from "@nexirift/db";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import {
+  insertUserVerificationSchema,
+  InsertUserVerificationSchema,
+} from "../../schema";
 import { handleError } from "../common";
 
 export function VerificationCardActions({
@@ -44,23 +45,22 @@ export function VerificationCardActions({
 }: {
   data: { verification?: UserVerificationSchemaType };
   removeAction: () => Promise<void>;
-  modifyAction: (type: string) => Promise<void>;
+  modifyAction: (values: InsertUserVerificationSchema) => Promise<void>;
   enumValues: string[];
 }) {
   const router = useRouter();
   const [modifyOpen, setModifyOpen] = React.useState(false);
-  const [type, setType] = React.useState<string | undefined>(
-    data.verification?.type,
-  );
 
-  const modifyConfirm = async () => {
-    if (!type) {
-      toast.error("Please select a verification type");
-      return;
-    }
+  const form = useForm<InsertUserVerificationSchema>({
+    resolver: zodResolver(insertUserVerificationSchema),
+    defaultValues: data.verification,
+  });
+
+  const action = async (formFields: InsertUserVerificationSchema) => {
+    console.log(formFields);
 
     try {
-      await modifyAction(type);
+      await modifyAction(formFields);
       toast.success("Verification modified successfully");
       setModifyOpen(false);
       router.refresh();
@@ -121,43 +121,36 @@ export function VerificationCardActions({
 
       <Dialog open={modifyOpen} onOpenChange={setModifyOpen}>
         <DialogTrigger asChild>
-          <Button variant="secondary" title="Modify verification status">
-            Modify
-          </Button>
+          <Button className={presets.blue}>Modify</Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modify Verification</DialogTitle>
             <DialogDescription>
-              Make changes to the user&#39;s verification status.
+              Update the user&apos;s verification information
             </DialogDescription>
           </DialogHeader>
-          <Select value={type} onValueChange={setType}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              {enumValues.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type.charAt(0)?.toUpperCase() + type.slice(1).toLowerCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <DialogFooter>
+          <DynamicForm
+            form={form}
+            data={
+              data.verification ??
+              ({ type: "NOTABLE" } as InsertUserVerificationSchema)
+            }
+            overrides={{
+              type: {
+                enumValues,
+              },
+            }}
+          />
+          <DialogFooter className="mt-6">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              onClick={modifyConfirm}
-              disabled={!type}
-              title={
-                !type
-                  ? "Please select a verification type"
-                  : "Confirm modification"
-              }
+              onClick={async () => await action(form.getValues())}
+              type="submit"
             >
-              Modify
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>

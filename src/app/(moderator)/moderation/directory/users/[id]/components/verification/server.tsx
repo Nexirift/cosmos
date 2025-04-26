@@ -23,18 +23,18 @@ export function VerificationCard({
       .returning();
   };
 
-  const modifyAction = async (type: string) => {
+  const modifyAction = async (formData: { type: string }) => {
     "use server";
     await db
       .insert(userVerification)
       .values({
         userId: data.id,
-        type: type as UserVerificationSchemaType["type"],
+        type: formData.type as UserVerificationSchemaType["type"],
       })
       .onConflictDoUpdate({
         target: userVerification.userId,
         set: {
-          type: type as UserVerificationSchemaType["type"],
+          type: formData.type as UserVerificationSchemaType["type"],
         },
       })
       .returning();
