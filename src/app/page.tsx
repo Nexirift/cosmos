@@ -33,11 +33,16 @@ export default function Page() {
         </div>
       )}
       <div className="flex flex-wrap gap-2 font-bold text-lg">
-        <Button variant="secondary" asChild>
+        <Button variant="default" asChild>
           <Link href={session?.user ? "/dashboard" : "/sign-in"}>
             {session?.user ? "Go to Dashboard" : "Sign In"}
           </Link>
         </Button>
+        {!session?.user && (
+          <Button variant="secondary" asChild>
+            <Link href="/sign-up">Sign Up</Link>
+          </Button>
+        )}
       </div>
     </div>
   );

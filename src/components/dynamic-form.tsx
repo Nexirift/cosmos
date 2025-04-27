@@ -132,97 +132,108 @@ export function DynamicForm<T extends Record<string, unknown>>({
     [formInstance],
   );
 
+  const fieldsFromData = Object.keys(data);
+  const fieldsFromOverrides = Object.keys(overrides);
+
+  const keys = useMemo(() => {
+    return [...fieldsFromData];
+  }, [fieldsFromData]);
+
+  fieldsFromOverrides.forEach((key) => {
+    if (!fieldsFromData.includes(key)) {
+      keys.push(key);
+    }
+  });
+
   const formFields = useMemo(
     () =>
-      [...new Set([...Object.keys(overrides), ...Object.keys(data)])].map(
-        (key) => {
-          if (overrides?.[key]?.hidden) return null;
+      keys.map((key) => {
+        if (overrides?.[key]?.hidden) return null;
 
-          const formattedName = getFormattedName(key);
-          const type = getFieldType(key);
+        const formattedName = getFormattedName(key);
+        const type = getFieldType(key);
 
-          return (
-            <FormField
-              key={key}
-              control={formInstance.control}
-              name={key as Path<T>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{formattedName}</FormLabel>
-                  <FormControl>
-                    {type === "date" ? (
-                      <DatePicker
-                        {...field}
-                        date={
-                          field.value instanceof Date ? field.value : new Date()
-                        }
-                        setDate={field.onChange}
-                      />
-                    ) : type === "file" ? (
-                      <div className="flex items-center gap-2">
-                        <div className="relative h-16 w-16 border rounded overflow-hidden">
-                          {field.value ? (
-                            <Image
-                              fill
-                              className="object-cover"
-                              src={field.value as string}
-                              alt={`${formattedName} preview`}
-                            />
-                          ) : (
-                            <div className="bg-gray-500 w-full h-full"></div>
-                          )}
-                        </div>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange(e, key)}
-                          className="flex-1"
-                        />
-                      </div>
-                    ) : type === "textarea" ? (
-                      <Textarea
-                        {...field}
-                        placeholder={`Enter ${formattedName.toLowerCase()}`}
-                        value={field.value?.toString() ?? ""}
-                        disabled={overrides?.[key]?.disabled}
-                      />
-                    ) : overrides?.[key]?.enumValues ? (
-                      <Select
-                        value={field.value?.toString()}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={`Enter ${formattedName.toLowerCase()}`}
+        return (
+          <FormField
+            key={key}
+            control={formInstance.control}
+            name={key as Path<T>}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{formattedName}</FormLabel>
+                <FormControl>
+                  {type === "date" ? (
+                    <DatePicker
+                      {...field}
+                      date={
+                        field.value instanceof Date ? field.value : new Date()
+                      }
+                      setDate={field.onChange}
+                    />
+                  ) : type === "file" ? (
+                    <div className="flex items-center gap-2">
+                      <div className="relative h-16 w-16 border rounded overflow-hidden">
+                        {field.value ? (
+                          <Image
+                            fill
+                            className="object-cover"
+                            src={field.value as string}
+                            alt={`${formattedName} preview`}
                           />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {overrides?.[key]?.enumValues.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type.charAt(0)?.toUpperCase() +
-                                type.slice(1).toLowerCase()}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
+                        ) : (
+                          <div className="bg-gray-500 w-full h-full"></div>
+                        )}
+                      </div>
                       <Input
-                        {...field}
-                        placeholder={`Enter ${formattedName.toLowerCase()}`}
-                        value={field.value?.toString() ?? ""}
-                        disabled={overrides?.[key]?.disabled}
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, key)}
+                        className="flex-1"
                       />
-                    )}
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          );
-        },
-      ),
+                    </div>
+                  ) : type === "textarea" ? (
+                    <Textarea
+                      {...field}
+                      placeholder={`Enter ${formattedName.toLowerCase()}`}
+                      value={field.value?.toString() ?? ""}
+                      disabled={overrides?.[key]?.disabled}
+                    />
+                  ) : overrides?.[key]?.enumValues ? (
+                    <Select
+                      value={field.value?.toString()}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={`Enter ${formattedName.toLowerCase()}`}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {overrides?.[key]?.enumValues.map((type) => (
+                          <SelectItem key={type} value={type}>
+                            {type.charAt(0)?.toUpperCase() +
+                              type.slice(1).toLowerCase()}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      {...field}
+                      placeholder={`Enter ${formattedName.toLowerCase()}`}
+                      value={field.value?.toString() ?? ""}
+                      disabled={overrides?.[key]?.disabled}
+                    />
+                  )}
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        );
+      }),
     [
-      data,
+      keys,
       formInstance.control,
       getFieldType,
       getFormattedName,
