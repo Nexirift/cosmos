@@ -66,8 +66,11 @@ function LoadingButton({
   );
 }
 
-export function SessionsSection() {
-  const { data: session } = authClient.useSession();
+export function SessionsSection({
+  session,
+}: {
+  session: ReturnType<typeof authClient.useSession>["data"] | undefined;
+}) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRevokeOtherOpen, setIsRevokeOtherOpen] = useState(false);

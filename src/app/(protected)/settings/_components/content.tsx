@@ -1,6 +1,6 @@
 "use client";
 
-import { checkPlugin } from "@/lib/auth-client";
+import { authClient, checkPlugin } from "@/lib/auth-client";
 import { Shield, Smartphone, Ticket, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,7 @@ import { SecuritySection } from "./security/section";
 import { SessionsSection } from "./sessions/section";
 
 export function SettingsPage({ params }: { params: { hash: string } }) {
+  const { data: session } = authClient.useSession();
   const router = useRouter();
   const [hash, setHash] = useState("");
 
@@ -114,10 +115,10 @@ export function SettingsPage({ params }: { params: { hash: string } }) {
         </nav>
       </aside>
       <main className="flex flex-col gap-4 w-full">
-        <ProfileSection />
-        <SecuritySection />
-        <SessionsSection />
-        <InvitationsSection />
+        <ProfileSection session={session} />
+        <SecuritySection session={session} />
+        <SessionsSection session={session} />
+        <InvitationsSection session={session} />
       </main>
     </div>
   );

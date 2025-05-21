@@ -56,7 +56,12 @@ function LoadingButton({
   );
 }
 
-export function InvitationsSection() {
+export function InvitationsSection({
+  // @eslint-disable-next-line @typescript-eslint/no-unused-vars
+  session,
+}: {
+  session: ReturnType<typeof authClient.useSession>["data"] | undefined;
+}) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);

@@ -11,8 +11,11 @@ import { Loader2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export function ProfileSection() {
-  const { data: session } = authClient.useSession();
+export function ProfileSection({
+  session,
+}: {
+  session: ReturnType<typeof authClient.useSession>["data"] | undefined;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     displayName: "",

@@ -54,20 +54,12 @@ interface LoadingButtonProps {
   type?: "button" | "submit" | "reset";
 }
 
-export function TwoFactor() {
-  const { data: session, isPending } = authClient.useSession();
+export function TwoFactor({
+  session,
+}: {
+  session: ReturnType<typeof authClient.useSession>["data"] | undefined;
+}) {
   const twoFactorEnabled = session?.user?.twoFactorEnabled ?? false;
-
-  if (isPending) {
-    return (
-      <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-bold">Two-Factor Authentication</h2>
-        <div className="flex justify-center p-4">
-          <Loader2Icon className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -206,7 +198,6 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const { isPending } = authClient.useSession();
   const { Canvas } = useQRCode();
 
   // Reset form when dialog opens
@@ -278,7 +269,7 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
   return (
     <Dialog open={open} onOpenChange={(open) => !isLoading && setOpen(open)}>
       <DialogTrigger asChild>
-        <Button variant="secondary" className="w-auto" disabled={isPending}>
+        <Button variant="secondary" className="w-auto">
           {enabled ? "Re-enroll" : "Enroll"} in 2FA
         </Button>
       </DialogTrigger>
