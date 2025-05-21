@@ -10,7 +10,6 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "NODE_ENV=development bunx --bun @better-auth/cli generate",
-    "apply-patches": "./patches/apply.sh",
     "switch-registry": "chmod +x ./utility-scripts/switch-registry.sh && ./utility-scripts/switch-registry.sh",
     "db:generate": "cd node_modules/@nexirift/db && bun db:generate",
     "db:migrate": "set -a && source .env && cd node_modules/@nexirift/db && bun db:migrate",

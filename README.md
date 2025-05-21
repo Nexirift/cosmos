@@ -21,12 +21,6 @@ Cosmos is the official authentication server for Nexirift, providing secure user
 
 *These prerequisites are based on the versions that we are using.*
 
-### Notice
-
-There is currently two problems in better-auth that need to be fixed in order for Cosmos to function properly. We have created patches for these issues and you ***must*** apply them using the `bun apply-patches` command (after running `bun install`).
-
-Related pull requests: [better-auth/pr#1661](https://github.com/better-auth/better-auth/pull/1661) and [better-auth/pr#1747](https://github.com/better-auth/better-auth/pull/1747)
-
 ### Installation
 
 For now, our email repository must be cloned and set up by following the instructions [here](https://github.com/Nexirift/emails). Ensure that it is in the parent directory of this repository and has been built using `bun run build`.
