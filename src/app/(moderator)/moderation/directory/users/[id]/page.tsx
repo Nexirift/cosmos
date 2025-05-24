@@ -11,6 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AuthenticationCard } from "./components/authentication/server";
 
 export default async function Page({
   params,
@@ -83,6 +84,7 @@ export default async function Page({
           <VerificationCard
             data={{ id: data.id, verification: data.verification ?? undefined }}
           />
+          <AuthenticationCard data={data} />
         </div>
       </div>
     </div>

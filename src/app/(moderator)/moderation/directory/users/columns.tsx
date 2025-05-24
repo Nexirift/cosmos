@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -9,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { initials } from "@/lib/common";
 import { SelectUserSchema } from "@/lib/zod-schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
@@ -48,6 +50,23 @@ export const columns: ColumnDef<SelectUserSchema>[] = [
     cell: ({ row }) => {
       const value = row.getValue("id");
       return value?.toString().substring(0, 12) + "..." || "";
+    },
+  },
+  {
+    accessorKey: "avatar",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Avatar" />
+    ),
+    cell: ({ row }) => {
+      const value = row.getValue("avatar");
+      return (
+        <Avatar className="w-12 h-12 rounded-lg">
+          <AvatarImage src={value as string} className="rounded-lg" />
+          <AvatarFallback className="rounded-lg">
+            {initials(row.getValue("displayName") as string)}
+          </AvatarFallback>
+        </Avatar>
+      );
     },
   },
   {

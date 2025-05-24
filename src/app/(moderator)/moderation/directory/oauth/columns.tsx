@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,11 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { initials } from "@/lib/common";
 import { SelectOauthApplicationSchema } from "@/lib/zod-schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import moment from "moment";
-import Image from "next/image";
 import Link from "next/link";
 
 export const columns: ColumnDef<SelectOauthApplicationSchema>[] = [
@@ -59,16 +60,13 @@ export const columns: ColumnDef<SelectOauthApplicationSchema>[] = [
     ),
     cell: ({ row }) => {
       const value = row.getValue("icon");
-      return value ? (
-        <Image
-          src={value as string}
-          alt={`${row.getValue("name")} icon`}
-          className="rounded-lg"
-          width={48}
-          height={48}
-        />
-      ) : (
-        <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+      return (
+        <Avatar className="w-12 h-12 rounded-lg">
+          <AvatarImage src={value as string} className="rounded-lg" />
+          <AvatarFallback className="rounded-lg">
+            {initials(row.getValue("name") as string)}
+          </AvatarFallback>
+        </Avatar>
       );
     },
   },
