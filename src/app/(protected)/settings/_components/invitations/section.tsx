@@ -193,7 +193,7 @@ function InvitationCard({
           <CardTitle className="flex items-center justify-between text-base">
             <div className="flex items-center">
               <span className="mr-2">{invitation.code}</span>
-              {invitation.userId && (
+              {invitation.userId && invitation.userId !== "null" && (
                 <Badge
                   variant="outline"
                   className="bg-green-500 dark:bg-green-700"
