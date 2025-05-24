@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -9,14 +10,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SelectOrganizationSchema } from "@/lib/zod-schema";
+import { SelectOauthApplicationSchema } from "@/lib/zod-schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import moment from "moment";
 import Image from "next/image";
 import Link from "next/link";
 
-export const columns: ColumnDef<SelectOrganizationSchema>[] = [
+export const columns: ColumnDef<SelectOauthApplicationSchema>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -52,16 +53,16 @@ export const columns: ColumnDef<SelectOrganizationSchema>[] = [
     },
   },
   {
-    accessorKey: "logo",
+    accessorKey: "icon",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Logo" />
+      <DataTableColumnHeader column={column} title="Icon" />
     ),
     cell: ({ row }) => {
-      const value = row.getValue("logo");
+      const value = row.getValue("icon");
       return value ? (
         <Image
           src={value as string}
-          alt={`${row.getValue("name")} logo`}
+          alt={`${row.getValue("name")} icon`}
           className="rounded-lg"
           width={48}
           height={48}
@@ -78,10 +79,44 @@ export const columns: ColumnDef<SelectOrganizationSchema>[] = [
     ),
   },
   {
-    accessorKey: "slug",
+    accessorKey: "clientId",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Slug" />
+      <DataTableColumnHeader column={column} title="Client ID" />
     ),
+    cell: ({ row }) => {
+      const value = row.getValue("clientId");
+      return value?.toString().substring(0, 12) + "..." || "";
+    },
+  },
+  {
+    accessorKey: "type",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Type" />
+    ),
+    cell: ({ row }) => {
+      const value = row.getValue("type") as string;
+      return (
+        <div className="flex items-center">
+          <Badge variant="outline" className="mr-2">
+            {value.substring(0, 1).toUpperCase() + value.slice(1)}
+          </Badge>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "disabled",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Disabled" />
+    ),
+    cell: ({ row }) => {
+      const value = row.getValue("disabled") as boolean;
+      return (
+        <div className="flex items-center">
+          <Checkbox checked={value} disabled />
+        </div>
+      );
+    },
   },
   {
     accessorKey: "createdAt",

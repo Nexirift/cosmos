@@ -1,12 +1,18 @@
 "use client";
 
 import { ModerationAlert } from "@/components/moderation-alert";
+import { authClient } from "@/lib/auth-client";
 import { useConfig } from "@/lib/common";
 import { useEffect, useState } from "react";
 
 export function UserAlerts({ updateAction }: { updateAction: () => void }) {
   const [connectionError, setConnectionError] = useState(false);
   const { nexiriftMode, novaUrl } = useConfig();
+
+  const oauth = authClient.oauth2.register({
+    client_name: "test",
+    redirect_uris: ["http://localhost:3000"],
+  });
 
   useEffect(() => {
     const checkConnection = async () => {

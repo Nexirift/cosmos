@@ -1,4 +1,5 @@
 import {
+  oauthApplication,
   organization,
   user,
   userProfile,
@@ -21,3 +22,9 @@ export type SelectUserSchema = z.infer<typeof selectUserSchema>;
 
 export const selectOrganizationSchema = createSelectSchema(organization);
 export type SelectOrganizationSchema = z.infer<typeof selectOrganizationSchema>;
+
+export const selectOauthApplicationSchema =
+  createSelectSchema(oauthApplication);
+export type SelectOauthApplicationSchema = z.infer<
+  typeof selectOauthApplicationSchema
+>;

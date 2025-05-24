@@ -12,6 +12,7 @@ import {
 import { SelectUserSchema } from "@/lib/zod-schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import moment from "moment";
 import Link from "next/link";
 
 export const columns: ColumnDef<SelectUserSchema>[] = [
@@ -72,6 +73,26 @@ export const columns: ColumnDef<SelectUserSchema>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Role" />
     ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Created At" />
+    ),
+    cell: ({ row }) => {
+      const value = row.getValue("createdAt") as string;
+      return value ? moment(value).format("MMM D, YYYY h:mm A") : "";
+    },
+  },
+  {
+    accessorKey: "updatedAt",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Updated At" />
+    ),
+    cell: ({ row }) => {
+      const value = row.getValue("updatedAt") as string;
+      return value ? moment(value).format("MMM D, YYYY h:mm A") : "";
+    },
   },
   {
     id: "actions",
