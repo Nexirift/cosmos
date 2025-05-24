@@ -33,7 +33,7 @@ export function SecuritySection({
         </div>
       </div>
       {checkPlugin("passkey") && <Passkeys />}
-      {checkPlugin("twoFactor") && <TwoFactor />}
+      {checkPlugin("twoFactor") && <TwoFactor session={session} />}
     </section>
   );
 }

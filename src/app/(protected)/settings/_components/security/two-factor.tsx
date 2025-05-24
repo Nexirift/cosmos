@@ -195,6 +195,7 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [secret, setSecret] = useState("");
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -225,8 +226,14 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
         throw new Error(result.error.message);
       }
 
-      setQrCodeUrl(result.data?.totpURI || "");
-      setBackupCodes(result.data?.backupCodes || []);
+      if (!result.data?.totpURI || !result.data?.backupCodes) {
+        throw new Error("Failed to enable two-factor authentication");
+      }
+
+      setSecret(new URL(result.data?.totpURI).searchParams.get("secret")!);
+
+      setQrCodeUrl(result.data?.totpURI);
+      setBackupCodes(result.data?.backupCodes);
       setStep("qrcode");
     } catch (error) {
       handleError(
@@ -309,10 +316,15 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
                   />
                 </div>
               )}
+              {secret && (
+                <p className="text-xs text-muted-foreground break-all text-center">
+                  {secret}
+                </p>
+              )}
               <div className="w-full grid gap-2 text-center justify-center items-center">
                 <Label
                   htmlFor="verification-code"
-                  className="text-lg font-bold"
+                  className="text-lg font-bold justify-center"
                 >
                   Verification Code
                 </Label>

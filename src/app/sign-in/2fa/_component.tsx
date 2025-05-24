@@ -90,14 +90,14 @@ export function TwoFactor() {
   };
 
   return (
-    <Card>
+    <Card className="w-120">
       <CardHeader>
         <CardTitle>Two Factor Authentication</CardTitle>
         <CardDescription>
           This account is protected with two factor authentication.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col items-center justify-center w-full gap-6 pb-6">
+      <CardContent className="flex flex-col items-center justify-center w-full gap-6">
         {isBackupCode ? (
           <InputOTP maxLength={11} value={code} onChange={handleCodeChange}>
             <InputOTPGroup>
