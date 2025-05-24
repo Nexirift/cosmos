@@ -25,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { UserVerificationSchemaType } from "@nexirift/db";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -34,8 +33,9 @@ import { toast } from "sonner";
 import {
   insertUserVerificationSchema,
   InsertUserVerificationSchema,
-} from "../../schema";
+} from "@/lib/zod-schema";
 import { handleError } from "../common";
+import { zodResolver } from "@/lib/zod-resolver";
 
 export function VerificationCardActions({
   data,

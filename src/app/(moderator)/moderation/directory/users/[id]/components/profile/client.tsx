@@ -17,10 +17,13 @@ import { UserProfileSchemaType } from "@nexirift/db";
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
 import { toast } from "sonner";
-import { insertUserProfileSchema, InsertUserProfileSchema } from "../../schema";
+import {
+  insertUserProfileSchema,
+  InsertUserProfileSchema,
+} from "@/lib/zod-schema";
 import { handleError } from "../common";
 import { DynamicForm } from "../../../../../../../../components/dynamic-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@/lib/zod-resolver";
 import { useForm } from "react-hook-form";
 
 export function ProfileCardActions({

@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@/lib/zod-resolver";
 import Image from "next/image";
 import React, { useCallback, useMemo } from "react";
 import {
@@ -20,7 +20,7 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { Textarea } from "./ui/textarea";
 import {
   Select,
