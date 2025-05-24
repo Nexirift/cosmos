@@ -52,8 +52,8 @@ export const pluginMap = {
   birthday: "birthday",
   usernameAliases: "username-aliases",
   invitation: "invitation",
-  additionalFields: "additional-fields-client",
-  stripe: "stripe-client",
+  vortex: "vortex",
+  organization: "organization",
 };
 
 type PluginMap = typeof pluginMap;
