@@ -72,6 +72,7 @@ export function TwoFactor({
       <div className="flex flex-wrap gap-3">
         <EnableTwoFactorDialog enabled={twoFactorEnabled} />
         {twoFactorEnabled && <RegenerateBackupCodesDialog />}
+        {twoFactorEnabled && <DisableTwoFactorDialog />}
       </div>
     </div>
   );
@@ -450,6 +451,67 @@ function RegenerateBackupCodesDialog() {
             onFinish={() => setOpen(false)}
           />
         )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DisableTwoFactorDialog() {
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setPassword("");
+    }
+  }, [open]);
+
+  const handlePasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!password.trim()) return;
+
+    try {
+      setIsLoading(true);
+      const result = await authClient.twoFactor.disable({
+        password: password.trim(),
+      });
+
+      if (result?.error?.message) {
+        throw new Error(result.error.message);
+      }
+
+      toast.success("Two-factor authentication disabled successfully");
+      setOpen(false);
+    } catch (error) {
+      handleError(
+        error instanceof Error ? error : new Error("Failed to disable 2FA"),
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(open) => !isLoading && setOpen(open)}>
+      <DialogTrigger asChild>
+        <Button variant="destructive" className="w-auto">
+          Disable 2FA
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <PasswordStep
+          title="Disable Two-Factor Authentication"
+          description="Enter your password to disable two-factor authentication. This will remove the extra security layer from your account."
+          password={password}
+          setPassword={setPassword}
+          isLoading={isLoading}
+          onCancel={() => setOpen(false)}
+          onSubmit={handlePasswordSubmit}
+          submitButtonText="Disable"
+          inputId="disable-password"
+        />
       </DialogContent>
     </Dialog>
   );
