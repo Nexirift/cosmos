@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader } from "./loader";
 import { DEFAULTS } from "@/lib/defaults";
+import { log, Logger } from "@/lib/logger";
 
 export function Invite({ data }: { data: InvitationWithCreator }) {
   const { appName, isLoading } = useConfig();
@@ -32,7 +33,7 @@ export function Invite({ data }: { data: InvitationWithCreator }) {
       await authClient.invitation.revoke({ invitationId: data.id! });
       setDeclined(true);
     } catch (error) {
-      console.error("Failed to decline invitation:", error);
+      log(`Failed to decline invitation:\n${error}`, Logger.COMPONENT_INVITE);
     } finally {
       setIsRevoking(false);
     }

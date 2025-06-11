@@ -1,18 +1,24 @@
 "use client";
 
 import { ModerationAlert } from "@/components/moderation-alert";
-import { authClient } from "@/lib/auth-client";
+// import { authClient } from "@/lib/auth-client";
 import { useConfig } from "@/lib/common";
 import { useEffect, useState } from "react";
 
-export function UserAlerts({ updateAction }: { updateAction: () => void }) {
+export function UserAlerts({
+  updateAction,
+  show,
+}: {
+  updateAction: () => void;
+  show?: boolean;
+}) {
   const [connectionError, setConnectionError] = useState(false);
   const { nexiriftMode, novaUrl } = useConfig();
 
-  const oauth = authClient.oauth2.register({
-    client_name: "test",
-    redirect_uris: ["http://localhost:3000"],
-  });
+  // const oauth = authClient.oauth2.register({
+  //   client_name: "test",
+  //   redirect_uris: ["http://localhost:3000"],
+  // });
 
   useEffect(() => {
     const checkConnection = async () => {
@@ -33,6 +39,8 @@ export function UserAlerts({ updateAction }: { updateAction: () => void }) {
     };
     checkConnection();
   }, [nexiriftMode, novaUrl, updateAction]);
+
+  if (show === false) return null;
 
   return (
     <>

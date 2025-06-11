@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
-import { Loader2Icon } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useQRCode } from "next-qrcode";
@@ -24,6 +23,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { LoadingButtonWithText } from "../loading";
 
 type TwoFactorStep = "password" | "qrcode" | "backupcodes";
 
@@ -43,15 +43,6 @@ interface PasswordStepProps {
 interface BackupCodesStepProps {
   backupCodes: string[];
   onFinish: () => void;
-}
-
-interface LoadingButtonProps {
-  isLoading: boolean;
-  disabled?: boolean;
-  onClick?: () => void;
-  loadingText: string;
-  children: React.ReactNode;
-  type?: "button" | "submit" | "reset";
 }
 
 export function TwoFactor({
@@ -119,14 +110,14 @@ function PasswordStep({
         >
           Cancel
         </Button>
-        <LoadingButton
+        <LoadingButtonWithText
           type="submit"
           isLoading={isLoading}
           disabled={!password.trim()}
           loadingText={submitButtonText}
         >
           {submitButtonText}
-        </LoadingButton>
+        </LoadingButtonWithText>
       </DialogFooter>
     </form>
   );
@@ -161,33 +152,6 @@ function BackupCodesStep({ backupCodes, onFinish }: BackupCodesStepProps) {
         </Button>
       </DialogFooter>
     </div>
-  );
-}
-
-function LoadingButton({
-  isLoading,
-  disabled,
-  onClick,
-  loadingText,
-  children,
-  type = "button",
-}: LoadingButtonProps) {
-  return (
-    <Button
-      type={type}
-      onClick={onClick}
-      disabled={isLoading || disabled}
-      className="relative"
-    >
-      {isLoading ? (
-        <>
-          <span className="opacity-0">{loadingText || children}</span>
-          <Loader2Icon className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 animate-spin" />
-        </>
-      ) : (
-        children
-      )}
-    </Button>
   );
 }
 
@@ -358,7 +322,7 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
               >
                 Back
               </Button>
-              <LoadingButton
+              <LoadingButtonWithText
                 type="submit"
                 isLoading={isLoading}
                 disabled={
@@ -367,7 +331,7 @@ function EnableTwoFactorDialog({ enabled }: { enabled: boolean }) {
                 loadingText="Verify"
               >
                 Verify
-              </LoadingButton>
+              </LoadingButtonWithText>
             </DialogFooter>
           </form>
         )}

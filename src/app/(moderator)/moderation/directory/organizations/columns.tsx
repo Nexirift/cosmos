@@ -117,7 +117,7 @@ export const columns: ColumnDef<SelectOrganizationSchema>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <Link href={`/moderation/directory/organizations/${user.id}`}>
-                View user
+                View organization
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

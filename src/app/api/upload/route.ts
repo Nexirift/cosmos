@@ -1,5 +1,6 @@
 import { env } from "@/env";
 import { auth } from "@/lib/auth";
+import { log, Logger } from "@/lib/logger";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, files: uploadResults });
   } catch (error) {
-    console.error("File upload error:", error);
+    log(`File upload error:\n${error}`, Logger.APP_UPLOAD);
     return NextResponse.json(
       { error: "Failed to upload files" },
       { status: 500 },

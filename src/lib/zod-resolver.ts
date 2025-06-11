@@ -31,23 +31,19 @@ const isZodError = (error: unknown): error is z.core.$ZodError =>
  * Zod 유효성 검사 에러를 react-hook-form과 호환되는 형식으로 파싱합니다.
  *
  * Zodバリデーションエラーをreact-hook-formと互換性のある形式に解析します。
- *
- * @param {z.core.$ZodIssue[]} zodErrors - The array of Zod validation issues / Zod 유효성 검사 이슈 배열 / Zodバリデーションの問題の配列
- * @param {boolean} validateAllFieldCriteria - Whether to validate all field criteria / 모든 필드 기준을 검증할지 여부 / すべてのフィールド基準を検証するかどうか
- * @returns {Record<string, FieldError>} Formatted errors for react-hook-form / react-hook-form용 형식화된 에러 / react-hook-form用にフォーマットされたエラー
  */
 function parseErrorSchema(
   zodErrors: z.core.$ZodIssue[],
   validateAllFieldCriteria: boolean,
-) {
+): Record<string, FieldError> {
   const errors: Record<string, FieldError> = {};
   for (; zodErrors.length; ) {
     const error = zodErrors[0];
-    const { code, message, path } = error;
+    const { code, message, path } = error || {};
     // Convert path to string
     // 경로를 문자열로 변환
     // パスを文字列に変換
-    const _path = path.map((p) => String(p)).join(".");
+    const _path = path?.map((p: unknown) => String(p)).join(".") || "";
 
     if (!errors[_path]) {
       // Handle invalid_union type errors
@@ -68,7 +64,7 @@ function parseErrorSchema(
         }
       } else {
         errors[_path] = {
-          message,
+          message: message || "",
           type: code || "validation_error",
         };
       }
@@ -95,8 +91,8 @@ function parseErrorSchema(
           errors,
           code || "validation_error",
           messages
-            ? ([] as string[]).concat(messages as string[], message)
-            : message,
+            ? ([] as string[]).concat(messages as string[], message || "")
+            : message || "",
         ) as FieldError;
       }
     }
@@ -163,7 +159,9 @@ export function zodResolver<Input extends FieldValues, Context, Output>(
         resolverOptions.mode === "sync" ? "parse" : "parseAsync"
       ](values, schemaOptions);
 
-      options.shouldUseNativeValidation && validateFieldsNatively({}, options);
+      if (options.shouldUseNativeValidation) {
+        validateFieldsNatively({}, options);
+      }
 
       return {
         errors: {} as FieldErrors,

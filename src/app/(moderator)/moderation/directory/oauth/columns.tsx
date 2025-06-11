@@ -152,7 +152,7 @@ export const columns: ColumnDef<SelectOauthApplicationSchema>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <Link href={`/moderation/directory/organizations/${user.id}`}>
-                View user
+                View OAuth application
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

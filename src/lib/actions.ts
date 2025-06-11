@@ -1,12 +1,14 @@
 "use server";
 
-import { connect, cosmosSetting, db } from "@nexirift/db";
-import { redis } from "./redis";
 import { env } from "@/env";
+import { connect, cosmosSetting, db } from "@nexirift/db";
 import { DEFAULTS, SettingKey } from "./defaults";
+import { log, Logger } from "./logger";
+import { redis } from "./redis";
 
 const SETTING_KEY = "cosmos_setting";
-const CACHE_TTL = 3600;
+const CACHE_TTL = 3600; // 1 hour in seconds
+const CACHE_STALE_TTL = 7200; // 2 hours in seconds
 
 type DbResult = { key: string; value: string } | null | undefined;
 type SettingValue = string | number | boolean;
@@ -18,29 +20,41 @@ async function checkDb(key: string): Promise<DbResult> {
 
   try {
     await connect();
-    return await db.query.cosmosSetting.findFirst({
+    const result = await db.query.cosmosSetting.findFirst({
       where: (setting, { eq }) => eq(setting.key, key),
     });
+
+    // Update cache with fresh DB value
+    if (result?.value) {
+      const cacheKey = `${SETTING_KEY}:${key}`;
+      await redis.set(cacheKey, result.value, "EX", CACHE_TTL);
+    }
+
+    return result;
   } catch (error) {
-    console.error(`[DB Error] Failed to fetch key ${key}:`, error);
+    log(`Failed to fetch key ${key}:\n${error}`, Logger.LIB_DB);
     return null;
   }
 }
 
-async function setDb(key: string, value: SettingValue): Promise<void> {
-  if (!key) return;
+async function setDb(key: string, value: SettingValue): Promise<boolean> {
+  if (!key) return false;
 
   // Check if value matches default first
   const settingKey = Object.keys(SettingKey).find(
     (k) => SettingKey[k as keyof typeof SettingKey] === key,
   );
   if (settingKey && DEFAULTS[settingKey as keyof typeof SettingKey] === value) {
-    return;
+    // If it's default, just make sure cache reflects this by removing any override
+    await redis.del(`${SETTING_KEY}:${key}`);
+    return true;
   }
+
+  const cacheKey = `${SETTING_KEY}:${key}`;
+  const stringValue = String(value);
 
   try {
     await connect();
-    const stringValue = String(value);
     await db
       .insert(cosmosSetting)
       .values({ key, value: stringValue })
@@ -49,10 +63,12 @@ async function setDb(key: string, value: SettingValue): Promise<void> {
         set: { value: stringValue },
       });
 
-    // Invalidate cache after DB update
-    await redis.del(`${SETTING_KEY}:${key}`);
+    // Update cache with new value directly instead of invalidating
+    await redis.set(cacheKey, stringValue, "EX", CACHE_TTL);
+    return true;
   } catch (error) {
-    console.error(`[DB Error] Failed to set key ${key}:`, error);
+    log(`Failed to set key ${key}:\n${error}`, Logger.LIB_DB);
+    return false;
   }
 }
 
@@ -60,21 +76,51 @@ async function checkCache(
   key: string | SettingKey,
 ): Promise<string | boolean | number | string[] | number[]> {
   if (!key) {
-    console.warn("[Cache Warning] Attempted to check cache with empty key");
+    log(`Attempted to check cache with empty key`, Logger.LIB_CACHE);
     return "";
   }
 
   const cacheKey = `${SETTING_KEY}:${key}`;
+  const cacheStaleKey = `${cacheKey}:stale`;
 
   try {
     // Try cache first
     const cachedResult = await redis.get(cacheKey);
     if (cachedResult) {
+      // Set stale version of the cache in case we need it later
+      await redis.set(cacheStaleKey, cachedResult, "EX", CACHE_STALE_TTL);
       return parseValue(cachedResult);
     }
 
-    // Try database next
-    const dbResult = await checkDb(key);
+    // Check for stale cache if active cache missing
+    const staleCachedResult = await redis.get(cacheStaleKey);
+
+    // Try database next - use Promise to avoid blocking
+    const dbPromise = checkDb(key);
+
+    // If we have stale data, use it while we refresh from DB
+    if (staleCachedResult) {
+      // Background refresh the cache
+      dbPromise
+        .then((result) => {
+          if (result?.value) {
+            redis
+              .set(cacheKey, result.value, "EX", CACHE_TTL)
+              .catch((error) =>
+                log(
+                  `Failed to refresh cache for ${key}:\n${error}`,
+                  Logger.LIB_CACHE,
+                ),
+              );
+          }
+        })
+        .catch(() => {});
+
+      return parseValue(staleCachedResult);
+    }
+
+    // Wait for DB result if no cache is available
+    const dbResult = await dbPromise;
     if (dbResult?.value) {
       await redis.set(cacheKey, dbResult.value, "EX", CACHE_TTL);
       return parseValue(dbResult.value);
@@ -87,20 +133,35 @@ async function checkCache(
 
     if (settingKey) {
       const defaultValue = DEFAULTS[settingKey as keyof typeof SettingKey];
-      //await redis.set(cacheKey, String(defaultValue), "EX", CACHE_TTL);
       return defaultValue;
     }
 
     return "";
   } catch (error) {
-    console.error(`[Cache Error] Failed to check key ${key}:`, error);
+    log(`Failed to check key ${key}:\n${error}`, Logger.LIB_CACHE);
+
+    // Try fallback to defaults on error
+    if (typeof key === "string") {
+      const settingKey = Object.keys(SettingKey).find(
+        (k) => SettingKey[k as keyof typeof SettingKey] === key,
+      );
+      if (settingKey) {
+        return DEFAULTS[settingKey as keyof typeof SettingKey];
+      }
+    }
+
     return "";
   }
 }
 
+/**
+ * Parses a string value into the appropriate type
+ */
 function parseValue(
   value: string,
 ): string | boolean | number | string[] | number[] {
+  if (!value) return "";
+
   // Handle booleans
   const lowerValue = value.toLowerCase();
   if (lowerValue === "true") return true;
@@ -109,14 +170,17 @@ function parseValue(
   // Handle numbers
   if (!isNaN(Number(value))) {
     const num = Number(value);
-    if (Number.isInteger(num)) return parseInt(value);
-    return num;
+    return Number.isInteger(num) ? parseInt(value) : num;
   }
 
   // Handle arrays and objects
   try {
-    if (value.startsWith("[") || value.startsWith("{")) {
+    if (
+      (value.startsWith("[") && value.endsWith("]")) ||
+      (value.startsWith("{") && value.endsWith("}"))
+    ) {
       const parsed = JSON.parse(value);
+
       if (Array.isArray(parsed)) {
         // Check if array contains all strings or all numbers
         const isStringArray = parsed.every((item) => typeof item === "string");
@@ -140,61 +204,106 @@ function parseValue(
   return value;
 }
 
+/**
+ * Clears all settings from cache
+ * @returns Number of cleared keys or -1 on error
+ */
 async function clearCache(): Promise<number> {
   try {
-    const keys = await redis.keys(`${SETTING_KEY}:*`);
+    // Use scan instead of keys for production safety
+    let cursor = "0";
+    let keys: string[] = [];
+
+    do {
+      const [nextCursor, scanKeys] = await redis.scan(
+        cursor,
+        "MATCH",
+        `${SETTING_KEY}:*`,
+        "COUNT",
+        "100",
+      );
+      cursor = nextCursor;
+      keys = keys.concat(scanKeys);
+    } while (cursor !== "0");
+
     if (keys.length > 0) {
-      await redis.del(keys);
-      console.log(`[Cache] Successfully cleared ${keys.length} keys`);
+      // Use pipeline for batch deletion
+      const pipeline = redis.pipeline();
+      for (const key of keys) {
+        pipeline.del(key);
+      }
+      await pipeline.exec();
+      log(`Successfully cleared ${keys.length} keys`, Logger.LIB_CACHE);
       return keys.length;
     }
     return 0;
   } catch (error) {
-    console.error("[Cache Error] Failed to clear cache:", error);
+    log(`Failed to clear cache:\n${error}`, Logger.LIB_CACHE);
     return -1;
   }
 }
 
+/**
+ * Checks if initial setup has been completed
+ */
 async function isSetupComplete(): Promise<boolean> {
-  return (
-    env.DISABLE_SETUP ?? (await checkDb("setup_completed"))?.value === "true"
-  );
+  if (env.DISABLE_SETUP) return true;
+
+  try {
+    const setupCompleted = await checkCache(SettingKey.setupCompleted);
+    return setupCompleted === true;
+  } catch (error) {
+    log(
+      `An error occurred while triyng to check setup status:\n${error}`,
+      Logger.LIB_SETTINGS,
+    );
+    // Fallback to database direct check
+    return (await checkDb("setup_completed"))?.value === "true";
+  }
 }
 
-async function getAllSettings(): Promise<
-  Record<
-    keyof typeof SettingKey,
-    string | boolean | number | string[] | number[]
-  >
-> {
-  const settings: Record<
-    keyof typeof SettingKey,
-    string | boolean | number | string[] | number[]
-  > = {} as Record<
-    keyof typeof SettingKey,
-    string | boolean | number | string[] | number[]
-  >;
-  const settingPromises = Object.values(SettingKey).map(async (key) => {
-    const value = await checkCache(key);
-    if (value) {
-      const enumKey = Object.keys(SettingKey).find(
-        (k) => SettingKey[k as keyof typeof SettingKey] === key,
-      );
-      if (enumKey) {
-        settings[enumKey as keyof typeof SettingKey] = value;
-      }
-    }
-  });
+/**
+ * Type definition for settings return value
+ */
+export type SettingsRecord = Record<
+  keyof typeof SettingKey,
+  string | boolean | number | string[] | number[]
+>;
 
-  await Promise.all(settingPromises);
-  return settings;
+/**
+ * Gets all application settings with defaults
+ * @returns Record of all settings
+ */
+async function getAllSettings(): Promise<SettingsRecord> {
+  // Initialize with defaults
+  const settings = { ...DEFAULTS } as SettingsRecord;
+
+  try {
+    // Fetch all settings in parallel
+    const settingPromises = Object.entries(SettingKey).map(
+      async ([enumKey, key]) => {
+        const value = await checkCache(key);
+        if (value !== undefined && value !== null) {
+          settings[enumKey as keyof typeof SettingKey] = value;
+        }
+      },
+    );
+
+    await Promise.all(settingPromises);
+
+    return settings;
+  } catch (error) {
+    log(`Failed to get all settings:\n${error}`, Logger.LIB_SETTINGS);
+    // Return defaults on error
+    return { ...DEFAULTS } as SettingsRecord;
+  }
 }
 
 export {
-  checkDb,
-  setDb,
   checkCache,
+  checkDb,
   clearCache,
-  isSetupComplete,
   getAllSettings,
+  isSetupComplete,
+  setDb,
 };

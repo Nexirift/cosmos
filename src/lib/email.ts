@@ -4,6 +4,8 @@ import * as path from "node:path";
 import { env } from "@/env";
 import { checkCache } from "./actions";
 import { SettingKey } from "./defaults";
+import { LRUCache } from "lru-cache";
+import { log, Logger } from "./logger";
 
 /**
  * Enum for available email templates
@@ -21,6 +23,9 @@ export class EmailService {
     process.cwd(),
     "node_modules/@nexirift/emails/dist",
   );
+  private readonly templateCache: LRUCache<string, string>;
+  private readonly MAX_RETRY_ATTEMPTS = 3;
+  private readonly RETRY_DELAY = 1000; // ms
 
   constructor() {
     this.transporter = nodemailer.createTransport({
@@ -31,6 +36,26 @@ export class EmailService {
         user: env.SMTP_AUTH_USER,
         pass: env.SMTP_AUTH_PASS,
       },
+      pool: true, // Use connection pooling
+      maxConnections: 5,
+      maxMessages: 100,
+      rateDelta: 1000, // 1 second
+      rateLimit: 5, // 5 messages per second
+    });
+
+    // Initialize template cache
+    this.templateCache = new LRUCache<string, string>({
+      max: 20, // Maximum number of templates to cache
+      ttl: 1000 * 60 * 60, // 1 hour cache TTL
+    });
+
+    // Verify connection configuration
+    this.transporter.verify((error) => {
+      if (error) {
+        log(`Connection error:\n${error}`, Logger.LIB_EMAIL);
+      } else {
+        log(`Ready to send messages`, Logger.LIB_EMAIL);
+      }
     });
   }
 
@@ -42,33 +67,68 @@ export class EmailService {
     templateName: EmailTemplate | string,
   ): Promise<string> {
     const templatePath = path.join(this.templateDir, templateName + ".html");
+    const cacheKey = `template:${templateName}`;
 
-    const defaultVariables = {
-      app_name: await checkCache(SettingKey.appName),
-      app_logo: await checkCache(SettingKey.appLogo),
+    // Get default variables in parallel with template loading
+    const defaultVariablesPromise = Promise.all([
+      checkCache(SettingKey.appName),
+      checkCache(SettingKey.appLogo),
+    ]).then(([appName, appLogo]) => ({
+      app_name: appName,
+      app_logo: appLogo,
       home_url: env.BETTER_AUTH_URL,
       support_email: env.SUPPORT_EMAIL,
-    };
+    }));
 
+    // Try to get template from cache first
+    let template = this.templateCache.get(cacheKey);
+
+    if (!template) {
+      try {
+        template = fs.readFileSync(templatePath, "utf-8");
+        // Store in cache for future use
+        this.templateCache.set(cacheKey, template);
+      } catch (error) {
+        log(
+          `Failed to read email template: ${templatePath}\n${error}`,
+          Logger.LIB_EMAIL,
+        );
+        throw new Error(
+          `Email template not found or inaccessible: ${templateName}`,
+        );
+      }
+    }
+
+    const defaultVariables = await defaultVariablesPromise;
     const variables = { ...defaultVariables, ...dynamicVariables };
 
     try {
-      const template = fs.readFileSync(templatePath, "utf-8");
       return Object.entries(variables).reduce(
         (result, [key, value]) =>
           result.replaceAll(`{{ $${key} }}`, value?.toString() ?? ""),
-        template,
+        template!,
       );
-    } catch (error) {
-      console.error(`Failed to parse email template: ${templatePath}`, error);
-      throw new Error(
-        `Email template not found or inaccessible: ${templateName}`,
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      log(
+        `Failed to parse template variables for: ${templateName}\n${error}`,
+        Logger.LIB_EMAIL,
       );
+
+      throw new Error(`Error parsing template variables: ${errorMessage}`);
     }
   }
 
   /**
    * Send an email with HTML template
+   * @param to Recipient email address
+   * @param subject Email subject
+   * @param template Template name to use
+   * @param variables Template variables
+   * @param text Optional plain text version
+   * @returns Promise resolving to sent message info
    */
   public async sendMail(
     to: string,
@@ -77,6 +137,12 @@ export class EmailService {
     variables: Record<string, unknown> = {},
     text?: string,
   ): Promise<nodemailer.SentMessageInfo> {
+    // Validate email address
+    if (!to || !to.includes("@")) {
+      throw new Error("Invalid recipient email address");
+    }
+
+    // Generate HTML content from template
     const html = await this.parseDynamicTemplate(variables, template);
 
     const fallbackText = text
@@ -88,9 +154,53 @@ export class EmailService {
       subject,
       text: fallbackText,
       html,
+      from: env.SMTP_FROM,
+      headers: {
+        "X-Application": "Cosmos",
+      },
     };
 
-    return this.transporter.sendMail(mailOptions);
+    // Send with retry logic
+    return this.sendWithRetry(mailOptions);
+  }
+
+  /**
+   * Send email with retry logic
+   * @param mailOptions Email options
+   * @param attempt Current attempt number
+   * @returns Promise resolving to sent message info
+   */
+  private async sendWithRetry(
+    mailOptions: nodemailer.SendMailOptions,
+    attempt = 1,
+  ): Promise<nodemailer.SentMessageInfo> {
+    try {
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+
+      if (attempt < this.MAX_RETRY_ATTEMPTS) {
+        log(
+          `Retry attempt ${attempt} for ${mailOptions.to}:\n${errorMessage}`,
+          Logger.LIB_EMAIL,
+        );
+
+        // Wait before retrying
+        await new Promise((resolve) =>
+          setTimeout(resolve, this.RETRY_DELAY * attempt),
+        );
+
+        return this.sendWithRetry(mailOptions, attempt + 1);
+      }
+
+      log(
+        `Failed to send email to ${mailOptions.to} after ${attempt} attempts:\n${errorMessage}`,
+        Logger.LIB_EMAIL,
+      );
+
+      throw error;
+    }
   }
 }
 

@@ -57,8 +57,6 @@ export function VerificationCardActions({
   });
 
   const action = async (formFields: InsertUserVerificationSchema) => {
-    console.log(formFields);
-
     try {
       await modifyAction(formFields);
       toast.success("Verification modified successfully");

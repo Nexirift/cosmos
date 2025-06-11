@@ -31,33 +31,9 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-
-// Reusable loading button component
-function LoadingButton({
-  isLoading,
-  text,
-  className = "bg-red-500 hover:bg-red-600 text-white",
-}: {
-  isLoading: boolean;
-  text: string;
-  className?: string;
-}) {
-  return (
-    <div className={`relative ${className}`}>
-      {isLoading ? (
-        <>
-          <span className="opacity-0">{text}</span>
-          <Loader2 className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 animate-spin" />
-        </>
-      ) : (
-        text
-      )}
-    </div>
-  );
-}
+import { LoadingButton } from "../loading";
 
 export function InvitationsSection({
-  // @eslint-disable-next-line @typescript-eslint/no-unused-vars
   session,
 }: {
   session: ReturnType<typeof authClient.useSession>["data"] | undefined;

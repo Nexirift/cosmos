@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { log, Logger } from "@/lib/logger";
 import { headers } from "next/headers";
 
 // this ensures that even if the middleware or layout is not rendered, our content can still be protected
@@ -12,7 +13,7 @@ export async function protect(roleToCheck?: string | null) {
 
     return role.includes("admin");
   } catch (error) {
-    console.error("Error checking protection:", error);
+    log(`An error occured:\n${error}`, Logger.MODERATION_PROTECT);
     return false;
   }
 }

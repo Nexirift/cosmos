@@ -21,6 +21,12 @@ export const env = createEnv({
     INVITATION_BYPASS_CODE: z.string().optional(),
     ALLOW_OAUTH_REGISTRATION: z.boolean().default(false),
     DISABLE_SETUP: z.boolean().optional(),
+    REDIS_HOST: z.string().default("localhost"),
+    REDIS_PORT: z.number().default(6379).or(z.string().transform(Number)),
+    REDIS_USERNAME: z.string().optional(),
+    REDIS_PASSWORD: z.string().optional(),
+    EMAIL_VERIFICATION_CALLBACK_URL: z.string().default("/dashboard"),
+    LOGGING_LEVELS: z.string().default("*"),
 
     /* AWS */
     S3_STORAGE_ACCESS_KEY_ID: z.string().optional(),
@@ -52,6 +58,7 @@ export const env = createEnv({
   },
   client: {
     NEXT_PUBLIC_INVITATION_DISABLED: z.boolean().default(false),
+    NEXT_PUBLIC_AUTH_BASE_URL: z.string().optional(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -74,6 +81,15 @@ export const env = createEnv({
       process.env.DISABLE_SETUP === undefined
         ? undefined
         : process.env.DISABLE_SETUP === "true",
+    REDIS_HOST: process.env.REDIS_HOST,
+    REDIS_PORT: process.env.REDIS_PORT,
+    REDIS_USERNAME: process.env.REDIS_USERNAME,
+    REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+    EMAIL_VERIFICATION_CALLBACK_URL:
+      process.env.EMAIL_VERIFICATION_CALLBACK_URL,
+    LOGGING_LEVELS: process.env.LOGGING_LEVELS,
+    NEXT_PUBLIC_AUTH_BASE_URL:
+      process.env.NEXT_PUBLIC_AUTH_BASE_URL || process.env.BETTER_AUTH_URL,
 
     /* AWS */
     S3_STORAGE_ACCESS_KEY_ID: process.env.S3_STORAGE_ACCESS_KEY_ID,

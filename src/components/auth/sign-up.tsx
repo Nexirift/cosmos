@@ -120,8 +120,6 @@ export function SignUp({ invite }: SignUpProps) {
     (domain) => email.split("@")[1]?.endsWith(domain),
   );
 
-  console.log(isGovernmentEmail);
-
   const validationRules = {
     isLoading: loading,
     hasEmptyFields: !username || !email || !password || !confirmPassword,

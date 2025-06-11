@@ -63,9 +63,20 @@ export function DynamicForm<T extends Record<string, unknown>>({
   overrides?: FormOverrides<T>;
   form?: UseFormReturn<T>;
 }) {
+  // We want to ensure data always has a value
+  // If schema is provided and data is empty, generate default values from the schema
+  const realData = useMemo(
+    () =>
+      (data as DefaultValues<T>) ||
+      (schema && schema instanceof z.ZodObject
+        ? (generateDefaultValues(schema) as DefaultValues<T>)
+        : ({} as DefaultValues<T>)),
+    [data, schema],
+  );
+
   const defaultFormInstance = useForm<T>({
     resolver: zodResolver(schema!),
-    defaultValues: data as DefaultValues<T>,
+    defaultValues: realData,
   });
 
   const overrides = useMemo(
@@ -86,12 +97,12 @@ export function DynamicForm<T extends Record<string, unknown>>({
   const getFieldType = useCallback(
     (key: string): FieldType => {
       if (overrides?.[key]?.type) return overrides[key].type!;
-      const value = data[key];
+      const value = realData[key];
       if (value instanceof Date) return "date";
       if (typeof value === "boolean") return "boolean";
       return "text";
     },
-    [data, overrides],
+    [realData, overrides],
   );
 
   const getFormattedName = useCallback(
@@ -132,7 +143,7 @@ export function DynamicForm<T extends Record<string, unknown>>({
     [formInstance],
   );
 
-  const fieldsFromData = Object.keys(data);
+  const fieldsFromData = Object.keys(realData || {});
   const fieldsFromOverrides = Object.keys(overrides);
 
   const keys = useMemo(() => {
@@ -256,3 +267,26 @@ export function DynamicForm<T extends Record<string, unknown>>({
     </Form>
   );
 }
+
+export const generateDefaultValues = <T extends z.ZodRawShape>(
+  schema: z.ZodObject<T>,
+): z.infer<z.ZodObject<T>> => {
+  const shape = schema.shape;
+  const defaults: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(shape)) {
+    if (value instanceof z.ZodString || value instanceof z.ZodEmail) {
+      defaults[key] = "";
+    } else if (value instanceof z.ZodBoolean) {
+      defaults[key] = false;
+    } else if (value instanceof z.ZodNumber) {
+      defaults[key] = 0;
+    } else if (value instanceof z.ZodArray) {
+      defaults[key] = [];
+    } else {
+      defaults[key] = undefined;
+    }
+  }
+
+  return defaults as z.infer<z.ZodObject<T>>;
+};

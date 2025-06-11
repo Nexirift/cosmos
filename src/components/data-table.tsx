@@ -70,21 +70,27 @@ export function DataTable<TData, TValue>({
             {table
               .getAllColumns()
               .filter((column) => column.getCanFilter())
-              .map((column) => (
-                <div key={column.id} className="flex items-center gap-2">
-                  <Input
-                    placeholder={`Search ${
-                      column.id.charAt(0).toUpperCase() +
-                      column.id.slice(1).replace(/([A-Z])/g, " $1")
-                    }...`}
-                    value={(column.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                      column.setFilterValue(event.target.value)
-                    }
-                    className="max-w-[150px]"
-                  />
-                </div>
-              ))}
+              .map((column) => {
+                if (column.id === "createdAt" || column.id === "updatedAt") {
+                  return null;
+                }
+
+                return (
+                  <div key={column.id} className="flex items-center gap-2">
+                    <Input
+                      placeholder={`Search ${
+                        column.id.charAt(0).toUpperCase() +
+                        column.id.slice(1).replace(/([A-Z])/g, " $1")
+                      }...`}
+                      value={(column.getFilterValue() as string) ?? ""}
+                      onChange={(event) =>
+                        column.setFilterValue(event.target.value)
+                      }
+                      className="max-w-[150px]"
+                    />
+                  </div>
+                );
+              })}
           </div>
         </div>
         <DataTableViewOptions table={table} />

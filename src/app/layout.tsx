@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -51,6 +52,7 @@ export default function RootLayout({
             <Toaster />
           </TooltipProvider>
         </ThemeProvider>
+        <Script id="debug">{`localStorage.debug = '*'`}</Script>
       </body>
     </html>
   );

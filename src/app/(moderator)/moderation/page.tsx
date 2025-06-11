@@ -14,6 +14,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { UserAlerts } from "./user-alerts";
 import { protect } from "./protect";
+import { log } from "@/lib/logger";
 
 export default async function Page() {
   const getGreeting = () => {
@@ -30,7 +31,7 @@ export default async function Page() {
   await protect(data?.user.role);
 
   const KEY = `cosmos_moderation_alert:${data?.session.id}`;
-  const alertCount = (await redis.get(KEY)) ?? 0;
+  const alertCount = parseInt(await redis.get(KEY)) ?? 0;
   const setupCompleted = await isSetupComplete();
   await redis.del(KEY);
 
@@ -40,7 +41,10 @@ export default async function Page() {
       const current = Number(await redis.get(KEY)) ?? 0;
       await redis.set(KEY, current + 1);
     } catch (error) {
-      console.error("Error updating alert count:", error);
+      log(
+        `An error occured while trying to update the alert count:\n${error}`,
+        "moderation:dashboard",
+      );
     }
   };
 
@@ -85,47 +89,61 @@ export default async function Page() {
         </CardHeader>
         <hr className="border-b-1 border-muted ml-4 mr-4" />
         <CardContent className="overflow-scroll max-h-[30rem] h-[30rem] mb-6 flex flex-col gap-4">
-          {!setupCompleted && (
-            <ModerationAlert preset="orange">
-              <p className="font-medium">
-                <span className="font-bold">SECURITY ALERT:</span> The{" "}
-                <Link href="/setup" className="underline hover:text-orange-800">
-                  setup wizard
-                </Link>{" "}
-                is currently accessible to all users. For security reasons,
-                please either:
+          {alertCount > 0 ? (
+            <>
+              {!setupCompleted && (
+                <ModerationAlert preset="orange">
+                  <p className="font-medium">
+                    <span className="font-bold">SECURITY ALERT:</span> The{" "}
+                    <Link
+                      href="/setup"
+                      className="underline hover:text-orange-800"
+                    >
+                      setup wizard
+                    </Link>{" "}
+                    is currently accessible to all users. For security reasons,
+                    please either:
+                  </p>
+                  <ul className="mt-2 list-disc list-inside">
+                    <li>
+                      Configure your Cosmos instance using the{" "}
+                      <Link
+                        href="/setup"
+                        className="underline hover:text-orange-800"
+                      >
+                        setup wizard
+                      </Link>
+                    </li>
+                    <li>
+                      Visit the{" "}
+                      <Link
+                        href="/setup/thank-you"
+                        className="underline hover:text-orange-800"
+                      >
+                        completion page
+                      </Link>{" "}
+                      to disable access
+                    </li>
+                    <li>
+                      Set{" "}
+                      <code className="bg-orange-200 dark:bg-orange-400 px-1 rounded-lg">
+                        DISABLE_SETUP=true
+                      </code>{" "}
+                      in your environment variables
+                    </li>
+                  </ul>
+                </ModerationAlert>
+              )}
+              <UserAlerts updateAction={updateAction} />
+            </>
+          ) : (
+            <>
+              <p className="text-center text-muted-foreground">
+                No alerts found. Refresh your page to check again.
               </p>
-              <ul className="mt-2 list-disc list-inside">
-                <li>
-                  Configure your Cosmos instance using the{" "}
-                  <Link
-                    href="/setup"
-                    className="underline hover:text-orange-800"
-                  >
-                    setup wizard
-                  </Link>
-                </li>
-                <li>
-                  Visit the{" "}
-                  <Link
-                    href="/setup/thank-you"
-                    className="underline hover:text-orange-800"
-                  >
-                    completion page
-                  </Link>{" "}
-                  to disable access
-                </li>
-                <li>
-                  Set{" "}
-                  <code className="bg-orange-200 dark:bg-orange-400 px-1 rounded-lg">
-                    DISABLE_SETUP=true
-                  </code>{" "}
-                  in your environment variables
-                </li>
-              </ul>
-            </ModerationAlert>
+              <UserAlerts updateAction={updateAction} show={false} />
+            </>
           )}
-          <UserAlerts updateAction={updateAction} />
         </CardContent>
       </Card>
     </main>

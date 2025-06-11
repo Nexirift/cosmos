@@ -25,12 +25,16 @@ import {
 } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey";
 import { default as _jwt } from "jsonwebtoken";
-import { getAllSettings } from "./actions";
+import { getAllSettings, SettingsRecord } from "./actions";
+import { AuthProvider } from "./types";
+import { log, Logger } from "./logger";
 // import { polar } from "@polar-sh/better-auth";
 // import { Polar } from "@polar-sh/sdk";
 
 // Initialize database connection
-connect();
+connect().catch((error) =>
+  log(`Failed to connect to database:\n${error}`, Logger.LIB_DB),
+);
 
 // Create Polar client
 // const polarClient = new Polar({
@@ -43,90 +47,108 @@ connect();
 
 const config = await getAllSettings();
 
-const nexiriftPlugins = [
-  vortex(),
-  birthday(),
-  usernameAliases(),
-  ...(env.INVITATION_DISABLED
-    ? []
-    : [
-        invitation({
-          bypassCode: env.INVITATION_BYPASS_CODE,
-          maxInvitations: Number(config.maximumInvitations),
-          schema: {
-            invitation: {
-              modelName: "cosmosInvitation",
+/**
+ * Initialize Nexirift plugins based on configuration
+ * @param config Application configuration
+ * @returns Array of configured plugins
+ */
+function initializeNexiriftPlugins(config: SettingsRecord): BetterAuthPlugin[] {
+  return [
+    vortex(),
+    birthday(),
+    usernameAliases(),
+    ...(env.INVITATION_DISABLED
+      ? []
+      : [
+          invitation({
+            bypassCode: env.INVITATION_BYPASS_CODE,
+            maxInvitations: Number(config.maximumInvitations),
+            schema: {
+              invitation: {
+                modelName: "cosmosInvitation",
+              },
             },
-          },
-        }),
-      ]),
-] satisfies BetterAuthPlugin[];
+          }),
+        ]),
+  ] satisfies BetterAuthPlugin[];
+}
 
-const authPlugins = [
-  expo(),
-  openAPI(),
-  bearer(),
-  admin(),
-  username({
-    usernameValidator: async (username) => {
-      return new RegExp(String(config.usernameRegexValidation)).test(username);
-    },
-  }),
-  passkey({
-    rpName: String(config.appName),
-  }),
-  twoFactor(),
-  multiSession({
-    maximumSessions: 11,
-  }),
-  organization({
-    teams: {
-      enabled: true,
-    },
-    schema: {
-      organization: {
-        modelName: "organization",
+/**
+ * Initialize core auth plugins based on configuration
+ * @param config Application configuration
+ * @returns Array of configured plugins
+ */
+function initializeAuthPlugins(config: SettingsRecord): BetterAuthPlugin[] {
+  return [
+    expo(),
+    openAPI(),
+    bearer(),
+    admin(),
+    username({
+      usernameValidator: async (username) => {
+        return new RegExp(String(config.usernameRegexValidation)).test(
+          username,
+        );
       },
-      member: {
-        modelName: "organizationMember",
+    }),
+    passkey({
+      rpName: String(config.appName),
+    }),
+    twoFactor(),
+    multiSession({
+      maximumSessions: 11,
+    }),
+    organization({
+      teams: {
+        enabled: true,
       },
-      invitation: {
-        modelName: "organizationInvitation",
+      schema: {
+        organization: {
+          modelName: "organization",
+        },
+        member: {
+          modelName: "organizationMember",
+        },
+        invitation: {
+          modelName: "organizationInvitation",
+        },
+        team: {
+          modelName: "organizationTeam",
+        },
       },
-      team: {
-        modelName: "organizationTeam",
+    }),
+    oidcProvider({
+      loginPage: "/sign-in",
+      consentPage: "/oauth/consent",
+      metadata: {
+        issuer: env.BETTER_AUTH_URL + "/api/auth",
       },
-    },
-  }),
-  oidcProvider({
-    loginPage: "/sign-in",
-    consentPage: "/oauth/consent",
-    metadata: {
-      issuer: env.BETTER_AUTH_URL + "/api/auth",
-    },
-  }),
-  jwt(),
-  haveIBeenPwned(),
-  // polar({
-  //   client: polarClient,
-  //   createCustomerOnSignUp: true,
-  //   enableCustomerPortal: true,
-  //   checkout: {
-  //     enabled: true,
-  //     products: [
-  //       {
-  //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
-  //         slug: "nebula-individual",
-  //       },
-  //     ],
-  //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
-  //   },
-  //   webhooks: {
-  //     secret: env.POLAR_WEBHOOK_SECRET,
-  //   },
-  // }),
-] satisfies BetterAuthPlugin[];
+    }),
+    jwt(),
+    haveIBeenPwned(),
+    // polar({
+    //   client: polarClient,
+    //   createCustomerOnSignUp: true,
+    //   enableCustomerPortal: true,
+    //   checkout: {
+    //     enabled: true,
+    //     products: [
+    //       {
+    //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
+    //         slug: "nebula-individual",
+    //       },
+    //     ],
+    //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
+    //   },
+    //   webhooks: {
+    //     secret: env.POLAR_WEBHOOK_SECRET,
+    //   },
+    // }),
+  ] satisfies BetterAuthPlugin[];
+}
 
+const nexiriftPlugins = initializeNexiriftPlugins(config);
+const authPlugins = initializeAuthPlugins(config);
 const plugins = [...nexiriftPlugins, ...authPlugins];
 
 /**
@@ -139,8 +161,8 @@ export const auth = betterAuth({
       ? [
           "nexirift://",
           "http://localhost:8081",
-          "exp://192.168.1.232:8081",
-          "http://192.168.1.232:8081",
+          "exp://100.69.69.69:8081",
+          "http://100.69.69.69:8081",
         ]
       : ["nexirift://"],
   database: drizzleAdapter(db, {
@@ -153,39 +175,50 @@ export const auth = betterAuth({
     minPasswordLength: Number(config.passwordMinLength),
     maxPasswordLength: Number(config.passwordMaxLength),
     sendResetPassword: async ({ user, url }) => {
-      await emailService.sendMail(
-        user.email,
-        "Reset your password",
-        EmailTemplate.RESET_YOUR_PASSWORD,
-        {
-          name: user.name,
-          url,
-        },
-      );
+      await emailService
+        .sendMail(
+          user.email,
+          "Reset your password",
+          EmailTemplate.RESET_YOUR_PASSWORD,
+          {
+            name: user.name,
+            url,
+          },
+        )
+        .catch((error) =>
+          log(
+            `Failed to send password reset email:\n${error}`,
+            Logger.LIB_AUTH,
+          ),
+        );
     },
   },
   emailVerification: {
     sendOnSignUp: Boolean(config.requireEmailVerification),
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, token }) => {
-      // Only send verification email if user was created recently (within 10 seconds)
-      const secondsSinceCreation =
-        (Date.now() - new Date(user.createdAt).getTime()) / 1000;
+      try {
+        // Only send verification email if user was created recently (within 10 seconds)
+        const secondsSinceCreation =
+          (Date.now() - new Date(user.createdAt).getTime()) / 1000;
 
-      if (secondsSinceCreation <= 10) {
-        await emailService.sendMail(
-          user.email,
-          "New account confirmation",
-          EmailTemplate.NEW_ACCOUNT_CONFIRMATION,
-          {
-            name: user.name,
-            url: `${
-              process.env.BETTER_AUTH_URL
-            }/api/auth/verify-email?token=${token}&callbackURL=${
-              process.env.EMAIL_VERIFICATION_CALLBACK_URL || "/dashboard"
-            }`,
-          },
-        );
+        if (secondsSinceCreation <= 10) {
+          await emailService.sendMail(
+            user.email,
+            "New account confirmation",
+            EmailTemplate.NEW_ACCOUNT_CONFIRMATION,
+            {
+              name: user.name,
+              url: `${
+                env.BETTER_AUTH_URL
+              }/api/auth/verify-email?token=${token}&callbackURL=${
+                env.EMAIL_VERIFICATION_CALLBACK_URL
+              }`,
+            },
+          );
+        }
+      } catch (error) {
+        log(`Failed to send verification email:\n${error}`, Logger.LIB_AUTH);
       }
     },
   },
@@ -197,15 +230,22 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailVerification: async ({ user, newEmail, url }) => {
-        await emailService.sendMail(
-          newEmail,
-          "Change email confirmation",
-          EmailTemplate.CHANGE_EMAIL_CONFIRMATION,
-          {
-            name: user.name,
-            url,
-          },
-        );
+        await emailService
+          .sendMail(
+            newEmail,
+            "Change email confirmation",
+            EmailTemplate.CHANGE_EMAIL_CONFIRMATION,
+            {
+              name: user.name,
+              url,
+            },
+          )
+          .catch((error) =>
+            log(
+              `Failed to send change email confirmation:\n${error}`,
+              Logger.LIB_AUTH,
+            ),
+          );
       },
     },
   },
@@ -295,7 +335,7 @@ export const auth = betterAuth({
           );
         }
       } catch (error) {
-        console.error("Failed to decode token:", error);
+        log(`Failed to decode token:\n${error}`, Logger.LIB_AUTH);
       }
     }),
   },
@@ -305,77 +345,51 @@ export const auth = betterAuth({
  * Get all enabled auth providers by checking their environment variables
  * @returns Array of enabled provider names
  */
-export const getEnabledProviders = (): Array<
-  "google" | "github" | "twitter" | "twitch" | "gitlab" | "discord"
-> => {
-  const providers: Array<
-    "google" | "github" | "twitter" | "twitch" | "gitlab" | "discord"
-  > = [];
+export const getEnabledProviders = (): AuthProvider[] => {
+  // Provider configurations
+  const providerConfigs: Record<AuthProvider, () => boolean> = {
+    google: () =>
+      Boolean(
+        env.AUTH_PROVIDER_GOOGLE_CLIENT_ID &&
+          env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET,
+      ),
+    github: () =>
+      Boolean(
+        env.AUTH_PROVIDER_GITHUB_CLIENT_ID &&
+          env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET,
+      ),
+    twitter: () =>
+      Boolean(
+        env.AUTH_PROVIDER_TWITTER_CLIENT_ID &&
+          env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET,
+      ),
+    twitch: () =>
+      Boolean(
+        env.AUTH_PROVIDER_TWITCH_CLIENT_ID &&
+          env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET,
+      ),
+    gitlab: () =>
+      Boolean(
+        env.AUTH_PROVIDER_GITLAB_CLIENT_ID &&
+          env.AUTH_PROVIDER_GITLAB_CLIENT_SECRET &&
+          env.AUTH_PROVIDER_GITLAB_ISSUER,
+      ),
+    discord: () =>
+      Boolean(
+        env.AUTH_PROVIDER_DISCORD_CLIENT_ID &&
+          env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
+      ),
+  };
 
-  // Check Google
-  if (
-    Boolean(
-      env.AUTH_PROVIDER_GOOGLE_CLIENT_ID &&
-        env.AUTH_PROVIDER_GOOGLE_CLIENT_SECRET,
-    )
-  ) {
-    providers.push("google");
-  }
-
-  // Check GitHub
-  if (
-    Boolean(
-      env.AUTH_PROVIDER_GITHUB_CLIENT_ID &&
-        env.AUTH_PROVIDER_GITHUB_CLIENT_SECRET,
-    )
-  ) {
-    providers.push("github");
-  }
-
-  // Check Twitter
-  if (
-    Boolean(
-      env.AUTH_PROVIDER_TWITTER_CLIENT_ID &&
-        env.AUTH_PROVIDER_TWITTER_CLIENT_SECRET,
-    )
-  ) {
-    providers.push("twitter");
-  }
-
-  // Check Twitch
-  if (
-    Boolean(
-      env.AUTH_PROVIDER_TWITCH_CLIENT_ID &&
-        env.AUTH_PROVIDER_TWITCH_CLIENT_SECRET,
-    )
-  ) {
-    providers.push("twitch");
-  }
-
-  // Check GitLab
-  if (
-    Boolean(
-      env.AUTH_PROVIDER_GITLAB_CLIENT_ID &&
-        env.AUTH_PROVIDER_GITLAB_CLIENT_SECRET &&
-        env.AUTH_PROVIDER_GITLAB_ISSUER,
-    )
-  ) {
-    providers.push("gitlab");
-  }
-
-  // Check Discord
-  if (
-    Boolean(
-      env.AUTH_PROVIDER_DISCORD_CLIENT_ID &&
-        env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
-    )
-  ) {
-    providers.push("discord");
-  }
-
-  return providers;
+  // Use filter to get enabled providers
+  return (Object.keys(providerConfigs) as AuthProvider[]).filter((provider) =>
+    providerConfigs[provider](),
+  );
 };
 
+/**
+ * Plugin identifier map to maintain consistent IDs
+ */
 export const pluginMap = {
   username: "username",
   passkey: "passkey",
@@ -393,16 +407,25 @@ export const pluginMap = {
   organization: "organization",
   jwt: "jwt",
   haveIBeenPwned: "haveIBeenPwned",
-};
+} as const;
 
-type PluginMap = typeof pluginMap;
-type PluginSource = "all" | "auth" | "nexirift";
+export type PluginMap = typeof pluginMap;
+export type PluginKey = keyof PluginMap;
+export type PluginId = PluginMap[PluginKey];
+export type PluginSource = "all" | "auth" | "nexirift";
 
+/**
+ * Check if a plugin is enabled
+ * @param pluginKey The plugin key to check
+ * @param source Which plugin source to check (all, auth, or nexirift)
+ * @returns Boolean indicating if plugin is enabled
+ */
 export function checkPlugin<T extends keyof PluginMap>(
-  _plugin: T,
+  pluginKey: T,
   source: PluginSource = "all",
 ): boolean {
-  const pluginId = getPluginId(_plugin);
+  const pluginId = getPluginId(pluginKey);
+
   switch (source) {
     case "auth":
       return authPlugins.some((plugin) => plugin.id === pluginId);
@@ -413,10 +436,20 @@ export function checkPlugin<T extends keyof PluginMap>(
   }
 }
 
-function getPluginId<T extends keyof PluginMap>(_plugin: T): PluginMap[T] {
-  return pluginMap[_plugin];
+/**
+ * Get the plugin ID from its key
+ * @param pluginKey The plugin key
+ * @returns The plugin ID
+ */
+function getPluginId<T extends keyof PluginMap>(pluginKey: T): PluginMap[T] {
+  return pluginMap[pluginKey];
 }
 
+/**
+ * Get all enabled plugin IDs
+ * @param source Which plugin source to get (all, auth, or nexirift)
+ * @returns Array of plugin IDs
+ */
 export function getEnabledPlugins(source: PluginSource = "all"): string[] {
   switch (source) {
     case "auth":
@@ -426,4 +459,27 @@ export function getEnabledPlugins(source: PluginSource = "all"): string[] {
     default:
       return plugins.map((plugin) => plugin.id);
   }
+}
+
+/**
+ * Get plugin metadata for UI display
+ * @returns Array of plugin metadata objects
+ */
+export function getPluginMetadata() {
+  return Object.entries(pluginMap).map(([key, id]) => {
+    const source: PluginSource = nexiriftPlugins.some(
+      (plugin) => plugin.id === id,
+    )
+      ? "nexirift"
+      : authPlugins.some((plugin) => plugin.id === id)
+        ? "auth"
+        : "all";
+
+    return {
+      key,
+      id,
+      enabled: checkPlugin(key as keyof PluginMap, source),
+      source,
+    };
+  });
 }

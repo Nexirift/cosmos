@@ -1,52 +1,188 @@
 import React from "react";
 import { toast } from "sonner";
 import { getAllSettings } from "./actions";
-import { SettingKey } from "./defaults";
+import { ApiError } from "./types";
 
 /**
  * Displays an error toast notification to the user
  * @param error The error object containing the message to display
+ * @param options Additional options for error handling
  */
-function handleError(error: Error) {
-  toast.error(error.message || "An error occurred");
+function handleError(
+  error: Error | ApiError | unknown,
+  options: {
+    fallbackMessage?: string;
+    logToConsole?: boolean;
+    reportToService?: boolean;
+  } = {},
+) {
+  const {
+    fallbackMessage = "An error occurred",
+    logToConsole = true,
+    reportToService = false,
+  } = options;
+
+  // Extract error message based on error type
+  let errorMessage: string;
+
+  if (error instanceof Error) {
+    errorMessage = error.message || fallbackMessage;
+  } else if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error
+  ) {
+    errorMessage = (error as { message: string }).message || fallbackMessage;
+  } else if (typeof error === "string") {
+    errorMessage = error;
+  } else {
+    errorMessage = fallbackMessage;
+  }
+
+  // Display toast
+  toast.error(errorMessage);
+
+  // Additional error handling
+  if (logToConsole) {
+    log(`An error occurred:\n${error}`, Logger.OTHER);
+  }
+
+  if (reportToService) {
+    // Implement error reporting service integration here
+    // Example: errorReportingService.report(error);
+  }
 }
 
-function initials(name: string = "Unknown") {
-  const nameParts = name?.toUpperCase()?.split(" ") || [];
+/**
+ * Generates initials from a person's name
+ * @param name The person's name
+ * @param fallback Fallback string if name is invalid
+ * @returns Formatted initials (1-2 characters)
+ */
+function initials(name: string = "Unknown", fallback: string = "?") {
+  if (!name || typeof name !== "string") return fallback;
 
-  if (nameParts.length < 2) return name.slice(0, 1);
+  // Trim and normalize the name
+  const trimmedName = name.trim();
+  if (!trimmedName) return fallback;
+
+  const nameParts = trimmedName.toUpperCase().split(/\s+/).filter(Boolean);
+
+  if (nameParts.length < 2) {
+    // Handle single name or single character
+    return nameParts[0]?.charAt(0) || fallback;
+  }
 
   const firstInitial = nameParts[0]?.charAt(0) || "";
   const secondInitial = nameParts[1]?.charAt(0) || "";
 
-  return `${firstInitial}${secondInitial}`.toUpperCase();
+  return `${firstInitial}${secondInitial}`;
 }
 
-const useConfig = () => {
-  const [config, setConfig] = React.useState<
-    Record<
-      keyof typeof SettingKey,
-      string | boolean | number | string[] | number[]
-    >
-  >(
-    {} as Record<
-      keyof typeof SettingKey,
-      string | boolean | number | string[] | number[]
-    >,
+import { SettingsRecord } from "./types";
+import { log, Logger } from "./logger";
+
+/**
+ * Hook to access application configuration
+ * @param options Configuration options
+ * @returns Configuration settings and loading state
+ */
+const useConfig = (
+  options: {
+    revalidateInterval?: number;
+    suspense?: boolean;
+  } = {},
+) => {
+  const { revalidateInterval = 0, suspense = false } = options;
+
+  const [config, setConfig] = React.useState<SettingsRecord>(
+    {} as SettingsRecord,
   );
   const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<Error | null>(null);
+
+  // For suspense support
+  const promiseRef = React.useRef<Promise<SettingsRecord> | null>(null);
 
   React.useEffect(() => {
-    const fetchConfig = async () => {
-      if (!isLoading) return;
-      const result = await getAllSettings();
-      setConfig(result);
-      setIsLoading(false);
-    };
-    fetchConfig();
-  }, [isLoading]);
+    let isMounted = true;
+    let intervalId: NodeJS.Timeout | undefined;
 
-  return { ...config, isLoading };
+    const fetchConfig = async () => {
+      try {
+        setIsLoading(true);
+        const result = await getAllSettings();
+
+        if (isMounted) {
+          setConfig(result);
+          setError(null);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (isMounted) {
+          log(`Failed to load configuration:\n${error}`, Logger.LIB_SETTINGS);
+          setError(error instanceof Error ? error : new Error(String(error)));
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchConfig();
+
+    // Set up revalidation interval if specified
+    if (revalidateInterval > 0) {
+      intervalId = setInterval(fetchConfig, revalidateInterval);
+    }
+
+    return () => {
+      isMounted = false;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [revalidateInterval]);
+
+  // Support for React Suspense
+  if (suspense && isLoading) {
+    if (!promiseRef.current) {
+      promiseRef.current = getAllSettings();
+    }
+    throw promiseRef.current;
+  }
+
+  return {
+    ...config,
+    isLoading,
+    error,
+    refresh: React.useCallback(() => setIsLoading(true), []),
+  };
 };
 
-export { handleError, initials, useConfig };
+/**
+ * Formats a value for display based on its type
+ * @param value The value to format
+ * @returns Formatted string representation
+ */
+function formatValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "[Object]";
+    }
+  }
+
+  return String(value);
+}
+
+export { handleError, initials, useConfig, formatValue };
