@@ -8,7 +8,6 @@ import { redis } from "./redis";
 
 const SETTING_KEY = "cosmos_setting";
 const CACHE_TTL = 3600; // 1 hour in seconds
-const CACHE_STALE_TTL = 7200; // 2 hours in seconds
 
 type DbResult = { key: string; value: string } | null | undefined;
 type SettingValue = string | number | boolean;
@@ -81,43 +80,16 @@ async function checkCache(
   }
 
   const cacheKey = `${SETTING_KEY}:${key}`;
-  const cacheStaleKey = `${cacheKey}:stale`;
 
   try {
     // Try cache first
     const cachedResult = await redis.get(cacheKey);
     if (cachedResult) {
-      // Set stale version of the cache in case we need it later
-      await redis.set(cacheStaleKey, cachedResult, "EX", CACHE_STALE_TTL);
       return parseValue(cachedResult);
     }
 
-    // Check for stale cache if active cache missing
-    const staleCachedResult = await redis.get(cacheStaleKey);
-
     // Try database next - use Promise to avoid blocking
     const dbPromise = checkDb(key);
-
-    // If we have stale data, use it while we refresh from DB
-    if (staleCachedResult) {
-      // Background refresh the cache
-      dbPromise
-        .then((result) => {
-          if (result?.value) {
-            redis
-              .set(cacheKey, result.value, "EX", CACHE_TTL)
-              .catch((error) =>
-                log(
-                  `Failed to refresh cache for ${key}:\n${error}`,
-                  Logger.LIB_CACHE,
-                ),
-              );
-          }
-        })
-        .catch(() => {});
-
-      return parseValue(staleCachedResult);
-    }
 
     // Wait for DB result if no cache is available
     const dbResult = await dbPromise;
