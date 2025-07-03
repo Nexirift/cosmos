@@ -94,7 +94,7 @@ export async function ProfileCard({ data }: ProfileCardProps) {
   };
 
   return (
-    <Card className="gap-2 min-w-lg max-w-lg">
+    <Card className="gap-2 break-inside-avoid">
       <CardHeader>
         <VisibleBadge />
         <CardTitle className="text-xl font-bold flex items-center gap-2">
@@ -102,19 +102,23 @@ export async function ProfileCard({ data }: ProfileCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-1">
-        {Object.entries(profile)
-          .filter(([key]) => key !== "userId" && key !== "createdAt")
-          .map(([key, value]) => {
-            const isImage = IMAGE_FIELDS.includes(key);
-            return (
-              <div key={key} className="flex flex-col gap-2 mb-2">
-                <b className="font-semibold">{formatFieldName(key)}:</b>
-                <span className={isImage ? "rounded-md overflow-hidden" : ""}>
-                  {renderFieldValue(key, value)}
-                </span>
-              </div>
-            );
-          })}
+        {data.profile ? (
+          Object.entries(profile)
+            .filter(([key]) => key !== "userId" && key !== "createdAt")
+            .map(([key, value]) => {
+              const isImage = IMAGE_FIELDS.includes(key);
+              return (
+                <div key={key} className="flex flex-col gap-2 mb-2">
+                  <b className="font-semibold">{formatFieldName(key)}:</b>
+                  <span className={isImage ? "rounded-md overflow-hidden" : ""}>
+                    {renderFieldValue(key, value)}
+                  </span>
+                </div>
+              );
+            })
+        ) : (
+          <p className="mb-2">No profile data available.</p>
+        )}
       </CardContent>
       <ProfileCardActions data={profile} modifyAction={modifyAction} />
     </Card>

@@ -76,7 +76,7 @@ export default async function Page({
             </div>
           </div>
         </section>
-        <div className="flex gap-2 flex-wrap items-start">
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-2 space-y-2">
           <ProfileCard
             data={{ id: data.id, profile: data.profile ?? undefined }}
           />

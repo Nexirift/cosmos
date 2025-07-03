@@ -29,7 +29,7 @@ export function ContactInformationCard({ data }: { data: UserSchemaType }) {
       };
 
   return (
-    <Card className="gap-2 min-w-lg max-w-lg">
+    <Card className="gap-2 break-inside-avoid">
       <CardHeader>
         <VisibleBadge role="Super Administrators" />
         <CardTitle className="text-xl font-bold flex items-center gap-2">
