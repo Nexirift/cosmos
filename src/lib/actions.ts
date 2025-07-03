@@ -5,6 +5,7 @@ import { connect, cosmosSetting, db } from "@nexirift/db";
 import { DEFAULTS, SettingKey } from "./defaults";
 import { log, Logger } from "./logger";
 import { redis } from "./redis";
+import { eq } from "drizzle-orm";
 
 const SETTING_KEY = "cosmos_setting";
 const CACHE_TTL = 3600; // 1 hour in seconds
@@ -30,16 +31,6 @@ async function checkDb(key: string): Promise<DbResult> {
 
 async function setDb(key: string, value: SettingValue): Promise<boolean> {
   if (!key) return false;
-
-  // Check if value matches default first
-  const settingKey = Object.keys(SettingKey).find(
-    (k) => SettingKey[k as keyof typeof SettingKey] === key,
-  );
-  if (settingKey && DEFAULTS[settingKey as keyof typeof SettingKey] === value) {
-    // If it's default, just make sure cache reflects this by removing any override
-    await redis.del(`${SETTING_KEY}:${key}`);
-    return true;
-  }
 
   const cacheKey = `${SETTING_KEY}:${key}`;
   const stringValue = String(value);
