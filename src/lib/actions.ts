@@ -19,17 +19,9 @@ async function checkDb(key: string): Promise<DbResult> {
 
   try {
     await connect();
-    const result = await db.query.cosmosSetting.findFirst({
+    return await db.query.cosmosSetting.findFirst({
       where: (setting, { eq }) => eq(setting.key, key),
     });
-
-    // Update cache with fresh DB value
-    if (result?.value) {
-      const cacheKey = `${SETTING_KEY}:${key}`;
-      await redis.set(cacheKey, result.value, "EX", CACHE_TTL);
-    }
-
-    return result;
   } catch (error) {
     log(`Failed to fetch key ${key}:\n${error}`, Logger.LIB_DB);
     return null;
