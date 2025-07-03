@@ -125,7 +125,7 @@ function initializeAuthPlugins(config: SettingsRecord): BetterAuthPlugin[] {
       },
     }),
     jwt(),
-    haveIBeenPwned(),
+    //haveIBeenPwned(),
     // polar({
     //   client: polarClient,
     //   createCustomerOnSignUp: true,
