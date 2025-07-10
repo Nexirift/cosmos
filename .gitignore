@@ -46,3 +46,7 @@ auth-schema.ts
 codebase.md
 .npmrc
 bunfig.toml
+
+# these are generated at runtime
+src/app/favicon.ico
+public/assets/images/banner.png

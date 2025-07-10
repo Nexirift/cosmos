@@ -22,53 +22,96 @@ export const BasicDetailsForm = ({
   formState: {
     appName: string;
     appLogo: string;
+    appHeader: string;
     nexiriftMode: boolean;
     novaUrl: string;
     logoError: string;
+    headerError: string;
   };
   setFormState: React.Dispatch<
     React.SetStateAction<{
       appName: string;
       appLogo: string;
+      appHeader: string;
       nexiriftMode: boolean;
       novaUrl: string;
       logoError: string;
+      headerError: string;
     }>
   >;
 }) => {
   const { isLoading, ...config } = useConfig();
 
   const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    (
+      e: React.ChangeEvent<HTMLInputElement>,
+      mode: "logo" | "header" = "logo",
+    ) => {
       const file = e.target.files?.[0];
-      setFormState((prev) => ({ ...prev, logoError: "" }));
+      setFormState((prev) => ({
+        ...prev,
+        [mode === "logo" ? "logoError" : "headerError"]: "",
+      }));
 
       if (file) {
         if (!file.type.startsWith("image/")) {
           setFormState((prev) => ({
             ...prev,
-            logoError: "Please upload an image file",
+            [mode === "logo" ? "logoError" : "headerError"]:
+              "Please upload an image file",
           }));
           return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
+        if (file.size > 10 * 1024 * 1024) {
           setFormState((prev) => ({
             ...prev,
-            logoError: "File size must be less than 5MB",
+            [mode === "logo" ? "logoError" : "headerError"]:
+              "File size must be less than 10MB",
           }));
           return;
         }
 
         const reader = new FileReader();
         reader.onload = () => {
-          const base64 = reader.result as string;
-          setFormState((prev) => ({ ...prev, appLogo: base64 }));
+          const img = new window.Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            if (mode === "logo") {
+              // Set canvas size to 128px x 128px for logo
+              canvas.width = 128;
+              canvas.height = 128;
+              ctx?.drawImage(img, 0, 0, 128, 128);
+            } else {
+              // Set canvas height to 128px, preserve aspect ratio for header
+              const aspectRatio = img.width / img.height;
+              canvas.height = 128;
+              canvas.width = Math.round(128 * aspectRatio);
+              ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+            }
+
+            const compressedBase64 = canvas.toDataURL("image/png", 0.8);
+            setFormState((prev) => ({
+              ...prev,
+              [mode === "logo" ? "appLogo" : "appHeader"]: compressedBase64,
+            }));
+          };
+          img.onerror = () => {
+            setFormState((prev) => ({
+              ...prev,
+              [mode === "logo" ? "logoError" : "headerError"]:
+                "Error processing image",
+            }));
+          };
+          img.src = reader.result as string;
         };
         reader.onerror = () => {
           setFormState((prev) => ({
             ...prev,
-            logoError: "Error reading file",
+            [mode === "logo" ? "logoError" : "headerError"]:
+              "Error reading file",
           }));
         };
         reader.readAsDataURL(file);
@@ -83,6 +126,7 @@ export const BasicDetailsForm = ({
         ...prev,
         appName: String(config.appName ?? prev.appName),
         appLogo: String(config.appLogo ?? prev.appLogo),
+        appHeader: String(config.appHeader ?? prev.appHeader),
         nexiriftMode: Boolean(config.nexiriftMode ?? prev.nexiriftMode),
         novaUrl: String(config.novaUrl ?? prev.novaUrl),
       }));
@@ -90,6 +134,7 @@ export const BasicDetailsForm = ({
   }, [
     isLoading,
     config.appLogo,
+    config.appHeader,
     config.appName,
     config.nexiriftMode,
     config.novaUrl,
@@ -101,20 +146,44 @@ export const BasicDetailsForm = ({
   return (
     <form className="flex flex-col gap-4">
       <div className="grid items-center gap-1.5">
+        <Label htmlFor="header">Header</Label>
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="relative h-16 w-full">
+            {formState.appHeader && (
+              <Image
+                fill
+                className="object-contain"
+                src={formState.appHeader}
+                alt="Header"
+              />
+            )}
+          </div>
+          <Input
+            id="header"
+            type="file"
+            onChange={(e) => handleFileChange(e, "header")}
+            accept="image/*"
+          />
+        </div>
+        {formState.headerError && (
+          <p className="text-sm text-red-500">{formState.headerError}</p>
+        )}
         <Label htmlFor="logo">Logo</Label>
         <div className="flex items-center gap-1.5">
           <div className="relative h-16 w-16">
-            <Image
-              fill
-              className="object-contain"
-              src={formState.appLogo}
-              alt="Logo"
-            />
+            {formState.appLogo && (
+              <Image
+                fill
+                className="object-contain"
+                src={formState.appLogo}
+                alt="Header"
+              />
+            )}
           </div>
           <Input
             id="logo"
             type="file"
-            onChange={handleFileChange}
+            onChange={(e) => handleFileChange(e, "logo")}
             accept="image/*"
           />
         </div>

@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { clearCache, setDb } from "@/lib/actions";
 import { DEFAULTS, SettingKey } from "@/lib/defaults";
+import { findImagesAndConvert } from "@/lib/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -82,18 +83,22 @@ export function BasicDetails() {
   const [formState, setFormState] = useState({
     appName: String(DEFAULTS.appName),
     appLogo: String(DEFAULTS.appLogo),
+    appHeader: String(DEFAULTS.appHeader),
     nexiriftMode: Boolean(DEFAULTS.nexiriftMode),
     novaUrl: String(DEFAULTS.novaUrl),
     logoError: "",
+    headerError: "",
   });
 
   const handleSubmit = async () => {
     await Promise.all([
       setDb(SettingKey.appName, formState.appName),
       setDb(SettingKey.appLogo, formState.appLogo),
+      setDb(SettingKey.appHeader, formState.appHeader),
       setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
       formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
     ]);
+    await findImagesAndConvert();
     toast("Settings saved");
   };
 

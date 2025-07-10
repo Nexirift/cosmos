@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BasicDetailsForm } from "./_component";
+import { findImagesAndConvert } from "@/lib/image";
 
 export default function Page() {
   const router = useRouter();
@@ -22,18 +23,22 @@ export default function Page() {
   const [formState, setFormState] = useState({
     appName: String(DEFAULTS.appName),
     appLogo: String(DEFAULTS.appLogo),
+    appHeader: String(DEFAULTS.appHeader),
     nexiriftMode: Boolean(DEFAULTS.nexiriftMode),
     novaUrl: String(DEFAULTS.novaUrl),
     logoError: "",
+    headerError: "",
   });
 
   const handleSubmit = async () => {
     await Promise.all([
       setDb(SettingKey.appName, formState.appName),
       setDb(SettingKey.appLogo, formState.appLogo),
+      setDb(SettingKey.appHeader, formState.appHeader),
       setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
       formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
     ]);
+    await findImagesAndConvert();
     router.push("/setup/thank-you");
   };
 

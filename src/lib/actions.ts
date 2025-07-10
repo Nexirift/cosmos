@@ -5,7 +5,6 @@ import { connect, cosmosSetting, db } from "@nexirift/db";
 import { DEFAULTS, SettingKey } from "./defaults";
 import { log, Logger } from "./logger";
 import { redis } from "./redis";
-import { eq } from "drizzle-orm";
 
 const SETTING_KEY = "cosmos_setting";
 const CACHE_TTL = 3600; // 1 hour in seconds
