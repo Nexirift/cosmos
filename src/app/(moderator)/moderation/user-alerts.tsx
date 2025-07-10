@@ -46,10 +46,17 @@ export function UserAlerts({
     <>
       {connectionError && (
         <ModerationAlert preset="red">
-          Unable to establish connection with the Nova server. Please contact
-          your system administrator immediately. Core functionalities requiring
-          the Nova API, including post management and related features, are
-          temporarily unavailable. We apologize for any inconvenience.
+          <div className="space-y-2">
+            <div className="font-semibold">Nova API Server Unavailable</div>
+            <div className="text-sm">
+              Unable to establish connection to the core Nova API server. This
+              may affect post management and related services.
+            </div>
+            <div className="text-sm opacity-90">
+              Please check your network connection or contact your system
+              administrator if the issue persists.
+            </div>
+          </div>
         </ModerationAlert>
       )}
     </>
