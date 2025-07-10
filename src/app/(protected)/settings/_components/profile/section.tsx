@@ -111,7 +111,40 @@ export function ProfileSection({
           {checkPlugin("birthday") && (
             <div className="grid gap-2">
               <Label htmlFor="birthday">Birthday</Label>
-              <DatePicker date={birthday} setDate={setBirthday} />
+              <div className="flex gap-3 items-center">
+                <div className="flex-1">
+                  <DatePicker date={birthday} setDate={setBirthday} />
+                </div>
+                {birthday && (
+                  <div className="flex-shrink-0">
+                    <p className="text-sm text-muted-foreground whitespace-nowrap">
+                      {(() => {
+                        const today = new Date();
+                        const birthDate = new Date(birthday);
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const monthDiff =
+                          today.getMonth() - birthDate.getMonth();
+
+                        if (
+                          monthDiff < 0 ||
+                          (monthDiff === 0 &&
+                            today.getDate() < birthDate.getDate())
+                        ) {
+                          age--;
+                        }
+
+                        return age;
+                      })()}{" "}
+                      years old
+                    </p>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Your birthday is used for age verification and content filtering
+                purposes. Specific countries or states may require additional
+                verification.
+              </p>
             </div>
           )}
         </div>
