@@ -35,6 +35,10 @@ For now, our email repository must be cloned and set up by following the instruc
 
 This software is currently in development and should not be used in production until the official Nexirift public release. By deploying this software in a production environment, you acknowledge and accept all associated risks. Please wait for production-ready status before implementation.
 
+## Contributing
+
+Please follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0) when contributing to this project.
+
 ## License
 
 Nexirift's internal projects are licensed under the [GNU Affero General Public License v3.0](LICENSE).
