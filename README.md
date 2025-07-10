@@ -37,7 +37,7 @@ This software is currently in development and should not be used in production u
 
 ## Contributing
 
-Please follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0) when contributing to this project.
+Please read our [contributing guide](https://github.com/Nexirift/.github/blob/main/contributing/README.md) and [code of conduct](https://github.com/Nexirift/.github/blob/main/contributing/CODE_OF_CONDUCT.md) before contributing to this project.
 
 ## License
 
