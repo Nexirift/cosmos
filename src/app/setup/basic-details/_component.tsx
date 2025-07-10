@@ -25,6 +25,7 @@ export const BasicDetailsForm = ({
     appHeader: string;
     nexiriftMode: boolean;
     novaUrl: string;
+    redirectIndexToDashboard: boolean;
     logoError: string;
     headerError: string;
   };
@@ -35,6 +36,7 @@ export const BasicDetailsForm = ({
       appHeader: string;
       nexiriftMode: boolean;
       novaUrl: string;
+      redirectIndexToDashboard: boolean;
       logoError: string;
       headerError: string;
     }>
@@ -129,6 +131,9 @@ export const BasicDetailsForm = ({
         appHeader: String(config.appHeader ?? prev.appHeader),
         nexiriftMode: Boolean(config.nexiriftMode ?? prev.nexiriftMode),
         novaUrl: String(config.novaUrl ?? prev.novaUrl),
+        redirectIndexToDashboard: Boolean(
+          config.redirectIndexToDashboard ?? prev.redirectIndexToDashboard,
+        ),
       }));
     }
   }, [
@@ -138,6 +143,7 @@ export const BasicDetailsForm = ({
     config.appName,
     config.nexiriftMode,
     config.novaUrl,
+    config.redirectIndexToDashboard,
     setFormState,
   ]);
 
@@ -202,11 +208,10 @@ export const BasicDetailsForm = ({
           placeholder="Enter your app name"
         />
       </div>
+
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="nexirift">
-          <AccordionTrigger className="p-0">
-            Nexirift Related Settings
-          </AccordionTrigger>
+          <AccordionTrigger>Nexirift Related Settings</AccordionTrigger>
           <AccordionContent className="gap-4 flex flex-col p-2">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -239,6 +244,30 @@ export const BasicDetailsForm = ({
                 value={formState.novaUrl}
                 placeholder="Enter your Nova server URL"
               />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="other">
+          <AccordionTrigger>Other Settings</AccordionTrigger>
+          <AccordionContent className="gap-4 flex flex-col p-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="redirectIndexToDashboard"
+                checked={formState.redirectIndexToDashboard}
+                onCheckedChange={(checked: CheckedState) =>
+                  setFormState((prev) => ({
+                    ...prev,
+                    redirectIndexToDashboard: checked === true,
+                  }))
+                }
+              />
+              <label
+                htmlFor="redirectIndexToDashboard"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Redirect / (Index) to Dashboard
+              </label>
             </div>
           </AccordionContent>
         </AccordionItem>

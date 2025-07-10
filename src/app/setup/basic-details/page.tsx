@@ -26,6 +26,7 @@ export default function Page() {
     appHeader: String(DEFAULTS.appHeader),
     nexiriftMode: Boolean(DEFAULTS.nexiriftMode),
     novaUrl: String(DEFAULTS.novaUrl),
+    redirectIndexToDashboard: Boolean(DEFAULTS.redirectIndexToDashboard),
     logoError: "",
     headerError: "",
   });
@@ -37,6 +38,10 @@ export default function Page() {
       setDb(SettingKey.appHeader, formState.appHeader),
       setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
       formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
+      setDb(
+        SettingKey.redirectIndexToDashboard,
+        formState.redirectIndexToDashboard,
+      ),
     ]);
     await findImagesAndConvert();
     router.push("/setup/thank-you");

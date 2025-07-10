@@ -86,6 +86,7 @@ export function BasicDetails() {
     appHeader: String(DEFAULTS.appHeader),
     nexiriftMode: Boolean(DEFAULTS.nexiriftMode),
     novaUrl: String(DEFAULTS.novaUrl),
+    redirectIndexToDashboard: Boolean(DEFAULTS.redirectIndexToDashboard),
     logoError: "",
     headerError: "",
   });
@@ -97,6 +98,10 @@ export function BasicDetails() {
       setDb(SettingKey.appHeader, formState.appHeader),
       setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
       formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
+      setDb(
+        SettingKey.redirectIndexToDashboard,
+        formState.redirectIndexToDashboard,
+      ),
     ]);
     await findImagesAndConvert();
     toast("Settings saved");
