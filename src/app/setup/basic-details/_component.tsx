@@ -23,6 +23,7 @@ export const BasicDetailsForm = ({
     appName: string;
     appLogo: string;
     appHeader: string;
+    appDescription: string;
     nexiriftMode: boolean;
     novaUrl: string;
     redirectIndexToDashboard: boolean;
@@ -34,6 +35,7 @@ export const BasicDetailsForm = ({
       appName: string;
       appLogo: string;
       appHeader: string;
+      appDescription: string;
       nexiriftMode: boolean;
       novaUrl: string;
       redirectIndexToDashboard: boolean;
@@ -129,6 +131,7 @@ export const BasicDetailsForm = ({
         appName: String(config.appName ?? prev.appName),
         appLogo: String(config.appLogo ?? prev.appLogo),
         appHeader: String(config.appHeader ?? prev.appHeader),
+        appDescription: String(config.appDescription ?? prev.appDescription),
         nexiriftMode: Boolean(config.nexiriftMode ?? prev.nexiriftMode),
         novaUrl: String(config.novaUrl ?? prev.novaUrl),
         redirectIndexToDashboard: Boolean(
@@ -141,6 +144,7 @@ export const BasicDetailsForm = ({
     config.appLogo,
     config.appHeader,
     config.appName,
+    config.appDescription,
     config.nexiriftMode,
     config.novaUrl,
     config.redirectIndexToDashboard,
@@ -206,6 +210,20 @@ export const BasicDetailsForm = ({
           }
           value={formState.appName}
           placeholder="Enter your app name"
+        />
+      </div>
+      <div className="grid items-center gap-1.5">
+        <Label htmlFor="description">Description</Label>
+        <Input
+          id="description"
+          onChange={(e) =>
+            setFormState((prev) => ({
+              ...prev,
+              appDescription: e.target.value,
+            }))
+          }
+          value={formState.appDescription}
+          placeholder="Enter your app description"
         />
       </div>
 

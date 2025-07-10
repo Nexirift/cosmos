@@ -84,6 +84,7 @@ export function BasicDetails() {
     appName: String(DEFAULTS.appName),
     appLogo: String(DEFAULTS.appLogo),
     appHeader: String(DEFAULTS.appHeader),
+    appDescription: String(DEFAULTS.appDescription),
     nexiriftMode: Boolean(DEFAULTS.nexiriftMode),
     novaUrl: String(DEFAULTS.novaUrl),
     redirectIndexToDashboard: Boolean(DEFAULTS.redirectIndexToDashboard),
@@ -96,6 +97,7 @@ export function BasicDetails() {
       setDb(SettingKey.appName, formState.appName),
       setDb(SettingKey.appLogo, formState.appLogo),
       setDb(SettingKey.appHeader, formState.appHeader),
+      setDb(SettingKey.appDescription, formState.appDescription),
       setDb(SettingKey.nexiriftMode, formState.nexiriftMode),
       formState.novaUrl && setDb(SettingKey.novaUrl, formState.novaUrl),
       setDb(

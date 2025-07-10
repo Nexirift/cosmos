@@ -6,6 +6,8 @@ import { ThemeProvider } from "next-themes";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { checkCache } from "@/lib/actions";
+import { SettingKey } from "@/lib/defaults";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
@@ -18,11 +20,6 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["100", "200", "300", "400", "500", "600", "700"],
   subsets: ["latin"],
 });
-
-export const metadata: Metadata = {
-  title: "Cosmos",
-  description: "Cosmos, the authentication server for Nexirift.",
-};
 
 export default function RootLayout({
   children,
@@ -56,4 +53,13 @@ export default function RootLayout({
       </body>
     </html>
   );
+}
+
+export async function generateMetadata() {
+  const title = String(await checkCache(SettingKey.appName));
+  const description = String(await checkCache(SettingKey.appDescription));
+  return {
+    title,
+    description,
+  } as Metadata;
 }
