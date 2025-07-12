@@ -29,7 +29,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
-    "@nexirift/better-auth-plugins": "^0.0.1-main.0a70d21c3427a7185bb6113fb7200b9ed47dfeb3",
+    "@nexirift/better-auth-plugins": "^0.0.1-main.b76b3c6316bb2ad5e8e7ba5a13d704c8b630d458",
     "@nexirift/db": "^0.0.1-main.ba1bc1958882d373a004f8b3c27620beb0358051",
     "@nexirift/emails": "^0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf",
     "@next/mdx": "^15.3.5",
