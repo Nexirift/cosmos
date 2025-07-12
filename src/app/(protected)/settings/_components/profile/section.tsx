@@ -1,11 +1,18 @@
 "use client";
 
 import { DatePicker } from "@/components/date-picker";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { authClient, checkPlugin } from "@/lib/auth-client";
 import { handleError } from "@/lib/common";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
@@ -75,6 +82,28 @@ export function ProfileSection({
     }
   };
 
+  function calculateAge(birthday: Date | undefined) {
+    if (!birthday) return null;
+
+    const today = new Date();
+    const birthDate = new Date(birthday);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
+
+  const age = checkPlugin("birthday") ? calculateAge(birthday) : null;
+
+  const ageVerified = false; // placeholder for when age verification is implemented
+
   return (
     <section id="profile" className="flex flex-col gap-4">
       <header>
@@ -111,39 +140,74 @@ export function ProfileSection({
           {checkPlugin("birthday") && (
             <div className="grid gap-2">
               <Label htmlFor="birthday">Birthday</Label>
-              <div className="flex gap-3 items-center">
-                <div className="flex-1">
-                  <DatePicker date={birthday} setDate={setBirthday} />
+              <div className="flex flex-wrap gap-3 items-center">
+                <div className="flex-1 min-w-[200px]">
+                  {ageVerified ? (
+                    <Tooltip>
+                      <TooltipTrigger
+                        className="flex gap-1 items-center w-full"
+                        asChild
+                      >
+                        <div className="relative">
+                          <DatePicker
+                            date={birthday}
+                            setDate={setBirthday}
+                            disabled
+                            aria-readonly="true"
+                          />
+                          <div
+                            className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-blue-500 rounded-full"
+                            aria-hidden="true"
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs text-center text-sm">
+                        You have been verified via your country&#39;s
+                        recommended verification method. You cannot change your
+                        birthday. Please contact support if you need assistance.
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <DatePicker
+                      date={birthday}
+                      setDate={setBirthday}
+                      aria-label="Select your birthday"
+                    />
+                  )}
                 </div>
-                {birthday && (
-                  <div className="flex-shrink-0">
-                    <p className="text-sm text-muted-foreground whitespace-nowrap">
-                      {(() => {
-                        const today = new Date();
-                        const birthDate = new Date(birthday);
-                        let age = today.getFullYear() - birthDate.getFullYear();
-                        const monthDiff =
-                          today.getMonth() - birthDate.getMonth();
-
-                        if (
-                          monthDiff < 0 ||
-                          (monthDiff === 0 &&
-                            today.getDate() < birthDate.getDate())
-                        ) {
-                          age--;
-                        }
-
-                        return age;
-                      })()}{" "}
-                      years old
-                    </p>
-                  </div>
+                {birthday && age != null && (
+                  <Tooltip>
+                    <TooltipTrigger
+                      className="flex gap-1 items-center"
+                      aria-label={`Age: ${age} years old`}
+                    >
+                      <Badge
+                        className={cn(
+                          "transition-colors",
+                          age >= 18
+                            ? "bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                            : "hover:bg-destructive/80",
+                        )}
+                        variant={age < 18 ? "destructive" : "default"}
+                      >
+                        {age} years old
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      className="max-w-sm text-center text-sm"
+                      side="left"
+                    >
+                      {age >= 18
+                        ? "You are eligible to access age-restricted content."
+                        : "You cannot access age-restricted content."}
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Your birthday is used for age verification and content filtering
-                purposes. Specific countries or states may require additional
-                verification.
+                Your birthday is used for age verification and content
+                filtering. Some regions may require additional verification
+                steps for legal compliance.
               </p>
             </div>
           )}

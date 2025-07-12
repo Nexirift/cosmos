@@ -20,18 +20,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface DatePickerProps {
+interface DatePickerProps extends React.ComponentProps<"button"> {
   date: Date | undefined;
   setDate: (date: Date | undefined) => void;
   endYear?: number;
 }
 
-export function DatePicker({ date, setDate, endYear }: DatePickerProps) {
+export function DatePicker({
+  date,
+  setDate,
+  endYear,
+  ...props
+}: DatePickerProps) {
   const [month, setMonth] = React.useState<number>(
-    date ? date.getMonth() : new Date().getMonth()
+    date ? date.getMonth() : new Date().getMonth(),
   );
   const [year, setYear] = React.useState<number>(
-    date ? date.getFullYear() : new Date().getFullYear()
+    date ? date.getFullYear() : new Date().getFullYear(),
   );
 
   const years = React.useMemo(() => {
@@ -39,7 +44,7 @@ export function DatePicker({ date, setDate, endYear }: DatePickerProps) {
     const finalEndYear = endYear ?? currentYear; // Use endYear prop or fallback to current year
     return Array.from(
       { length: finalEndYear - 1950 + 1 },
-      (_, i) => finalEndYear - i
+      (_, i) => finalEndYear - i,
     );
   }, [endYear]);
 
@@ -86,10 +91,11 @@ export function DatePicker({ date, setDate, endYear }: DatePickerProps) {
     <Popover>
       <PopoverTrigger asChild>
         <Button
+          {...props}
           variant={"outline"}
           className={cn(
             "w-full justify-start text-left font-normal",
-            !date && "text-muted-foreground"
+            !date && "text-muted-foreground",
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
