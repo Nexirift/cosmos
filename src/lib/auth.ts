@@ -160,6 +160,7 @@ export const auth = betterAuth({
     env.NODE_ENV === "development"
       ? [
           "nexirift://",
+          "http://localhost:3000",
           "http://localhost:8081",
           "exp://100.69.69.69:8081",
           "http://100.69.69.69:8081",
