@@ -14,7 +14,7 @@ Cosmos is the official authentication server for Nexirift, providing secure user
 - (Optional*) pnpm
 - Read the [contributing guide](https://github.com/Nexirift/.github/blob/main/contributing/README.md)
 
-*we use pnpm in testing and production but not npm.*
+*We use pnpm in testing and production, not npm.*
 
 #### For Database
 
