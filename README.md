@@ -11,8 +11,10 @@ Cosmos is the official authentication server for Nexirift, providing secure user
 ### Prerequisites
 
 - Node.js v22.13.0 or greater
-- Bun v1.2.2 or greater
+- (Optional*) pnpm
 - Read the [contributing guide](https://github.com/Nexirift/.github/blob/main/contributing/README.md)
+
+*we use pnpm in testing and production but not npm.*
 
 #### For Database
 
@@ -26,7 +28,7 @@ Cosmos is the official authentication server for Nexirift, providing secure user
 For now, our email repository must be cloned and set up by following the instructions [here](https://github.com/Nexirift/emails). Ensure that it is in the parent directory of this repository and has been built using `bun run build`.
 
 1. Clone the repository: `git clone https://github.com/Nexirift/cosmos.git`
-2. Install dependencies with `bun install`
+2. Install dependencies with `pnpm install`
 3. Start the database using `bun db:start`
 4. Migrate the database using `bun db:all`
 5. Start the server with `bun dev`
