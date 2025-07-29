@@ -1,6 +1,6 @@
 import { columns } from "./columns";
 import { DataTable } from "@/components/data-table";
-import { db } from "@nexirift/db";
+import { db } from "@/db";
 
 export default async function Page() {
   const data = await db.query.organization.findMany();

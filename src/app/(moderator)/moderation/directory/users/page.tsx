@@ -1,5 +1,5 @@
 import { DataTable } from "@/components/data-table";
-import { db } from "@nexirift/db";
+import { db } from "@/db";
 import { AddUserDialog } from "./_components";
 import { columns } from "./columns";
 

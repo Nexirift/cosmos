@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { db, userProfile, UserProfileSchemaType } from "@nexirift/db";
+import { db } from "@/db";
+import { userProfile, UserProfileSchemaType } from "@/db/schema";
 import moment from "moment";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Image from "next/image";

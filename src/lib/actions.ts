@@ -1,7 +1,8 @@
 "use server";
 
 import { env } from "@/env";
-import { connect, cosmosSetting, db } from "@nexirift/db";
+import { db } from "@/db";
+import { cosmosSetting } from "@/db/schema";
 import { DEFAULTS, SettingKey } from "./defaults";
 import { log, Logger } from "./logger";
 import { redis } from "./redis";
@@ -18,7 +19,7 @@ async function checkDb(key: string): Promise<DbResult> {
   }
 
   try {
-    await connect();
+    // await connect();
     return await db.query.cosmosSetting.findFirst({
       where: (setting, { eq }) => eq(setting.key, key),
     });
@@ -35,7 +36,7 @@ async function setDb(key: string, value: SettingValue): Promise<boolean> {
   const stringValue = String(value);
 
   try {
-    await connect();
+    // await connect();
     await db
       .insert(cosmosSetting)
       .values({ key, value: stringValue })

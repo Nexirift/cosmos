@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { db } from "@/db";
 import {
-  db,
   userVerification,
   UserVerificationSchemaType,
   userVerificationType,
-} from "@nexirift/db";
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 import moment from "moment";
 import { VisibleBadge } from "../common";

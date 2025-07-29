@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { initials } from "@/lib/common";
-import { db } from "@nexirift/db";
+import { db } from "@/db";
 import { protect } from "../../../protect";
 import { ContactInformationCard } from "./components/contact-information/server";
 import { ProfileCard } from "./components/profile/server";

@@ -4,7 +4,7 @@ import {
   user,
   userProfile,
   userVerification,
-} from "@nexirift/db/schema";
+} from "@/db/schema";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 

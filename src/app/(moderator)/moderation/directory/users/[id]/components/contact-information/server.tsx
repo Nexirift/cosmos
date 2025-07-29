@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { db, user, UserSchemaType } from "@nexirift/db";
+import { db } from "@/db";
+import { user, UserSchemaType } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { VisibleBadge } from "../common";
 import { ContactInformationCardActions } from "./client";

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { input, password, select } from "@inquirer/prompts";
-import { db, user } from "@nexirift/db";
+import { db } from "@/db";
+import { user } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const action = await select({

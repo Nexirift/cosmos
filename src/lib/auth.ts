@@ -7,7 +7,7 @@ import {
   usernameAliases,
   vortex,
 } from "@nexirift/better-auth-plugins";
-import { connect, db } from "@nexirift/db";
+import { db } from "@/db";
 import { betterAuth, BetterAuthPlugin, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
@@ -32,9 +32,9 @@ import { log, Logger } from "./logger";
 // import { Polar } from "@polar-sh/sdk";
 
 // Initialize database connection
-connect().catch((error) =>
-  log(`Failed to connect to database:\n${error}`, Logger.LIB_DB),
-);
+if (db.$client && db.$client.connect) {
+  await db.$client.connect();
+}
 
 // Create Polar client
 // const polarClient = new Polar({

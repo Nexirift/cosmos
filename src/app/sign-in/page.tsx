@@ -1,6 +1,6 @@
 import { SignIn } from "@/components/auth/sign-in";
 import { getEnabledProviders } from "@/lib/auth";
-import { db } from "@nexirift/db";
+import { db } from "@/db";
 
 export default async function Page({
   searchParams,

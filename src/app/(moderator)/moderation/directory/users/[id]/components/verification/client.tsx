@@ -25,7 +25,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { UserVerificationSchemaType } from "@nexirift/db";
+import { UserVerificationSchemaType } from "@/db/schema";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";

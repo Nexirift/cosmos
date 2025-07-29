@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserSchemaType } from "@nexirift/db";
+import { UserSchemaType } from "@/db/schema";
 import { VisibleBadge } from "../common";
 
 export function AuthenticationCard({ data }: { data: UserSchemaType }) {

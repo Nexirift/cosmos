@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { UserProfileSchemaType } from "@nexirift/db";
+import { UserProfileSchemaType } from "@/db/schema";
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
 import { toast } from "sonner";

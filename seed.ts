@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { faker } from "@faker-js/faker";
-import { db, cosmosInvitation, user, userRelationship } from "@nexirift/db";
+import { db } from "@/db";
+import { cosmosInvitation, user, userRelationship } from "@/db/schema";
 import { eq, isNull } from "drizzle-orm";
 import { generateInviteCode } from "@nexirift/better-auth-plugins";
 

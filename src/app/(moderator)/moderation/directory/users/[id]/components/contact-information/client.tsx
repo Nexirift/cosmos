@@ -25,7 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { UserSchemaType } from "@nexirift/db";
+import { UserSchemaType } from "@/db/schema";
 import { useRouter } from "next/navigation";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
