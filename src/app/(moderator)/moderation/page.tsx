@@ -15,6 +15,7 @@ import Link from "next/link";
 import { UserAlerts } from "./user-alerts";
 import { protect } from "./protect";
 import { log } from "@/lib/logger";
+import { env } from "@/env";
 
 export default async function Page() {
   const getGreeting = () => {
@@ -28,10 +29,13 @@ export default async function Page() {
     headers: await headers(),
   });
 
+  if (env.NODE_ENV === "development")
+    console.log("The currently logged in user's data:", data);
+
   await protect(data?.user.role);
 
   const KEY = `cosmos_moderation_alert:${data?.session.id}`;
-  const alertCount = parseInt(await redis.get(KEY)) ?? 0;
+  const alertCount = parseInt((await redis.get(KEY)) || "0");
   const setupCompleted = await isSetupComplete();
   await redis.del(KEY);
 
