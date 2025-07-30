@@ -24,6 +24,12 @@ export default function RootLayout({
     return <Loader fillScreen />;
   }
 
+  // authClient.checkout({
+  //   slug: "plasma-individual",
+  // });
+
+  authClient.customer.portal();
+
   return (
     <div className="flex flex-col h-screen">
       <Header />

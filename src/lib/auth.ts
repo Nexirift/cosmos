@@ -28,8 +28,8 @@ import { default as _jwt } from "jsonwebtoken";
 import { getAllSettings, SettingsRecord } from "./actions";
 import { AuthProvider } from "./types";
 import { log, Logger } from "./logger";
-// import { polar } from "@polar-sh/better-auth";
-// import { Polar } from "@polar-sh/sdk";
+import { checkout, polar, portal } from "@polar-sh/better-auth";
+import { Polar } from "@polar-sh/sdk";
 
 // Initialize database connection
 if (db.$client && db.$client.connect) {
@@ -37,13 +37,17 @@ if (db.$client && db.$client.connect) {
 }
 
 // Create Polar client
-// const polarClient = new Polar({
-//   accessToken: env.POLAR_ACCESS_TOKEN,
-//   // Use 'sandbox' if you're using the Polar Sandbox environment
-//   // Remember that access tokens, products, etc. are completely separated between environments.
-//   // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
-//   server: env.NODE_ENV === "production" ? "production" : "sandbox",
-// });
+let polarClient: Polar | undefined;
+
+if (env.POLAR_ACCESS_TOKEN) {
+  polarClient = new Polar({
+    accessToken: env.POLAR_ACCESS_TOKEN,
+    // Use 'sandbox' if you're using the Polar Sandbox environment
+    // Remember that access tokens, products, etc. are completely separated between environments.
+    // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
+    server: env.NODE_ENV === "production" ? "production" : "sandbox",
+  });
+}
 
 const config = await getAllSettings();
 
@@ -81,7 +85,7 @@ const betterAuthPlugins = [
   }),
   twoFactor(),
   multiSession({
-    maximumSessions: 11,
+    maximumSessions: 10,
   }),
   organization({
     teams: {
@@ -100,6 +104,9 @@ const betterAuthPlugins = [
       team: {
         modelName: "organizationTeam",
       },
+      teamMember: {
+        modelName: "organizationTeamMember",
+      },
     },
   }),
   oidcProvider({
@@ -111,24 +118,28 @@ const betterAuthPlugins = [
   }),
   jwt(),
   //haveIBeenPwned(),
-  // polar({
-  //   client: polarClient,
-  //   createCustomerOnSignUp: true,
-  //   enableCustomerPortal: true,
-  //   checkout: {
-  //     enabled: true,
-  //     products: [
-  //       {
-  //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
-  //         slug: "nebula-individual",
-  //       },
-  //     ],
-  //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
-  //   },
-  //   webhooks: {
-  //     secret: env.POLAR_WEBHOOK_SECRET,
-  //   },
-  // }),
+  ...(polarClient
+    ? [
+        polar({
+          client: polarClient,
+          createCustomerOnSignUp: true,
+          use: [
+            portal(),
+            ...(env.POLAR_PRODUCTS
+              ? [
+                  checkout({
+                    products: JSON.parse(env.POLAR_PRODUCTS),
+                    authenticatedUsersOnly: true,
+                  }),
+                ]
+              : []),
+          ],
+          webhooks: {
+            secret: env.POLAR_WEBHOOK_SECRET,
+          },
+        }),
+      ]
+    : []),
 ] satisfies BetterAuthPlugin[];
 
 const plugins = [...nexiriftPlugins, ...betterAuthPlugins];
@@ -411,7 +422,7 @@ export function checkPlugin<T extends keyof PluginMap>(
 
   switch (source) {
     case "auth":
-      return authPlugins.some((plugin) => plugin.id === pluginId);
+      return betterAuthPlugins.some((plugin) => plugin.id === pluginId);
     case "nexirift":
       return nexiriftPlugins.some((plugin) => plugin.id === pluginId);
     default:
@@ -436,7 +447,7 @@ function getPluginId<T extends keyof PluginMap>(pluginKey: T): PluginMap[T] {
 export function getEnabledPlugins(source: PluginSource = "all"): string[] {
   switch (source) {
     case "auth":
-      return authPlugins.map((plugin) => plugin.id);
+      return betterAuthPlugins.map((plugin) => plugin.id);
     case "nexirift":
       return nexiriftPlugins.map((plugin) => plugin.id);
     default:
@@ -454,7 +465,7 @@ export function getPluginMetadata() {
       (plugin) => plugin.id === id,
     )
       ? "nexirift"
-      : authPlugins.some((plugin) => plugin.id === id)
+      : betterAuthPlugins.some((plugin) => plugin.id === id)
         ? "auth"
         : "all";
 

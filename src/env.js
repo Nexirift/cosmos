@@ -13,7 +13,7 @@ export const env = createEnv({
 
     /* Better Auth */
     BETTER_AUTH_SECRET: z.string(),
-    BETTER_AUTH_URL: z.url(),
+    BETTER_AUTH_URL: z.string().url(),
 
     /* Invitations */
     INVITATION_DISABLED: z.boolean().default(false),
@@ -22,14 +22,15 @@ export const env = createEnv({
     /* Subscriptions */
     POLAR_ACCESS_TOKEN: z.string().optional(),
     POLAR_WEBHOOK_SECRET: z.string().optional(),
+    POLAR_PRODUCTS: z.string().optional(),
 
     /* Email Service */
     SMTP_HOST: z.string(),
     SMTP_PORT: z.number().or(z.string().transform(Number)),
     SMTP_AUTH_USER: z.string(),
     SMTP_AUTH_PASS: z.string(),
-    SMTP_FROM: z.email(),
-    SUPPORT_EMAIL: z.email(),
+    SMTP_FROM: z.string().email(),
+    SUPPORT_EMAIL: z.string().email(),
     EMAIL_VERIFICATION_CALLBACK_URL: z.string().default("/dashboard"),
 
     /* Redis Caching */
@@ -76,6 +77,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_INVITATION_DISABLED: z.boolean().default(false),
     NEXT_PUBLIC_AUTH_BASE_URL: z.string().optional(),
+    NEXT_PUBLIC_POLAR_ENABLED: z.boolean().default(false),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -97,6 +99,8 @@ export const env = createEnv({
     /* Subscriptions */
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
+    POLAR_PRODUCTS: process.env.POLAR_PRODUCTS,
+    NEXT_PUBLIC_POLAR_ENABLED: process.env.POLAR_ACCESS_TOKEN !== undefined,
 
     /* Email Service */
     SMTP_HOST: process.env.SMTP_HOST,

@@ -20,6 +20,7 @@ import {
 import { createAuthClient } from "better-auth/react";
 import { toast } from "sonner";
 import { log, Logger } from "./logger";
+import { polarClient } from "@polar-sh/better-auth";
 
 /**
  * Initialize client-side Nexirift plugins based on configuration
@@ -42,6 +43,7 @@ const authPlugins = [
   organizationClient(),
   oidcClient(),
   jwtClient(),
+  ...(env.NEXT_PUBLIC_POLAR_ENABLED ? [polarClient()] : []),
 ] satisfies BetterAuthClientPlugin[];
 
 // Combine all plugins
