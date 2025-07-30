@@ -47,109 +47,91 @@ if (db.$client && db.$client.connect) {
 
 const config = await getAllSettings();
 
-/**
- * Initialize Nexirift plugins based on configuration
- * @param config Application configuration
- * @returns Array of configured plugins
- */
-function initializeNexiriftPlugins(config: SettingsRecord): BetterAuthPlugin[] {
-  return [
-    vortex(),
-    birthday(),
-    usernameAliases(),
-    ...(env.INVITATION_DISABLED
-      ? []
-      : [
-          invitation({
-            bypassCode: env.INVITATION_BYPASS_CODE,
-            maxInvitations: Number(config.maximumInvitations),
-            schema: {
-              invitation: {
-                modelName: "cosmosInvitation",
-              },
+const nexiriftPlugins = [
+  vortex(),
+  birthday(),
+  usernameAliases(),
+  ...(env.INVITATION_DISABLED
+    ? []
+    : [
+        invitation({
+          bypassCode: env.INVITATION_BYPASS_CODE,
+          maxInvitations: Number(config.maximumInvitations),
+          schema: {
+            invitation: {
+              modelName: "cosmosInvitation",
             },
-          }),
-        ]),
-  ] satisfies BetterAuthPlugin[];
-}
+          },
+        }),
+      ]),
+] satisfies BetterAuthPlugin[];
 
-/**
- * Initialize core auth plugins based on configuration
- * @param config Application configuration
- * @returns Array of configured plugins
- */
-function initializeAuthPlugins(config: SettingsRecord): BetterAuthPlugin[] {
-  return [
-    expo(),
-    openAPI(),
-    bearer(),
-    admin(),
-    username({
-      usernameValidator: async (username) => {
-        return new RegExp(String(config.usernameRegexValidation)).test(
-          username,
-        );
+const betterAuthPlugins = [
+  expo(),
+  openAPI(),
+  bearer(),
+  admin(),
+  username({
+    usernameValidator: async (username) => {
+      return new RegExp(String(config.usernameRegexValidation)).test(username);
+    },
+  }),
+  passkey({
+    rpName: String(config.appName),
+  }),
+  twoFactor(),
+  multiSession({
+    maximumSessions: 11,
+  }),
+  organization({
+    teams: {
+      enabled: true,
+    },
+    schema: {
+      organization: {
+        modelName: "organization",
       },
-    }),
-    passkey({
-      rpName: String(config.appName),
-    }),
-    twoFactor(),
-    multiSession({
-      maximumSessions: 11,
-    }),
-    organization({
-      teams: {
-        enabled: true,
+      member: {
+        modelName: "organizationMember",
       },
-      schema: {
-        organization: {
-          modelName: "organization",
-        },
-        member: {
-          modelName: "organizationMember",
-        },
-        invitation: {
-          modelName: "organizationInvitation",
-        },
-        team: {
-          modelName: "organizationTeam",
-        },
+      invitation: {
+        modelName: "organizationInvitation",
       },
-    }),
-    oidcProvider({
-      loginPage: "/sign-in",
-      consentPage: "/oauth/consent",
-      metadata: {
-        issuer: env.BETTER_AUTH_URL + "/api/auth",
+      team: {
+        modelName: "organizationTeam",
       },
-    }),
-    jwt(),
-    //haveIBeenPwned(),
-    // polar({
-    //   client: polarClient,
-    //   createCustomerOnSignUp: true,
-    //   enableCustomerPortal: true,
-    //   checkout: {
-    //     enabled: true,
-    //     products: [
-    //       {
-    //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
-    //         slug: "nebula-individual",
-    //       },
-    //     ],
-    //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
-    //   },
-    //   webhooks: {
-    //     secret: env.POLAR_WEBHOOK_SECRET,
-    //   },
-    // }),
-  ] satisfies BetterAuthPlugin[];
-}
+    },
+  }),
+  oidcProvider({
+    loginPage: "/sign-in",
+    consentPage: "/oauth/consent",
+    metadata: {
+      issuer: env.BETTER_AUTH_URL + "/api/auth",
+    },
+  }),
+  jwt(),
+  //haveIBeenPwned(),
+  // polar({
+  //   client: polarClient,
+  //   createCustomerOnSignUp: true,
+  //   enableCustomerPortal: true,
+  //   checkout: {
+  //     enabled: true,
+  //     products: [
+  //       {
+  //         productId: "33430cb9-de73-4f8e-a05c-d95f3d959564",
+  //         slug: "nebula-individual",
+  //       },
+  //     ],
+  //     successUrl: "/success?checkout_id={CHECKOUT_ID}",
+  //   },
+  //   webhooks: {
+  //     secret: env.POLAR_WEBHOOK_SECRET,
+  //   },
+  // }),
+] satisfies BetterAuthPlugin[];
 
-const nexiriftPlugins = initializeNexiriftPlugins(config);
-const authPlugins = initializeAuthPlugins(config);
-const plugins = [...nexiriftPlugins, ...authPlugins];
+const plugins = [...nexiriftPlugins, ...betterAuthPlugins];
 
 /**
  * Auth configuration for Nexirift application
