@@ -27,6 +27,11 @@ export const env = createEnv({
     REDIS_PASSWORD: z.string().optional(),
     EMAIL_VERIFICATION_CALLBACK_URL: z.string().default("/dashboard"),
     LOGGING_LEVELS: z.string().default("*"),
+    CORS_ALLOWED_METHODS: z.string().default("GET,POST,PUT,DELETE,OPTIONS"),
+    CORS_ALLOWED_ORIGINS: z.string().default("*"),
+    CORS_ALLOWED_HEADERS: z.string().default("Content-Type,Authorization"),
+    CORS_ALLOWED_CREDENTIALS: z.boolean().default(true),
+    CORS_EXPOSED_HEADERS: z.string().default("X-Total-Count"),
 
     /* AWS */
     S3_STORAGE_ACCESS_KEY_ID: z.string().optional(),
@@ -127,6 +132,12 @@ export const env = createEnv({
       process.env.AUTH_PROVIDER_DISCORD_CLIENT_ID,
     AUTH_PROVIDER_DISCORD_CLIENT_SECRET:
       process.env.AUTH_PROVIDER_DISCORD_CLIENT_SECRET,
+
+    CORS_ALLOWED_CREDENTIALS: process.env.CORS_ALLOWED_CREDENTIALS,
+    CORS_ALLOWED_ORIGINS: process.env.CORS_ALLOWED_ORIGINS,
+    CORS_ALLOWED_METHODS: process.env.CORS_ALLOWED_METHODS,
+    CORS_ALLOWED_HEADERS: process.env.CORS_ALLOWED_HEADERS,
+    CORS_EXPOSED_HEADERS: process.env.CORS_EXPOSED_HEADERS,
   },
   skipValidation:
     !!process.env.SKIP_ENV_VALIDATION || process.env.NODE_ENV === "test",
