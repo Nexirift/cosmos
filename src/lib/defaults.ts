@@ -40,3 +40,6 @@ export const DEFAULTS: Record<
   requireEmailVerification: true,
   maximumInvitations: 3,
 };
+
+export const SETTING_KEY = "cosmos_setting";
+export const CACHE_TTL = 3600; // 1 hour in seconds

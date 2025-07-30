@@ -3,12 +3,9 @@
 import { env } from "@/env";
 import { db } from "@/db";
 import { cosmosSetting } from "@/db/schema";
-import { DEFAULTS, SettingKey } from "./defaults";
+import { CACHE_TTL, DEFAULTS, SETTING_KEY, SettingKey } from "./defaults";
 import { log, Logger } from "./logger";
 import { redis } from "./redis";
-
-const SETTING_KEY = "cosmos_setting";
-const CACHE_TTL = 3600; // 1 hour in seconds
 
 type DbResult = { key: string; value: string } | null | undefined;
 type SettingValue = string | number | boolean;
@@ -71,23 +68,39 @@ async function checkCache(
       return parseValue(cachedResult);
     }
 
-    // Try database next - use Promise to avoid blocking
-    const dbPromise = checkDb(key);
-
-    // Wait for DB result if no cache is available
-    const dbResult = await dbPromise;
+    // Try database next
+    const dbResult = await checkDb(key);
     if (dbResult?.value) {
+      // Cache the result for future requests
       await redis.set(cacheKey, dbResult.value, "EX", CACHE_TTL);
       return parseValue(dbResult.value);
     }
 
-    // Finally check defaults
-    const settingKey = Object.keys(SettingKey).find(
-      (k) => SettingKey[k as keyof typeof SettingKey] === key,
-    );
+    // Get the setting key for defaults lookup
+    const getSettingKeyFromValue = (
+      val: string | SettingKey,
+    ): string | null => {
+      if (typeof val !== "string") return null;
 
+      return (
+        Object.entries(SettingKey).find(
+          ([_, enumValue]) => enumValue === val,
+        )?.[0] || null
+      );
+    };
+
+    // Finally check defaults
+    const settingKey = getSettingKeyFromValue(key);
     if (settingKey) {
       const defaultValue = DEFAULTS[settingKey as keyof typeof SettingKey];
+      // Cache default values to prevent repeated lookups
+      if (defaultValue !== undefined) {
+        const stringValue =
+          typeof defaultValue === "object"
+            ? JSON.stringify(defaultValue)
+            : String(defaultValue);
+        await redis.set(cacheKey, stringValue, "EX", CACHE_TTL);
+      }
       return defaultValue;
     }
 
