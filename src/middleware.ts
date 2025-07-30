@@ -88,9 +88,7 @@ export async function middleware(request: NextRequest, response: NextResponse) {
     }
 
     return NextResponse.next({
-      request: {
-        headers,
-      },
+      headers,
     });
   }
 
