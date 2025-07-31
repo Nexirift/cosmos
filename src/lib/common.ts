@@ -185,4 +185,20 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
+export const oauthScopeMap = {
+  openid: {
+    friendlyName: "OpenID Connect",
+    description: "Allows the application to authenticate your account.",
+  },
+  profile: {
+    friendlyName: "Profile",
+    description:
+      "Allows the application to retrieve your name and profile picture.",
+  },
+  email: {
+    friendlyName: "Email",
+    description: "Allows the application to retrieve your email address.",
+  },
+};
+
 export { handleError, initials, useConfig, formatValue };

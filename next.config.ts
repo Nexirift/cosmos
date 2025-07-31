@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "priv.au",
+        port: "",
+        pathname: "/image_proxy/**",
+      },
     ],
   },
 };

@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
-import { handleError } from "@/lib/common";
+import { handleError, oauthScopeMap } from "@/lib/common";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -28,22 +28,6 @@ export function ConsentPrompt({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
-
-  const scopeMap = {
-    openid: {
-      friendlyName: "OpenID Connect",
-      description: "Allows the application to authenticate your account.",
-    },
-    profile: {
-      friendlyName: "Profile",
-      description:
-        "Allows the application to retrieve your name and profile picture.",
-    },
-    email: {
-      friendlyName: "Email",
-      description: "Allows the application to retrieve your email address.",
-    },
-  };
 
   const handleAction = async (accept: boolean) => {
     try {
@@ -102,7 +86,9 @@ export function ConsentPrompt({
             </p>
             <ul className="list-inside list-disc gap-2 flex flex-col">
               {scopes.map((scope) => {
-                const mapped = scopeMap[scope as keyof typeof scopeMap] ?? {
+                const mapped = oauthScopeMap[
+                  scope as keyof typeof oauthScopeMap
+                ] ?? {
                   friendlyName: scope.charAt(0).toUpperCase() + scope.slice(1),
                   description:
                     "We do not have any information about this scope.",

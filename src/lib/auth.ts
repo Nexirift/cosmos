@@ -122,7 +122,7 @@ const betterAuthPlugins = [
     ? [
         polar({
           client: polarClient,
-          createCustomerOnSignUp: true,
+          //createCustomerOnSignUp: true,
           use: [
             portal(),
             ...(env.POLAR_PRODUCTS
