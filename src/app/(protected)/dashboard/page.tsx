@@ -122,7 +122,6 @@ export default async function Page() {
                         width={16}
                         height={16}
                         className="cursor-pointer text-red-400 ml-auto hover:text-red-500 transition-colors"
-                        title="Report application"
                       />
                     </DialogTitle>
                     <DialogDescription>
