@@ -32,7 +32,8 @@ export default async function Page() {
     headers: await headers(),
   });
 
-  if (!session) return <p>Oops! An error occured!</p>;
+  if (!session)
+    return <p>Oops! An error has occurred, please try again later.</p>;
 
   const consentedApplications = await db.query.oauthConsent.findMany({
     where: and(
