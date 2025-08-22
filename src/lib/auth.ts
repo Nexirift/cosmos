@@ -149,6 +149,9 @@ const plugins = [...nexiriftPlugins, ...betterAuthPlugins];
  */
 export const auth = betterAuth({
   appName: String(config.appName),
+  telemetry: {
+    enabled: false,
+  },
   trustedOrigins:
     env.NODE_ENV === "development"
       ? [
