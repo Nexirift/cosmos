@@ -158,6 +158,8 @@ export const auth = betterAuth({
           "nexirift://",
           "http://localhost:3000",
           "http://localhost:8081",
+          "exp://192.168.1.232:8081",
+          "http://192.168.1.232:8081",
           "exp://100.69.69.69:8081",
           "http://100.69.69.69:8081",
         ]
