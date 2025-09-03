@@ -19,6 +19,7 @@ export enum SettingKey {
   governmentEmailDomains = "government_emails",
   requireEmailVerification = "require_email_verification",
   maximumInvitations = "maximum_invitations",
+  showPoweredBy = "show_powered_by",
 }
 
 export const DEFAULTS: Record<
@@ -39,6 +40,7 @@ export const DEFAULTS: Record<
   governmentEmailDomains: [".gov.au", ".gov", ".mil"],
   requireEmailVerification: true,
   maximumInvitations: 3,
+  showPoweredBy: true,
 };
 
 export const SETTING_KEY = "cosmos_setting";

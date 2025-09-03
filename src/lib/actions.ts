@@ -26,7 +26,7 @@ async function checkDb(key: string): Promise<DbResult> {
   }
 }
 
-async function setDb(key: string, value: SettingValue): Promise<boolean> {
+async function setDb(key: SettingKey, value: SettingValue): Promise<boolean> {
   if (!key) return false;
 
   const cacheKey = `${SETTING_KEY}:${key}`;

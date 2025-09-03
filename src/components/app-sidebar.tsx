@@ -10,7 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { checkCache, setDb } from "@/lib/actions";
 import { auth, checkPlugin } from "@/lib/auth";
+import { SettingKey } from "@/lib/defaults";
 import { cn } from "@/lib/utils";
 import {
   BuildingIcon,
@@ -114,6 +116,8 @@ export async function AppSidebar() {
 
   const pathname = headerList.get("x-current-path");
 
+  const showPoweredBy = await checkCache("show_powered_by");
+
   return (
     <Sidebar className="min-w-60">
       <SidebarContent className="gap-0">
@@ -160,6 +164,17 @@ export async function AppSidebar() {
         })}
       </SidebarContent>
       <SidebarFooter>
+        {showPoweredBy && (
+          <p
+            id="powered-by-cosmos"
+            className="text-muted-foreground pl-2 text-xs"
+          >
+            Powered by{" "}
+            <a href="https://github.com/Nexirift/cosmos" className="underline">
+              Cosmos
+            </a>
+          </p>
+        )}
         <NavUser user={session?.user as User} />
       </SidebarFooter>
     </Sidebar>
