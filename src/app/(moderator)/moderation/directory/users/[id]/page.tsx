@@ -18,7 +18,7 @@ export default async function Page({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await protect();
+  // await protect();
 
   const { id: _id } = await params;
 

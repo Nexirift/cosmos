@@ -3,7 +3,7 @@ import { BasicDetails, ClearCache, RestartSetup } from "./_components";
 import { protect } from "../../protect";
 
 export default async function Page() {
-  await protect();
+  // await protect();
 
   return (
     <main className="m-4 flex flex-col gap-4">

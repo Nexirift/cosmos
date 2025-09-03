@@ -31,6 +31,7 @@ import { AuthProvider } from "./types";
 import { log, Logger } from "./logger";
 import { checkout, polar, portal } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
+import { ac, roles } from "./permissions";
 
 // Initialize database connection
 if (db.$client && db.$client.connect) {
@@ -53,7 +54,7 @@ if (env.POLAR_ACCESS_TOKEN) {
 const config = await getAllSettings();
 
 const nexiriftPlugins = [
-  vortex(),
+  // vortex(), ughhhh it's broken
   birthday(),
   usernameAliases(),
   ...(env.INVITATION_DISABLED
@@ -75,7 +76,10 @@ const betterAuthPlugins = [
   expo(),
   openAPI(),
   bearer(),
-  admin(),
+  admin({
+    ac,
+    roles,
+  }),
   username({
     usernameValidator: async (username) => {
       return new RegExp(String(config.usernameRegexValidation)).test(username);
@@ -89,6 +93,8 @@ const betterAuthPlugins = [
     maximumSessions: 10,
   }),
   organization({
+    ac,
+    roles,
     teams: {
       enabled: true,
     },
