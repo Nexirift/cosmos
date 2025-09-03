@@ -13,7 +13,6 @@ export const env = createEnv({
 
     /* Better Auth */
     BETTER_AUTH_SECRET: z.string(),
-    BETTER_AUTH_URL: z.string().url(),
 
     /* Invitations */
     INVITATION_DISABLED: z.boolean().default(false),
@@ -73,11 +72,16 @@ export const env = createEnv({
     CORS_ALLOWED_HEADERS: z.string().default("Content-Type,Authorization"),
     CORS_ALLOWED_CREDENTIALS: z.boolean().default(true),
     CORS_EXPOSED_HEADERS: z.string().optional(),
+
+    /* Captcha */
+    CAPTCHA_SECRET_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_INVITATION_DISABLED: z.boolean().default(false),
     NEXT_PUBLIC_AUTH_BASE_URL: z.string().optional(),
     NEXT_PUBLIC_POLAR_ENABLED: z.boolean().default(false),
+    NEXT_PUBLIC_CAPTCHA_PROVIDER: z.string().optional(),
+    NEXT_PUBLIC_CAPTCHA_SITE_KEY: z.string().optional(),
   },
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
@@ -88,8 +92,7 @@ export const env = createEnv({
 
     /* Better Auth */
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
-    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
-    NEXT_PUBLIC_AUTH_BASE_URL: process.env.BETTER_AUTH_URL,
+    NEXT_PUBLIC_AUTH_BASE_URL: process.env.NEXT_PUBLIC_AUTH_BASE_URL,
 
     /* Invitations */
     INVITATION_DISABLED: process.env.INVITATION_DISABLED === "true",
@@ -161,6 +164,11 @@ export const env = createEnv({
     CORS_ALLOWED_HEADERS: process.env.CORS_ALLOWED_HEADERS,
     CORS_ALLOWED_CREDENTIALS: process.env.CORS_ALLOWED_CREDENTIALS,
     CORS_EXPOSED_HEADERS: process.env.CORS_EXPOSED_HEADERS,
+
+    /* Captcha */
+    NEXT_PUBLIC_CAPTCHA_PROVIDER: process.env.NEXT_PUBLIC_CAPTCHA_PROVIDER,
+    NEXT_PUBLIC_CAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
+    CAPTCHA_SECRET_KEY: process.env.CAPTCHA_SECRET_KEY,
   },
   skipValidation:
     !!process.env.SKIP_ENV_VALIDATION || process.env.NODE_ENV === "test",

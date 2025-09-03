@@ -76,7 +76,7 @@ export class EmailService {
     ]).then(([appName, appLogo]) => ({
       app_name: appName,
       app_logo: appLogo,
-      home_url: env.BETTER_AUTH_URL,
+      home_url: env.NEXT_PUBLIC_AUTH_BASE_URL,
       support_email: env.SUPPORT_EMAIL,
     }));
 

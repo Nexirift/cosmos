@@ -1,6 +1,7 @@
 import { SignIn } from "@/components/auth/sign-in";
 import { getEnabledProviders } from "@/lib/auth";
 import { db } from "@/db";
+import { Captcha } from "@/components/captcha";
 
 export default async function Page({
   searchParams,

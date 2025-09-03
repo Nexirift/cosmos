@@ -13,6 +13,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import {
   admin,
   bearer,
+  captcha,
   createAuthMiddleware,
   haveIBeenPwned,
   jwt,
@@ -113,7 +114,7 @@ const betterAuthPlugins = [
     loginPage: "/sign-in",
     consentPage: "/oauth/consent",
     metadata: {
-      issuer: env.BETTER_AUTH_URL + "/api/auth",
+      issuer: env.NEXT_PUBLIC_AUTH_BASE_URL + "/api/auth",
     },
   }),
   jwt(),
@@ -140,6 +141,48 @@ const betterAuthPlugins = [
         }),
       ]
     : []),
+  ...(() => {
+    const {
+      NEXT_PUBLIC_CAPTCHA_PROVIDER,
+      NEXT_PUBLIC_CAPTCHA_SITE_KEY,
+      CAPTCHA_SECRET_KEY,
+    } = env;
+
+    // Guard: ensure all required captcha env vars are present
+    if (
+      !(
+        NEXT_PUBLIC_CAPTCHA_PROVIDER &&
+        NEXT_PUBLIC_CAPTCHA_SITE_KEY &&
+        CAPTCHA_SECRET_KEY
+      )
+    )
+      return [];
+
+    // Normalize & map provider to library-supported identifier
+    const normalized = NEXT_PUBLIC_CAPTCHA_PROVIDER.toLowerCase();
+    const provider =
+      normalized === "turnstile"
+        ? "cloudflare-turnstile"
+        : normalized === "hcaptcha"
+          ? "hcaptcha"
+          : "google-recaptcha"; // default fallback
+
+    return [
+      captcha({
+        provider,
+        secretKey: CAPTCHA_SECRET_KEY,
+        siteKey:
+          normalized === "hcaptcha" ? NEXT_PUBLIC_CAPTCHA_SITE_KEY : undefined,
+        endpoints: [
+          "/sign-up/email",
+          "/sign-in/email",
+          "/forget-password",
+          "/sign-in/username",
+          "/sign-up/username",
+        ],
+      }),
+    ];
+  })(),
 ] satisfies BetterAuthPlugin[];
 
 const plugins = [...nexiriftPlugins, ...betterAuthPlugins];
@@ -209,7 +252,7 @@ export const auth = betterAuth({
             {
               name: user.name,
               url: `${
-                env.BETTER_AUTH_URL
+                env.NEXT_PUBLIC_AUTH_BASE_URL
               }/api/auth/verify-email?token=${token}&callbackURL=${
                 env.EMAIL_VERIFICATION_CALLBACK_URL
               }`,
