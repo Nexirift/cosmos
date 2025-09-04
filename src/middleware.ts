@@ -60,48 +60,10 @@ export async function middleware(request: NextRequest, response: NextResponse) {
     });
   }
 
-  // For protected routes, check session
-  if (
-    ["/dashboard", "/settings", "/violations", "/moderation"].some((route) =>
-      request.nextUrl.pathname.startsWith(route),
-    )
-  ) {
-    const { data: session } = await betterFetch<Session>(
-      "/api/auth/get-session",
-      {
-        baseURL: request.nextUrl.origin,
-        headers: {
-          cookie: request.headers.get("cookie") || "",
-        },
-      },
-    );
-
-    if (!session) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
-    }
-
-    if (
-      request.nextUrl.pathname.startsWith("/moderation") &&
-      !session.user.role?.includes("admin")
-    ) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
-    return NextResponse.next({
-      headers,
-    });
-  }
-
   // For all other routes, just continue
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/api/:path*",
-    "/dashboard/:path*",
-    "/settings/:path*",
-    "/violations/:path*",
-    "/moderation/:path*",
-  ],
+  matcher: ["/api/:path*"],
 };

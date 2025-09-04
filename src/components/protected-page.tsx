@@ -1,51 +1,66 @@
+import { auth } from "@/lib/auth";
 import { checkPermissions } from "@/lib/permissions";
-import Link from "next/link";
-import { Button } from "./ui/button";
+import { headers } from "next/headers";
+import { Gate, UnauthorizedGate } from "./gate";
 
 export type ProtectedPageProps = {
-  permissions: { [key: string]: string[] };
+  permissions?: Record<string, string[]>;
   children: React.ReactNode;
+  userId?: string | null;
 };
 
 export async function ProtectedPage({
   permissions,
   children,
+  userId,
 }: ProtectedPageProps) {
-  const hasPermission = await checkPermissions(permissions);
-  if (!hasPermission) {
-    return (
-      <div
-        className="flex flex-col gap-4 min-h-screen w-full items-center justify-center p-6 text-center"
-        role="alert"
-        aria-live="polite"
-      >
-        <h2 className="text-3xl font-semibold">Access Restricted</h2>
-        <p>
-          You currently do not have the required permissions to view this page.
-        </p>
-        {Object.keys(permissions || {}).length > 0 && (
-          <div>
-            <p className="mb-1">The following permission(s) are needed:</p>
-            <ul className="list-disc list-inside text-left">
-              {Object.entries(permissions || {})
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([domain, actions]: [string, string[]]) => (
-                  <li key={domain}>
-                    <span className="font-medium">{domain}</span>:{" "}
-                    {Array.isArray(actions)
-                      ? actions.join(", ")
-                      : String(actions)}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
-        <Button asChild>
-          <Link href="/">Go Home</Link>
-        </Button>
-      </div>
-    );
+  let effectiveUserId = userId;
+  if (!effectiveUserId) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    effectiveUserId = session?.user?.id ?? null;
   }
 
-  return <>{children}</>;
+  if (!effectiveUserId) {
+    return <UnauthorizedGate />;
+  }
+
+  const permissionEntries =
+    permissions &&
+    Object.entries(permissions).sort(([a], [b]) => a.localeCompare(b));
+
+  if (permissionEntries && permissionEntries.length > 0) {
+    const hasPermission = await checkPermissions(permissions, effectiveUserId);
+    if (!hasPermission) {
+      const requiredList = (
+        <div>
+          <p className="mb-1">The following permission(s) are needed:</p>
+          <ul className="list-disc list-inside text-left">
+            {permissionEntries.map(([domain, actions]) => (
+              <li key={domain}>
+                <span className="font-medium">{domain}</span>:{" "}
+                {actions.join(", ")}
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+
+      return (
+        <Gate
+          title="Access Restricted"
+          message={
+            <p>
+              You currently do not have the required permissions to view this
+              page.
+            </p>
+          }
+          actionHref="/"
+          actionLabel="Go Home"
+          extra={requiredList}
+        />
+      );
+    }
+  }
+
+  return children;
 }
