@@ -97,7 +97,7 @@ export async function ProfileCard({ data }: ProfileCardProps) {
   return (
     <Card className="gap-2 break-inside-avoid">
       <CardHeader>
-        <VisibleBadge />
+        <VisibleBadge role="user:profile" />
         <CardTitle className="text-xl font-bold flex items-center gap-2">
           Profile
         </CardTitle>

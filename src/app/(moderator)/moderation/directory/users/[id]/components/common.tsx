@@ -16,7 +16,7 @@ export const handleError = (e: unknown) => {
 export function VisibleBadge({ role }: { role?: string }) {
   return (
     <Badge className={presets.purple + " text-[10px] px-1 py-0.25"}>
-      Visible to {role ?? "Moderators"}
+      Visible with {role ?? "Moderators"}
     </Badge>
   );
 }

@@ -43,7 +43,7 @@ export function VerificationCard({
   return (
     <Card className="gap-2 break-inside-avoid">
       <CardHeader>
-        <VisibleBadge />
+        <VisibleBadge role="user:verification" />
         <CardTitle className="text-xl font-bold flex items-center gap-2">
           Verification
         </CardTitle>

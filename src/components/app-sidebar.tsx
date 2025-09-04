@@ -10,9 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { checkCache, setDb } from "@/lib/actions";
+import { checkCache } from "@/lib/actions";
 import { auth, checkPlugin } from "@/lib/auth";
-import { SettingKey } from "@/lib/defaults";
+import { getUserEffectivePermissions } from "@/lib/permissions";
 import { cn } from "@/lib/utils";
 import {
   BuildingIcon,
@@ -46,11 +46,7 @@ const content: Category[] = [
   {
     label: "Overview",
     items: [
-      {
-        title: "Home",
-        url: "/moderation",
-        icon: HomeIcon,
-      },
+      { title: "Home", url: "/moderation", icon: HomeIcon },
       {
         title: "Statistics",
         url: "/moderation/overview/statistics",
@@ -61,11 +57,7 @@ const content: Category[] = [
   {
     label: "Directory",
     items: [
-      {
-        title: "Users",
-        url: "/moderation/directory/users",
-        icon: UsersIcon,
-      },
+      { title: "Users", url: "/moderation/directory/users", icon: UsersIcon },
       {
         title: "Organizations",
         url: "/moderation/directory/organizations",
@@ -99,41 +91,58 @@ const content: Category[] = [
         url: "/moderation/system/settings",
         icon: SettingsIcon,
       },
-      {
-        title: "Logs",
-        url: "/moderation/system/logs",
-        icon: ScrollTextIcon,
-      },
+      { title: "Logs", url: "/moderation/system/logs", icon: ScrollTextIcon },
     ],
   },
 ];
 
 export async function AppSidebar() {
   const headerList = await headers();
-  const session = await auth.api.getSession({
-    headers: headerList,
-  });
+  const session = await auth.api.getSession({ headers: headerList });
 
-  const pathname = headerList.get("x-current-path");
+  const pathname = headerList.get("x-current-path") || "";
 
-  const showPoweredBy = await checkCache("show_powered_by");
+  const [showPoweredBy, permissionsRaw] = await Promise.all([
+    checkCache("show_powered_by"),
+    session?.user?.id
+      ? getUserEffectivePermissions(session.user.id)
+      : Promise.resolve({}),
+  ]);
+
+  const permissions: Record<string, any> = permissionsRaw || {};
+
+  const permissionMap: Record<string, boolean> = {
+    Statistics: permissions.statistics?.includes("view") ?? false,
+    Users: permissions.users?.includes("view") ?? false,
+    Organizations: permissions.organizations?.includes("view") ?? false,
+    OAuth: permissions.oauth?.includes("view") ?? false,
+    Sanctions: permissions.sanctions?.includes("view") ?? false,
+    Reports: permissions.reports?.includes("view") ?? false,
+    Settings: permissions.settings?.includes("view") ?? false,
+    Logs: permissions.logs?.includes("view") ?? false,
+  };
 
   return (
     <Sidebar className="min-w-60">
       <SidebarContent className="gap-0">
         <div className="flex items-center justify-center mt-4">
-          <Link href="/dashboard">
+          <Link href="/dashboard" aria-label="Go to dashboard">
             <Image
               src="/assets/images/banner.png"
               alt="Cosmos Logo"
               width={150}
-              height={47.65}
+              height={48}
               priority
             />
           </Link>
         </div>
         {content.map((group) => {
-          const visibleItems = group.items.filter((item) => !item.hide);
+          const visibleItems = group.items.filter((item) => {
+            if (item.hide) return false;
+            if (permissionMap[item.title] === undefined) return true; // No specific permission required
+            return permissionMap[item.title];
+          });
+
           if (visibleItems.length === 0) return null;
 
           return (
@@ -141,22 +150,27 @@ export async function AppSidebar() {
               <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {visibleItems.map((item) => (
-                    <SidebarMenuItem
-                      key={item.title}
-                      className={cn(
-                        pathname === item.url &&
-                          "bg-sidebar-accent text-sidebar-accent-foreground rounded-md",
-                      )}
-                    >
-                      <SidebarMenuButton asChild>
-                        <a href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {visibleItems.map((item) => {
+                    const isActive =
+                      pathname === item.url ||
+                      (pathname.startsWith(item.url + "/") && item.url !== "/");
+                    return (
+                      <SidebarMenuItem
+                        key={item.title}
+                        className={cn(
+                          isActive &&
+                            "bg-sidebar-accent text-sidebar-accent-foreground rounded-md",
+                        )}
+                      >
+                        <SidebarMenuButton asChild>
+                          <Link href={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

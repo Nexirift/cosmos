@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { clearCache, setDb, SettingValueInput } from "@/lib/actions";
+import { clearCache, setDb } from "@/lib/actions";
 import { DEFAULTS, SettingKey } from "@/lib/defaults";
 import { findImagesAndConvert } from "@/lib/image";
 import { forceFullRoleRebuildAction } from "@/lib/role-actions";
@@ -205,9 +205,7 @@ export function BasicDetails() {
         entries.push([SettingKey.novaUrl, formState.novaUrl]);
       }
 
-      await Promise.all(
-        entries.map(([k, v]) => setDb(k, v as SettingValueInput)),
-      );
+      await Promise.all(entries.map(([k, v]) => setDb(k, v as any)));
       await findImagesAndConvert();
       toast("Settings saved");
     } catch (err) {

@@ -1,25 +1,18 @@
-import { headers } from "next/headers";
-import { auth } from "./auth";
-import { log, Logger } from "./logger";
+import { db } from "@/db";
 import { createAccessControl } from "better-auth/plugins/access";
 import {
-  defaultStatements as adminStatements,
   adminAc as adminAdminAc,
+  defaultStatements as adminStatements,
 } from "better-auth/plugins/admin/access";
 import {
-  defaultStatements as organizationStatements,
   adminAc as organizationAdminAc,
+  defaultStatements as organizationStatements,
 } from "better-auth/plugins/organization/access";
-import { db } from "@/db";
+import { headers } from "next/headers";
+import { auth } from "./auth";
+import { acquireLock, releaseLock, scanKeys } from "./cache";
+import { log, Logger } from "./logger";
 import { redis } from "./redis";
-import {
-  key,
-  CacheDomains,
-  scanKeys,
-  mgetJSON,
-  acquireLock,
-  releaseLock,
-} from "./cache";
 
 /**
  * --------------------------------------------------------------------------------
@@ -67,13 +60,20 @@ const defaultStatements = {
 export const permissions = {
   ...defaultStatements,
   moderation: ["view"],
-  settings: [
+  statistics: ["view"],
+  users: [
     "view",
-    "basic-details",
-    "miscellaneous",
-    "clear-cache",
-    "restart-setup",
+    "profile",
+    "contact-information",
+    "verification",
+    "authentication",
   ],
+  organizations: ["view"],
+  oauth: ["view"],
+  sanctions: ["view"],
+  reports: ["view"],
+  settings: ["view", "basic-details", "miscellaneous", "clear-cache"],
+  logs: ["view"],
 } as const;
 
 /* ----------------------- Access Control / Static Roles ----------------------- */
@@ -88,7 +88,6 @@ export var ac = createAccessControl(permissions);
  */
 export const admin = ac.newRole({
   moderation: ["view"],
-  settings: ["basic-details", "miscellaneous", "clear-cache", "restart-setup"],
   ...adminAdminAc.statements,
   ...organizationAdminAc.statements,
 });
@@ -100,7 +99,7 @@ export const admin = ac.newRole({
 export var roles: Record<string, ReturnType<typeof ac.newRole>> = Object.create(
   null,
 );
-roles.admin = admin; // Ensure always present
+roles.admin = admin as unknown as ReturnType<typeof ac.newRole>;
 
 /**
  * Registry preserving the original (normalized) statements for each role.
