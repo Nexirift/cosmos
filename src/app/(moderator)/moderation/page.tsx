@@ -17,14 +17,14 @@ import { log } from "@/lib/logger";
 import { env } from "@/env";
 import { ProtectedPage } from "@/components/protected-page";
 
-export default async function Page() {
-  const getGreeting = () => {
-    const hours = new Date().getHours();
-    if (hours < 12) return "Good Morning";
-    if (hours <= 17) return "Good Afternoon";
-    return "Good Evening";
-  };
+export function getGreeting() {
+  const hours = new Date().getHours();
+  if (hours < 12) return "Good Morning";
+  if (hours <= 17) return "Good Afternoon";
+  return "Good Evening";
+}
 
+export default async function Page() {
   const data = await auth.api.getSession({
     headers: await headers(),
   });

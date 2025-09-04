@@ -22,9 +22,8 @@ function handleError(
     reportToService = false,
   } = options;
 
-  // Extract error message based on error type
+  // Derive user‑facing message
   let errorMessage: string;
-
   if (error instanceof Error) {
     errorMessage = error.message || fallbackMessage;
   } else if (
@@ -32,24 +31,58 @@ function handleError(
     error !== null &&
     "message" in error
   ) {
-    errorMessage = (error as { message: string }).message || fallbackMessage;
+    errorMessage = (error as { message?: string }).message || fallbackMessage;
   } else if (typeof error === "string") {
     errorMessage = error;
   } else {
     errorMessage = fallbackMessage;
   }
 
-  // Display toast
   toast.error(errorMessage);
 
-  // Additional error handling
   if (logToConsole) {
-    log(`An error occurred:\n${error}`, Logger.OTHER);
+    // Structured logging without accidental double stringification
+    if (error instanceof Error) {
+      const stack =
+        error.stack
+          ?.split("\n")
+          .slice(0, 8) // limit stack lines for noise reduction
+          .join("\n") || "";
+      log(
+        `[${error.name}] ${errorMessage}${stack ? "\n" + stack : ""}`,
+        Logger.OTHER,
+      );
+    } else if (typeof error === "object" && error !== null) {
+      try {
+        log(`Error object: ${JSON.stringify(error, null, 2)}`, Logger.OTHER);
+      } catch {
+        log(`Error object: (unserializable)`, Logger.OTHER);
+      }
+    } else {
+      log(String(error), Logger.OTHER);
+    }
+
+    // Log ApiError details if present
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "details" in error &&
+      (error as any).details
+    ) {
+      try {
+        log(
+          `Error details: ${JSON.stringify((error as any).details, null, 2)}`,
+          Logger.OTHER,
+        );
+      } catch {
+        log(`Error details present but not serializable`, Logger.OTHER);
+      }
+    }
   }
 
   if (reportToService) {
-    // Implement error reporting service integration here
-    // Example: errorReportingService.report(error);
+    // Hook for external error reporting service integration
+    // e.g. reportError({ message: errorMessage, error });
   }
 }
 

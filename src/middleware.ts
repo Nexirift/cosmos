@@ -36,14 +36,18 @@ export async function middleware(request: NextRequest, response: NextResponse) {
     ) {
       headers.set("Access-Control-Allow-Origin", origin);
     }
+    headers.set("Vary", "Origin");
+
+    // Ensure OPTIONS is always allowed for preflight
+    const allowedMethods = Array.from(
+      new Set([...corsOptions.allowedMethods, "OPTIONS"]),
+    );
+
     headers.set(
       "Access-Control-Allow-Credentials",
       corsOptions.credentials.toString(),
     );
-    headers.set(
-      "Access-Control-Allow-Methods",
-      corsOptions.allowedMethods.join(","),
-    );
+    headers.set("Access-Control-Allow-Methods", allowedMethods.join(","));
     headers.set(
       "Access-Control-Allow-Headers",
       corsOptions.allowedHeaders.join(","),
@@ -53,6 +57,11 @@ export async function middleware(request: NextRequest, response: NextResponse) {
       corsOptions.exposedHeaders.join(","),
     );
     headers.set("Access-Control-Max-Age", corsOptions.maxAge?.toString() ?? "");
+
+    // Short-circuit CORS preflight requests
+    if (request.method === "OPTIONS") {
+      return new NextResponse(null, { status: 204, headers });
+    }
 
     // For regular API requests, just pass the CORS headers
     return NextResponse.next({

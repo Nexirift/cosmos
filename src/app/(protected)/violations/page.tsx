@@ -79,9 +79,12 @@ function replaceTemplateVars(
   template: string,
   vars: Record<string, string>,
 ): string {
+  // Safely replace each ${var} occurrence with its value.
+  // We escape the literal characters `$` and `{` in the RegExp.
   let result = template;
   for (const [key, value] of Object.entries(vars)) {
-    result = result.replace(new RegExp(`\\$\{${key}\\}`, "g"), value);
+    const pattern = new RegExp(`\\$\\{${key}\\}`, "g");
+    result = result.replace(pattern, value);
   }
   return result;
 }
@@ -97,6 +100,15 @@ const RULES_MAP: Record<string, string> = {
 
 export default function ViolationsPage() {
   const [violations, setViolations] = useState<Violation[]>([]);
+  // Disputes are currently typed as the base Dispute objects returned by the plugin.
+  // If the client starts returning enriched objects (e.g. { ...dispute, violation: Violation | null })
+  // you can introduce a composite type instead of widening everywhere:
+  //
+  //   type DisputeWithViolation = Dispute & { violation: Violation | null };
+  //   const [disputes, setDisputes] = useState<DisputeWithViolation[]>([]);
+  //
+  // Leaving this as Dispute[] ensures we don't accidentally store null entries
+  // (which triggered the earlier type error complaining about null not assignable to Dispute).
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -344,14 +356,12 @@ function ViolationCard({ violation }: { violation: ExtendedViolation }) {
                     c.content.map((item, itemIndex: number) => {
                       const formattedService =
                         SERVICE_MAP[c.service]?.["service"];
-                      const contentMapping =
-                        SERVICE_MAP[c.service]?.[item.type];
-
-                      // Fix the type issue by handling the object case correctly
+                      const mappingRaw = SERVICE_MAP[c.service]?.[item.type];
+                      // Derive friendly content type name (object provides name, string is used directly)
                       const contentType =
-                        typeof contentMapping === "object" && contentMapping
-                          ? contentMapping.name
-                          : contentMapping || item.type;
+                        typeof mappingRaw === "object" && mappingRaw
+                          ? (mappingRaw as ServiceItemMapping).name
+                          : (mappingRaw as string) || item.type;
 
                       const uniqueKey =
                         item.id ||
@@ -360,9 +370,13 @@ function ViolationCard({ violation }: { violation: ExtendedViolation }) {
                         `${serviceIndex}-${itemIndex}`;
 
                       const url =
-                        typeof contentMapping === "object" &&
-                        "url" in contentMapping
-                          ? replaceTemplateVars(contentMapping.url || "", item)
+                        typeof mappingRaw === "object" &&
+                        mappingRaw &&
+                        "url" in mappingRaw
+                          ? replaceTemplateVars(
+                              (mappingRaw as ServiceItemMapping).url || "",
+                              item as any,
+                            )
                           : "";
 
                       return (

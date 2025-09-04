@@ -33,8 +33,8 @@ importers:
         specifier: 0.0.1-main.4c7484bbb8e6e8d7e56bec891a2d117cbc3011e8
         version: 0.0.1-main.4c7484bbb8e6e8d7e56bec891a2d117cbc3011e8(better-auth@1.3.8-beta.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(zod@4.1.5)
       '@nexirift/db':
-        specifier: 0.0.1-main.ee00d7d04076a674fa42311de080ef08940ed3c6
-        version: 0.0.1-main.ee00d7d04076a674fa42311de080ef08940ed3c6(drizzle-orm@0.44.5(@electric-sql/pglite@0.3.5)(@types/pg@8.15.5)(bun-types@1.2.19(@types/react@19.1.12))(kysely@0.28.5)(pg@8.16.3))(typescript@5.9.2)
+        specifier: 0.0.1-main.216a0e6e17c9d73b421ca3fa0b6d571087bbd33d
+        version: 0.0.1-main.216a0e6e17c9d73b421ca3fa0b6d571087bbd33d(drizzle-orm@0.44.5(@electric-sql/pglite@0.3.5)(@types/pg@8.15.5)(bun-types@1.2.19(@types/react@19.1.12))(kysely@0.28.5)(pg@8.16.3))(typescript@5.9.2)
       '@nexirift/emails':
         specifier: 0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf
         version: 0.0.1-main.618d7edfe780bac9e74313566559b7bb29b5ffcf
@@ -110,6 +110,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      cmdk:
+        specifier: ^1.1.1
+        version: 1.1.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       compress-json:
         specifier: ^3.3.0
         version: 3.3.0
@@ -1334,8 +1337,8 @@ packages:
       better-auth: '>=1.3.7'
       zod: '>=3.24.2'
 
-  '@nexirift/db@0.0.1-main.ee00d7d04076a674fa42311de080ef08940ed3c6':
-    resolution: {integrity: sha512-Xk7rxw2BW8SoRVZAsbF9D+9RAx3zQ0P9U5GaUCMZQxMFelwxvxg1MxNx5HvHUqzhYU6vCEm+0hLIskSUwlzLmg==, tarball: https://code.nexirift.com/dev/~npm/@nexirift%2Fdb/-/0.0.1-main.ee00d7d04076a674fa42311de080ef08940ed3c6/@nexirift%2Fdb-0.0.1-main.ee00d7d04076a674fa42311de080ef08940ed3c6.tgz}
+  '@nexirift/db@0.0.1-main.216a0e6e17c9d73b421ca3fa0b6d571087bbd33d':
+    resolution: {integrity: sha512-P8kmqCAhIBRstymSh91yf089FajH3E7vG9FclMXBQuYAZAhlWsqMSeQpUNeDN7r0eALk/xrI746hkY78OV0g0A==, tarball: https://code.nexirift.com/dev/~npm/@nexirift%2Fdb/-/0.0.1-main.216a0e6e17c9d73b421ca3fa0b6d571087bbd33d/@nexirift%2Fdb-0.0.1-main.216a0e6e17c9d73b421ca3fa0b6d571087bbd33d.tgz}
     peerDependencies:
       drizzle-orm: '>=0.38.4'
       typescript: ^5.8.3
@@ -2797,6 +2800,12 @@ packages:
   cluster-key-slot@1.1.2:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
     engines: {node: '>=0.10.0'}
+
+  cmdk@1.1.1:
+    resolution: {integrity: sha512-Vsv7kFaXm+ptHDMZ7izaRsP70GgrW9NBNGswt9OZaVBLlE0SNpDq8eu/VGXyF9r7M0azK3Wy7OlYXsuyYLFzHg==}
+    peerDependencies:
+      react: ^18 || ^19 || ^19.0.0-rc
+      react-dom: ^18 || ^19 || ^19.0.0-rc
 
   collapse-white-space@2.1.0:
     resolution: {integrity: sha512-loKTxY1zCOuG4j9f6EPnuyyYkf58RnhhWTvRoZEokgB+WbdXehfjFviyOVYkqzEWz1Q5kRiZdBYS5SwxbQYwzw==}
@@ -6354,7 +6363,7 @@ snapshots:
       better-auth: 1.3.8-beta.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       zod: 4.1.5
 
-  '@nexirift/db@0.0.1-main.ee00d7d04076a674fa42311de080ef08940ed3c6(drizzle-orm@0.44.5(@electric-sql/pglite@0.3.5)(@types/pg@8.15.5)(bun-types@1.2.19(@types/react@19.1.12))(kysely@0.28.5)(pg@8.16.3))(typescript@5.9.2)':
+  '@nexirift/db@0.0.1-main.216a0e6e17c9d73b421ca3fa0b6d571087bbd33d(drizzle-orm@0.44.5(@electric-sql/pglite@0.3.5)(@types/pg@8.15.5)(bun-types@1.2.19(@types/react@19.1.12))(kysely@0.28.5)(pg@8.16.3))(typescript@5.9.2)':
     dependencies:
       drizzle-orm: 0.44.5(@electric-sql/pglite@0.3.5)(@types/pg@8.15.5)(bun-types@1.2.19(@types/react@19.1.12))(kysely@0.28.5)(pg@8.16.3)
       typescript: 5.9.2
@@ -7941,6 +7950,18 @@ snapshots:
   clsx@2.1.1: {}
 
   cluster-key-slot@1.1.2: {}
+
+  cmdk@1.1.1(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.1.12)(react@19.1.1)
+      '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@radix-ui/react-id': 1.1.1(@types/react@19.1.12)(react@19.1.1)
+      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.1.9(@types/react@19.1.12))(@types/react@19.1.12)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
 
   collapse-white-space@2.1.0: {}
 

@@ -1,6 +1,7 @@
 import { env } from "./env";
 import { findImagesAndConvert } from "./lib/image";
 import { enable } from "./lib/logger";
+import { ensureRolesInitialized } from "./lib/permissions";
 
 export async function register() {
   // Initialize logging

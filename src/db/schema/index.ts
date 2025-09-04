@@ -1,4 +1,5 @@
-import { pgTable, serial, text } from "drizzle-orm/pg-core";
+import { citext } from "@nexirift/db";
+import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 // Export the default schema
 

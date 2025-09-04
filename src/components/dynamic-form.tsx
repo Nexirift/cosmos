@@ -175,11 +175,14 @@ export function DynamicForm<T extends Record<string, unknown>>({
                 <FormControl>
                   {type === "date" ? (
                     <DatePicker
-                      {...field}
                       date={
-                        field.value instanceof Date ? field.value : new Date()
+                        field.value instanceof Date
+                          ? field.value
+                          : field.value
+                            ? new Date(field.value as unknown as string)
+                            : new Date()
                       }
-                      setDate={field.onChange}
+                      setDate={(d) => field.onChange(d)}
                     />
                   ) : type === "file" ? (
                     <div className="flex items-center gap-2">

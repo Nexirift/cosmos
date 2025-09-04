@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { auth } from "@/lib/auth";
 import { oauthApplication, oauthConsent } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import {
   Card,
@@ -42,6 +42,23 @@ export default async function Page() {
     ),
   });
 
+  // Prefetch related applications to avoid N+1 queries in the render path
+  const clientIds = Array.from(
+    new Set(
+      consentedApplications
+        .map((c) => c.clientId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
+
+  const applications = clientIds.length
+    ? await db.query.oauthApplication.findMany({
+        where: inArray(oauthApplication.id, clientIds),
+      })
+    : [];
+
+  const appMap = new Map(applications.map((a) => [a.id, a]));
+
   return (
     <div className="flex flex-col p-6 gap-4">
       <h3 className="font-bold text-2xl">Authorized Applications</h3>
@@ -52,13 +69,10 @@ export default async function Page() {
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {consentedApplications.map(
-          async ({ clientId, scopes, createdAt, updatedAt }) => {
+          ({ clientId, scopes, createdAt, updatedAt }) => {
             if (!clientId) return null;
 
-            const application = await db.query.oauthApplication.findFirst({
-              where: eq(oauthApplication.id, clientId),
-            });
-
+            const application = appMap.get(clientId);
             if (!application) return null;
 
             const { name, icon } = application;

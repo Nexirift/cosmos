@@ -15,6 +15,7 @@ export enum Logger {
   APP_UPLOAD = "app:upload",
   COMPONENT_INVITE = "component:invite",
   MODERATION_PROTECT = "moderation:protect",
+  MODERATION_ROLE = "moderation:role",
   OTHER = "unknown",
 }
 
